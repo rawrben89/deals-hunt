@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>QC & ON Deals — Live</title>
+<style>
+:root {
+  --qc:#1565C0; --on:#c62828; --bg:#f2f4f7; --card:#fff;
+  --border:#e2e5eb; --text:#1a1a2e; --muted:#6b7280;
+  --green:#2e7d32; --radius:14px; --sidebar-w:210px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text)}
+
+/* ── Header ── */
+header{background:linear-gradient(135deg,var(--qc) 0%,#0d47a1 42%,#b71c1c 58%,var(--on) 100%);color:#fff;padding:22px 16px 18px;text-align:center}
+header h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
+.live-row{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.72rem}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#ef5350;animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+#fetchStatus{opacity:.8}
+
+/* ── Page layout ── */
+.page-layout{display:flex;align-items:flex-start}
+
+/* ── Sidebar ── */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#fff;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;z-index:90}
+.sidebar-hd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:12px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff}
+
+/* All-stores row */
+.store-item-all{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:.84rem;font-weight:600;color:var(--text);transition:background .12s;border-left:3px solid transparent;border-bottom:1px solid var(--border)}
+.store-item-all:hover{background:var(--bg)}
+.store-item-all.active{background:#e3f2fd;color:var(--qc);font-weight:700;border-left-color:var(--qc)}
+.store-item-all.active .sic{background:var(--qc);color:#fff}
+
+/* Category header */
+.cat-header{display:flex;align-items:center;gap:7px;padding:8px 14px 8px 12px;cursor:pointer;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);background:#f8f9fb;border-bottom:1px solid var(--border);user-select:none;transition:background .12s}
+.cat-header:hover{background:#eef0f4}
+.cat-name{flex:1}
+.cat-total{font-size:.67rem;background:#e2e5eb;border-radius:99px;padding:1px 6px;font-weight:700;flex-shrink:0}
+.cat-arrow{font-size:.65rem;transition:transform .18s;flex-shrink:0}
+.cat-header.open .cat-arrow{transform:rotate(90deg)}
+
+/* Store rows inside a category */
+.cat-stores{display:none}
+.cat-stores.open{display:block}
+.store-item{display:flex;align-items:center;gap:8px;padding:8px 14px 8px 28px;cursor:pointer;font-size:.82rem;font-weight:500;color:var(--text);transition:background .12s;border-left:3px solid transparent}
+.store-item:hover{background:var(--bg)}
+.store-item.active{background:#e3f2fd;color:var(--qc);font-weight:700;border-left-color:var(--qc)}
+.store-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.store-item-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sic{font-size:.68rem;background:var(--bg);border-radius:99px;padding:1px 6px;color:var(--muted);font-weight:700;flex-shrink:0}
+.store-item.active .sic{background:var(--qc);color:#fff}
+
+/* ── Main content ── */
+.main-content{flex:1;min-width:0}
+
+/* ── Controls ── */
+.controls{background:#fff;border-bottom:1px solid var(--border);padding:10px 14px;position:sticky;top:0;z-index:80;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.search-row{display:flex;gap:8px;max-width:640px;margin:0 auto 8px}
+#searchInput{flex:1;padding:9px 14px;border:2px solid var(--border);border-radius:10px;font-size:.9rem;transition:border-color .2s;min-width:0}
+#searchInput:focus{outline:none;border-color:var(--qc)}
+#refreshBtn{padding:9px 14px;background:var(--qc);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:700;white-space:nowrap;transition:background .2s;flex-shrink:0}
+#refreshBtn:hover{background:#0d47a1}
+#refreshBtn:disabled{background:#90caf9;cursor:default}
+
+/* category filters */
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:0}
+.fbtn{padding:4px 11px;border:1.5px solid var(--border);border-radius:99px;background:#fff;cursor:pointer;font-size:.75rem;font-weight:500;color:var(--muted);transition:all .15s;white-space:nowrap}
+.fbtn:hover{border-color:var(--qc);color:var(--qc)}
+.fbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
+
+/* ── Stats + page-size bar ── */
+.bottom-bar{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:var(--bg);flex-wrap:wrap;gap:6px}
+#statsBar{font-size:.78rem;color:var(--muted)}
+.pgsize-row{display:flex;align-items:center;gap:4px}
+.pgsize-label{font-size:.72rem;color:var(--muted);margin-right:2px}
+.pgbtn{padding:3px 9px;border:1.5px solid var(--border);border-radius:99px;background:#fff;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--muted);transition:all .15s}
+.pgbtn:hover{border-color:var(--qc);color:var(--qc)}
+.pgbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
+
+#lastUpdated{font-size:.68rem;text-align:center;color:#bbb;padding:2px 14px}
+
+/* ── Grid ── */
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;padding:12px 14px 36px;max-width:1400px;margin:0 auto}
+
+/* ── Card ── */
+.deal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
+.deal-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.10)}
+.deal-card.is-new{animation:popIn .45s ease-out}
+@keyframes popIn{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
+
+.card-top{padding:9px 12px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);gap:6px}
+.store-label{font-size:.68rem;font-weight:800;color:#fff;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+
+/* store label — background set via JS inline style */
+.store-label{background:var(--qc)}
+
+.card-meta{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.rel-tag{font-size:.65rem;color:var(--muted);white-space:nowrap}
+.src-badge{font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:99px;letter-spacing:.2px}
+.src-badge.wm{background:#e3f2fd;color:#0071CE;border:1px solid #90caf9}
+.src-badge.st{background:#fff3e0;color:#e65100;border:1px solid #ffcc80}
+.src-badge.rfd{background:#fce4ec;color:#c62828;border:1px solid #ef9a9a}
+.src-badge.flipp{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
+.clearance-tag{font-size:.62rem;font-weight:800;color:#fff;background:#e65100;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.3px}
+.date-tag{font-size:.65rem;color:var(--muted);margin-top:4px}
+
+.deal-img{width:100%;height:140px;object-fit:contain;background:#f8f9fa;border-bottom:1px solid var(--border);padding:8px}
+.card-body{padding:11px 12px;flex:1}
+.deal-title{font-size:.86rem;font-weight:600;line-height:1.45;color:var(--text);margin-bottom:6px}
+.price-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.price-now{font-size:1.05rem;font-weight:800;color:var(--on)}
+.price-was{font-size:.78rem;color:#999;text-decoration:line-through}
+.save-badge{font-size:.65rem;font-weight:800;color:#fff;background:var(--green);padding:2px 6px;border-radius:99px}
+.savings-label{font-size:.7rem;color:var(--green);font-weight:600;margin-top:2px}
+
+.card-foot{padding:8px 12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.province-tags{display:flex;gap:4px}
+.ptag{font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:99px}
+.ptag.qc{background:#e3f2fd;color:var(--qc);border:1px solid #90caf9}
+.ptag.on{background:#ffebee;color:var(--on);border:1px solid #ef9a9a}
+.view-btn{font-size:.76rem;color:var(--qc);text-decoration:none;font-weight:700;padding:5px 11px;border:1.5px solid var(--qc);border-radius:8px;transition:all .15s;white-space:nowrap}
+.view-btn:hover{background:var(--qc);color:#fff}
+.view-btn.dim{opacity:.3;cursor:default;pointer-events:none}
+
+/* ── Load more ── */
+#loadMoreRow{text-align:center;padding:12px 14px 28px}
+#loadMoreBtn{padding:10px 28px;background:#fff;color:var(--qc);border:2px solid var(--qc);border-radius:10px;cursor:pointer;font-size:.88rem;font-weight:700;transition:all .2s}
+#loadMoreBtn:hover{background:var(--qc);color:#fff}
+
+/* ── State boxes ── */
+.state-box{grid-column:1/-1;text-align:center;padding:50px 20px}
+.spinner{display:inline-block;width:38px;height:38px;border:4px solid #e0e0e0;border-top-color:var(--qc);border-radius:50%;animation:spin .75s linear infinite;margin-bottom:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.state-box h2{font-size:1rem;margin-bottom:5px}
+.state-box p{font-size:.82rem;color:var(--muted)}
+.retry-btn{margin-top:14px;padding:9px 24px;background:var(--qc);color:#fff;border:none;border-radius:10px;font-size:.88rem;cursor:pointer;font-weight:700}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a1a2e;color:#fff;padding:11px 20px;border-radius:12px;font-size:.84rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);white-space:nowrap;max-width:90vw}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.toast-act{color:#90caf9;margin-left:10px;cursor:pointer;text-decoration:underline}
+
+/* ── Footer ── */
+footer{text-align:center;padding:16px;font-size:.73rem;color:var(--muted);border-top:1px solid var(--border);background:#fff}
+footer a{color:var(--qc)}
+
+/* ── Mobile ── */
+@media(max-width:768px){
+  .page-layout{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
+  .sidebar-hd{position:static;padding:6px 12px 4px}
+  #storeList{display:flex;overflow-x:auto;padding:4px 10px 8px;gap:5px;scrollbar-width:none;align-items:center}
+  #storeList::-webkit-scrollbar{display:none}
+  /* flatten accordion on mobile */
+  .cat-group{display:contents}
+  .cat-header{display:none}
+  .cat-stores{display:contents !important}
+  .store-item-all,.store-item{
+    flex-shrink:0;padding:4px 11px;border:1.5px solid var(--border);
+    border-radius:99px;font-size:.73rem;white-space:nowrap;
+    border-left:1.5px solid var(--border);background:#fff
+  }
+  .store-item-all.active,.store-item.active{
+    background:var(--qc);border-color:var(--qc);color:#fff;border-left-color:var(--qc)
+  }
+  .store-item-all.active .sic,.store-item.active .sic{display:none}
+  .store-dot{display:none}
+  .sic{display:none}
+  .deals-grid{grid-template-columns:1fr 1fr;gap:10px;padding:10px 10px 28px}
+  .deal-img{height:110px}
+  .deal-title{font-size:.78rem}
+  .price-now{font-size:.95rem}
+  .view-btn{font-size:.7rem;padding:4px 9px}
+}
+@media(max-width:400px){
+  .deals-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1>🍁 Quebec & Ontario Deals</h1>
+  <p>Live price drops &amp; sales from Canadian retailers</p>
+  <div class="live-row">
+    <span class="live-dot"></span>
+    <span id="fetchStatus">Connecting…</span>
+  </div>
+</header>
+
+<div class="page-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-hd">Stores</div>
+    <div id="storeList"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- CONTROLS -->
+    <div class="controls">
+      <div class="search-row">
+        <input type="search" id="searchInput" placeholder='Search (e.g. "TV", "drill", "shoes")…' autocomplete="off">
+        <button id="refreshBtn" onclick="manualRefresh()">⟳ Refresh</button>
+      </div>
+      <div class="filter-row" id="catFilters">
+        <button class="fbtn active" data-cat="all">All</button>
+        <button class="fbtn" data-cat="electronics">Electronics</button>
+        <button class="fbtn" data-cat="home">Home &amp; Tools</button>
+        <button class="fbtn" data-cat="fashion">Fashion</button>
+        <button class="fbtn" data-cat="sports">Sports</button>
+        <button class="fbtn" data-cat="toys">Toys</button>
+        <button class="fbtn" data-cat="office">Office</button>
+        <button class="fbtn" data-cat="auto">Auto</button>
+        <button class="fbtn" data-cat="health">Health &amp; Beauty</button>
+        <button class="fbtn" data-cat="food">Food</button>
+      </div>
+    </div>
+
+    <!-- STATS + PAGE SIZE -->
+    <div class="bottom-bar">
+      <div id="statsBar">Loading…</div>
+      <div class="pgsize-row">
+        <span class="pgsize-label">Show:</span>
+        <button class="pgbtn" data-pg="20">20</button>
+        <button class="pgbtn" data-pg="40">40</button>
+        <button class="pgbtn active" data-pg="60">60</button>
+        <button class="pgbtn" data-pg="80">80</button>
+        <button class="pgbtn" data-pg="100">100</button>
+        <button class="pgbtn" data-pg="0">All</button>
+      </div>
+    </div>
+    <div id="lastUpdated"></div>
+
+    <!-- DEALS -->
+    <div id="root">
+      <div class="deals-grid">
+        <div class="state-box">
+          <div class="spinner"></div>
+          <h2>Fetching live deals…</h2>
+          <p>Contacting Walmart.ca, StockTrack &amp; more</p>
+        </div>
+      </div>
+    </div>
+    <div id="loadMoreRow" style="display:none">
+      <button id="loadMoreBtn" onclick="loadMore()">Load more deals ↓</button>
+    </div>
+
+    <footer>
+      Data fetched live from <a href="https://www.walmart.ca" target="_blank" rel="noopener">Walmart.ca</a>
+      and <a href="https://stocktrack.ca" target="_blank" rel="noopener">StockTrack.ca</a>
+      (Staples, Home Depot, Rona, Best Buy, Shoppers Drug Mart &amp; more).
+      Prices shown for Quebec &amp; Ontario. Always verify before visiting.
+    </footer>
+
+  </div><!-- /main-content -->
+</div><!-- /page-layout -->
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   State
+══════════════════════════════════════ */
+let allDeals   = [];
+let filtered   = [];
+let pageSize   = 60;
+let shown      = 0;
+let activeCat  = 'all';
+let activeStore= 'all';
+let searchQ    = '';
+
+/* ══════════════════════════════════════
+   Category detection
+══════════════════════════════════════ */
+const CAT_KW = {
+  electronics:['tv','television','monitor','laptop','computer','tablet','ipad','phone',
+    'iphone','android','samsung','apple','headphone','earbuds','speaker','camera',
+    'gaming','ps5','playstation','xbox','nintendo','switch','gpu','cpu','ssd','nvme',
+    'router','wifi','smart home','alexa','nest','drone','macbook','lenovo','dell',
+    'asus','acer','hp ','projector','printer','scanner','ink','cartridge','keyboard',
+    'mouse','webcam','charger','cable','ups','tech','bestbuy','staples'],
+  home:['furniture','sofa','couch','bed','mattress','desk','chair','kitchen',
+    'appliance','vacuum','washer','dryer','fridge','dishwasher','oven','microwave',
+    'blender','toaster','home','garden','tool','drill','saw','workbench','storage',
+    'shed','ikea','wayfair','home depot','rona','lowe','toolbox','ladder','paint',
+    'hardware','plumbing','lighting','canadian tire home','reno'],
+  fashion:['clothing','shirt','pants','dress','shoe','sneaker','jacket','coat',
+    'jeans','sweater','hoodie','fashion','apparel','boot','sandal','sock','underwear',
+    'h&m','zara','gap','old navy','roots','lululemon','winners','hudson','uniqlo',
+    'aritzia','aldo','skechers','nike','adidas'],
+  sports:['sport','fitness','exercise','gym','bike','bicycle','kayak','canoe',
+    'tent','camping','hiking','yoga','weight','dumbbell','treadmill','elliptical',
+    'outdoor','ski','snowboard','skate','golf','tennis','basketball','soccer',
+    'hockey','swimming','pool','sport chek','mec','atmosphere','decathlon',
+    'princess auto'],
+  toys:['toy','lego','doll','puzzle','board game','baby','infant','kid','child',
+    'action figure','stuffed','rc car','craft kit','toys r','playmat'],
+  office:['office','stapler','pen','notebook','binder','laminator','shredder',
+    'calculator','toner','supply','ergonomic','bureau en gros','staples office'],
+  auto:['car ','vehicle','auto ','tire ','oil change','motor oil','engine','fuel',
+    'garage','wiper','brake','muffler','seat cover','princess auto','canadian tire auto'],
+  health:['vitamin','supplement','protein','medicine','pharmacy','cosmetic','beauty',
+    'lotion','sunscreen','shampoo','cleanser','skincare','makeup','shoppers',
+    'rexall','jean coutu','drug','health'],
+  food:['food','grocery','snack','beverage','coffee','tea','protein bar','organic',
+    'frozen','fresh','produce','meat','chicken','walmart grocery'],
+};
+
+function detectCat(d) {
+  if (d.category) {
+    const lc = d.category.toLowerCase();
+    if (/electron|comput|tv|phone|tablet|printer|ink|camera/i.test(lc)) return 'electronics';
+    if (/furniture|appliance|kitchen|garden|tool|home|hardware|decor/i.test(lc)) return 'home';
+    if (/cloth|apparel|shoe|fashion|wear|access/i.test(lc)) return 'fashion';
+    if (/sport|outdoor|fitness|bike|camp|exercise/i.test(lc)) return 'sports';
+    if (/toy|baby|child|game board|infant/i.test(lc)) return 'toys';
+    if (/office|supply|stationery/i.test(lc)) return 'office';
+    if (/auto|tire|vehicle|car|motor/i.test(lc)) return 'auto';
+    if (/health|beauty|vitamin|pharma|personal care|cosmetic/i.test(lc)) return 'health';
+    if (/food|grocery|beverage|snack/i.test(lc)) return 'food';
+  }
+  const text = (d.title + ' ' + (d.store||'')).toLowerCase();
+  for (const [cat, kws] of Object.entries(CAT_KW))
+    if (kws.some(kw => text.includes(kw))) return cat;
+  return 'other';
+}
+
+/* ══════════════════════════════════════
+   Store colours
+══════════════════════════════════════ */
+const STORE_COLORS = {
+  // General
+  'Walmart':'#0071CE','Canadian Tire':'#c62828','Costco':'#1b3a7a',
+  'Giant Tiger':'#f57c00','Dollarama':'#c62828','Hart Stores':'#e65100',
+  'Rossy':'#1565C0',
+  // Electronics
+  'Best Buy':'#1a1aff','The Source':'#1a237e','EB Games Canada':'#003087',
+  'Bureau en gros':'#cc0000','Newegg':'#f57f17','2001 Audio Video':'#b71c1c',
+  'Centre Hi-Fi':'#1a237e','Tanguay':'#d32f2f',
+  // Home improvement
+  'Home Depot':'#e65100','Rona':'#1b5e20',"Lowe's":'#004990',
+  'Home Hardware':'#c62828','RONA & RONA +':'#1b5e20',
+  'Canac':'#e65100','Patrick Morin':'#1565C0','BMR':'#388e3c',
+  'Bath Depot':'#0288d1','Club Piscine':'#1565C0',
+  // Grocery — QC
+  'Metro':'#d32f2f','IGA':'#e53935','Provigo':'#4caf50',
+  'Maxi':'#7b1fa2','Super C':'#bf360c','Adonis':'#1565C0',
+  'Marché Richelieu':'#2e7d32','Bonanza':'#e65100',
+  'Wholesale Club and Club Entrepôt':'#1565C0','Mayrand':'#37474f',
+  'Avril Supermarché Santé':'#388e3c','PA Nature':'#2e7d32',
+  'Rachelle Béry':'#1b5e20','Marché Bonichoix':'#0277bd',
+  'Les Marchés Tradition':'#2e7d32','M&M Food Market':'#c62828',
+  // Grocery — ON
+  'Real Canadian Superstore':'#e53935','Your Independent Grocer':'#4caf50',
+  'Valu-Mart':'#d32f2f','Independent City Market':'#388e3c',
+  'T&T Supermarket':'#d32f2f','Nations Fresh Foods':'#1565C0',
+  'No Frills':'#fbc02d','Sobeys':'#e53935','Food Basics':'#d32f2f',
+  'FreshCo':'#1b5e20','Loblaws':'#fbc02d','Fortinos':'#c62828',
+  'Farm Boy':'#2e7d32','Longos':'#c62828','Foodland':'#1565C0',
+  'H Mart':'#c62828','Highland Farms':'#2e7d32',
+  'Btrust Supermarket':'#c62828','Chalo FreshCo':'#1b5e20',
+  // Pharmacy
+  'Jean Coutu':'#2e7d32','Pharmaprix':'#00796b','Brunet':'#0288d1',
+  'Familiprix':'#00695c','Uniprix':'#00838f','Proxim':'#00695c',
+  'Shoppers Drug Mart':'#c62828','Rexall':'#2196f3',
+  'Guardian':'#1565C0','Pharmasave':'#0288d1',
+  // Sporting / Outdoor
+  'Sport Chek':'#b71c1c','Princess Auto':'#6a1b9a','Decathlon':'#0288d1',
+  'SAIL':'#1565C0','Sports Experts':'#1a237e','Atmosphere':'#455a64',
+  "Cabela's & Bass Pro":'#6d4c41','Bumper to Bumper':'#37474f',
+  // Furniture / Home decor
+  'IKEA':'#0058a3',"Leon's":'#6a1b9a','The Brick':'#e65100',
+  'JYSK':'#003ea0','Linen Chest':'#8d1c0a','Dormez-Vous':'#37474f',
+  'Wayfair':'#7b1fa2','Sleep Country Canada':'#1565C0','La-Z-Boy':'#37474f',
+  // Pets
+  'PetSmart':'#1565C0','Mondou':'#0288d1',
+  'Pet Valu':'#e65100',"Ren's Pets":'#2e7d32',
+  // Arts & Crafts
+  'Michaels Canada':'#e53935',
+  'Long & McQuade Musical Instruments':'#1565C0',
+  // Specialty
+  'Staples':'#cc0000','Toys R Us':'#bf360c',
+  'SAQ':'#7b1fa2','LCBO':'#c62828','The Beer Store':'#d32f2f',
+  'Sephora':'#212121',
+};
+function storeColor(name){return STORE_COLORS[name.trim()]||'#546e7a'}
+
+/* ══════════════════════════════════════
+   Fetch
+══════════════════════════════════════ */
+async function loadDeals(spinner=true) {
+  if (spinner) showLoading();
+  const btn=document.getElementById('refreshBtn');
+  btn.disabled=true; btn.textContent='⟳ Loading…';
+  try {
+    const res = await fetch('/api/deals');
+    if (res.status === 503) {
+      document.getElementById('fetchStatus').textContent = 'Fetching from sources, please wait…';
+      setTimeout(() => loadDeals(false), 3000);
+      return;
+    }
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    if (!data.deals?.length) throw new Error('No deals returned');
+
+    allDeals = data.deals.map(d=>({...d, _cat:detectCat(d)}));
+
+    document.getElementById('fetchStatus').textContent =
+      `${data.count} deals · updated ${fmtTime(data.fetched)}`;
+    const parts = [`${data.walmart} Walmart`, `${data.stocktrack} StockTrack`];
+    if (data.redflagdeals) parts.push(`${data.redflagdeals} RFD`);
+    if (data.flipp) parts.push(`${data.flipp} Flipp`);
+    document.getElementById('lastUpdated').textContent = parts.join(' · ');
+
+    buildStoreList(data.storeCounts);
+    applyFilters();
+  } catch(e) {
+    console.error(e);
+    showError(e.message);
+  } finally {
+    btn.disabled=false; btn.textContent='⟳ Refresh';
+  }
+}
+
+function manualRefresh(){loadDeals(false)}
+
+/* auto-refresh every 60 s */
+setInterval(()=>loadDeals(false), 60000);
+
+/* ══════════════════════════════════════
+   SSE
+══════════════════════════════════════ */
+function connectSSE(){
+  const es=new EventSource('/api/events');
+  es.onmessage=e=>{
+    try{
+      const msg=JSON.parse(e.data);
+      if(msg.type==='update'){
+        fetch('/api/deals').then(r=>r.json()).then(data=>{
+          if(!data.deals?.length) return;
+          const prevIds=new Set(allDeals.map(d=>d.tid));
+          const newOnes=data.deals.filter(d=>!prevIds.has(d.tid));
+          allDeals=data.deals.map(d=>({...d,_cat:detectCat(d)}));
+          document.getElementById('fetchStatus').textContent=
+            `${data.count} deals · updated ${fmtTime(data.fetched)}`;
+          const pts=[`${data.walmart} Walmart`,`${data.stocktrack} StockTrack`];
+          if(data.redflagdeals) pts.push(`${data.redflagdeals} RFD`);
+          if(data.flipp) pts.push(`${data.flipp} Flipp`);
+          document.getElementById('lastUpdated').textContent=pts.join(' · ');
+          buildStoreList(data.storeCounts);
+          applyFilters(newOnes.map(d=>d.tid));
+          if(newOnes.length)
+            showToast(`🆕 ${newOnes.length} new deal${newOnes.length>1?'s':''} found!`,
+              'View', ()=>{ activeStore='all'; activeCat='all'; applyFilters(); });
+        }).catch(()=>{});
+      }
+    }catch(_){}
+  };
+  es.onerror=()=>{es.close();setTimeout(connectSSE,30000)};
+}
+
+/* ══════════════════════════════════════
+   Store → Category mapping
+══════════════════════════════════════ */
+const STORE_CAT = {
+  // General Merchandise
+  'Walmart':'General','Costco':'General','Giant Tiger':'General',
+  'Rossy':'General','Hart Stores':'General','Canadian Tire':'General',
+  'Dollarama':'General',
+  // Grocery — QC
+  'Metro':'Grocery','IGA':'Grocery','Provigo':'Grocery','Maxi':'Grocery',
+  'Super C':'Grocery','Adonis':'Grocery','T&T Supermarket':'Grocery',
+  'Wholesale Club and Club Entrepôt':'Grocery',
+  'M&M Food Market':'Grocery','Mayrand':'Grocery','PA Nature':'Grocery',
+  'Rachelle Béry':'Grocery','Marché Bonichoix':'Grocery',
+  'Marché Richelieu':'Grocery','Avril Supermarché Santé':'Grocery',
+  'Les Marchés Tradition':'Grocery',
+  'Marché Fu Tai':'Grocery','Val-Mont':'Grocery',
+  'Proxi':'Grocery','Aubut':'Grocery','Marche C & T':'Grocery',
+  'Intermarche Palumbo':'Grocery','Marché Newon':'Grocery',
+  'Marche Nuvo Market':'Grocery','Grand Marché Col-Fax':'Grocery',
+  'Marché Salaberry':'Grocery','Marché Ami':'Grocery',
+  'Marché Sheng Tai':'Grocery','Marché Lian Tai':'Grocery',
+  'Euro Marche':'Grocery','Supermarche Aures':'Grocery',
+  'MarchesTAU':'Grocery',"L'Inter-Marché International":'Grocery',
+  'Vie En Vert':'Grocery','Pasquier':'Grocery',
+  'Bonanza':'Grocery','Supermarche PA':'Grocery','Kim Phat':'Grocery',
+  // Grocery — ON
+  'Real Canadian Superstore':'Grocery','Your Independent Grocer':'Grocery',
+  'Valu-Mart':'Grocery','Independent City Market':'Grocery',
+  'Nations Fresh Foods':'Grocery','Btrust Supermarket':'Grocery',
+  'No Frills':'Grocery','Sobeys':'Grocery','Food Basics':'Grocery',
+  'FreshCo':'Grocery','Loblaws':'Grocery','Fortinos':'Grocery',
+  'Farm Boy':'Grocery','Longos':'Grocery','Foodland':'Grocery',
+  'H Mart':'Grocery','Highland Farms':'Grocery','Chalo FreshCo':'Grocery',
+  'Fiesta Farms':'Grocery','Lady York Foods':'Grocery',
+  'Oceans Fresh Food Market':'Grocery','Galleria Supermarket':'Grocery',
+  'Foody Mart':'Grocery','Foody World':'Grocery',
+  'Seasons Food Mart':'Grocery','Cataldi':'Grocery',
+  'Terra Foodmart':'Grocery','Fresh Land Supermarket':'Grocery',
+  'Fusion Supermarket':'Grocery','Starsky':'Grocery',
+  'A1 Cash + Carry':'Grocery','Bestco Foodmart':'Grocery',
+  'Blue Sky Supermarket':'Grocery','Danforth Food Market':'Grocery',
+  'Pat Mart':'Grocery','Tone Tai Supermarket':'Grocery',
+  'Winco Food Mart':'Grocery','Yuan Ming Supermarket':'Grocery',
+  // Pharmacy
+  'Jean Coutu':'Pharmacy','Pharmaprix':'Pharmacy','Familiprix':'Pharmacy',
+  'Brunet':'Pharmacy','Shoppers Drug Mart':'Pharmacy','Uniprix':'Pharmacy',
+  'Proxim':'Pharmacy','Accès pharma':'Pharmacy','Proximed':'Pharmacy',
+  'Uniprix Sante':'Pharmacy','Ki Nature & Santé':'Pharmacy',
+  'Panier Santé La Prairie':'Pharmacy',
+  'Rexall':'Pharmacy','Guardian':'Pharmacy','Pharmasave':'Pharmacy',
+  // Electronics
+  'Best Buy':'Electronics','EB Games Canada':'Electronics',
+  'The Source':'Electronics','Bureau en gros':'Electronics',
+  'Staples':'Electronics','Centre Hi-Fi':'Electronics','Tanguay':'Electronics',
+  'Newegg':'Electronics','2001 Audio Video':'Electronics',
+  // Home & Garden
+  'Home Depot':'Home & Garden','RONA & RONA +':'Home & Garden',
+  'Home Hardware':'Home & Garden','Canac':'Home & Garden',
+  'Patrick Morin':'Home & Garden','BMR':'Home & Garden',
+  'Bath Depot':'Home & Garden','Club Piscine':'Home & Garden',
+  'Dulux':'Home & Garden','Deco Surfaces':'Home & Garden',
+  'Matério':'Home & Garden','Matériaux Pont Masson':'Home & Garden',
+  'Gagnon - La Grande Quincaillerie':'Home & Garden',
+  'Doyon Després':'Home & Garden','Belmont Sécurité':'Home & Garden',
+  'Summit Tools':'Home & Garden',
+  // Furniture
+  "Leon's":'Furniture','Léon':'Furniture','The Brick':'Furniture',
+  'JYSK':'Furniture','IKEA':'Furniture','Dormez-Vous':'Furniture',
+  'Linen Chest':'Furniture','Stokes':'Furniture',
+  'Meubles RD':'Furniture','Ameublement Machabée':'Furniture',
+  'Wayfair':'Furniture','Sleep Country Canada':'Furniture','La-Z-Boy':'Furniture',
+  // Sporting & Outdoor
+  'Sport Chek':'Sporting & Outdoor','SAIL':'Sporting & Outdoor',
+  'Sports Experts':'Sporting & Outdoor','Atmosphere':'Sporting & Outdoor',
+  'Decathlon':'Sporting & Outdoor','Princess Auto':'Sporting & Outdoor',
+  'Bumper to Bumper':'Sporting & Outdoor',"Cabela's & Bass Pro":'Sporting & Outdoor',
+  'PartSource':'Sporting & Outdoor',
+  // Pets
+  'PetSmart':'Pets','Mondou':'Pets','Animo Etc.':'Pets','Chico':'Pets',
+  'Pet Valu':'Pets',"Ren's Pets":'Pets',
+  // Arts & Crafts
+  'Michaels Canada':'Arts & Crafts',
+  'Long & McQuade Musical Instruments':'Arts & Crafts',
+  'Fabricland':'Arts & Crafts',
+  // Specialty
+  'SAQ':'Specialty','LCBO':'Specialty','The Beer Store':'Specialty',
+  'Sephora':'Specialty','Party City':'Specialty','Showcase':'Specialty',
+  "McDonald's":'Specialty','TeleTime':'Specialty','On the Run':'Specialty',
+};
+
+const CAT_ORDER = [
+  'General','Grocery','Pharmacy','Electronics',
+  'Home & Garden','Furniture','Sporting & Outdoor',
+  'Pets','Arts & Crafts','Specialty','Other',
+];
+
+/* ══════════════════════════════════════
+   Flipp → retailer search URL
+══════════════════════════════════════ */
+function flippSearchUrl(store, title){
+  const s=store.trim();
+  const q=encodeURIComponent(title);
+  const map={
+    // Grocery — QC
+    'Metro':                         `https://www.metro.ca/en/search?filter=&query=${q}`,
+    'IGA':                           `https://www.iga.net/en/search?q=${q}`,
+    'Maxi':                          `https://www.maxi.ca/en/search?q=${q}`,
+    'Super C':                       `https://www.superc.ca/en/search?q=${q}`,
+    'Provigo':                       `https://www.provigo.ca/en/search?q=${q}`,
+    'Adonis':                        `https://www.adonisepicerie.com/en/search?q=${q}`,
+    'Avril Supermarché Santé':       `https://www.avril.ca/en/search?q=${q}`,
+    'Rachelle Béry':                 `https://www.rachellebery.com/en/search?q=${q}`,
+    'Mayrand':                       `https://www.mayrand.ca/en-CA/search?q=${q}`,
+    'Marché Richelieu':              `https://www.marcherichelieu.ca/en/search?q=${q}`,
+    'M&M Food Market':               `https://www.mmfoodmarket.com/en/search?q=${q}`,
+    'Wholesale Club and Club Entrepôt':`https://www.wholesaleclub.ca/en/search?q=${q}`,
+    // Grocery — ON
+    'Real Canadian Superstore':      `https://www.realcanadiansuperstore.ca/en/search?q=${q}`,
+    'Your Independent Grocer':       `https://www.yourindependentgrocer.ca/en/search?q=${q}`,
+    'No Frills':                     `https://www.nofrills.ca/search?q=${q}`,
+    'Sobeys':                        `https://www.sobeys.com/en/search/?q=${q}`,
+    'Loblaws':                       `https://www.loblaws.ca/en/search?q=${q}`,
+    'Food Basics':                   `https://www.foodbasics.ca/en/search?q=${q}`,
+    'FreshCo':                       `https://www.freshco.com/search?q=${q}`,
+    'Chalo FreshCo':                 `https://www.freshco.com/search?q=${q}`,
+    'Fortinos':                      `https://www.fortinos.ca/en/search?q=${q}`,
+    'Farm Boy':                      `https://www.farmboy.ca/products/?q=${q}`,
+    'Longos':                        `https://www.longos.com/search?q=${q}`,
+    'Foodland':                      `https://www.foodland.ca/en/search?q=${q}`,
+    'Valu-Mart':                     `https://www.valumart.ca/en/search?q=${q}`,
+    'T&T Supermarket':               `https://www.tntsupermarket.com/search?q=${q}`,
+    'Walmart':                       `https://www.walmart.ca/en/search?q=${q}`,
+    // General
+    'Costco':                        `https://www.costco.ca/s?keyword=${q}`,
+    'Giant Tiger':                   `https://www.gianttiger.com/pages/search-results?q=${q}`,
+    'Rossy':                         `https://www.rossy.ca/en/search?q=${q}`,
+    // Pharmacy
+    'Jean Coutu':                    `https://www.jeancoutu.com/en/search/?q=${q}`,
+    'Pharmaprix':                    `https://www.shoppersdrugmart.ca/en/search?q=${q}`,
+    'Shoppers Drug Mart':            `https://www.shoppersdrugmart.ca/en/search?q=${q}`,
+    'Familiprix':                    `https://www.familiprix.com/en/search?q=${q}`,
+    'Brunet':                        `https://www.brunet.ca/en/search?q=${q}`,
+    'Uniprix':                       `https://www.uniprix.com/en/search?q=${q}`,
+    'Uniprix Sante':                 `https://www.uniprix.com/en/search?q=${q}`,
+    'Proxim':                        `https://www.proxim.ca/en/search?q=${q}`,
+    'Proximed':                      `https://www.proximed.ca/en/search?q=${q}`,
+    'Rexall':                        `https://www.rexall.ca/search?q=${q}`,
+    'Guardian':                      `https://www.guardian-drugs.ca/search?q=${q}`,
+    'Pharmasave':                    `https://www.pharmasave.com/search/?q=${q}`,
+    'I.D.A.':                        `https://www.ida.ca/search?q=${q}`,
+    // Electronics
+    'Best Buy':                      `https://www.bestbuy.ca/en-ca/search?query=${q}`,
+    'Staples':                       `https://www.staples.ca/en/search?query=${q}`,
+    'Bureau en gros':                `https://www.bureauengros.com/fr/search?query=${q}`,
+    'EB Games Canada':               `https://www.ebgames.ca/search?q=${q}`,
+    'Newegg':                        `https://www.newegg.ca/p/pl?d=${q}`,
+    '2001 Audio Video':              `https://www.2001av.com/en-ca/search?q=${q}`,
+    'Tanguay':                       `https://www.tanguay.ca/en/search?q=${q}`,
+    // Home & Garden
+    'Home Depot':                    `https://www.homedepot.ca/en/home/search.html?q=${q}`,
+    'RONA & RONA +':                 `https://www.rona.ca/en/search?q=${q}`,
+    'Rona':                          `https://www.rona.ca/en/search?q=${q}`,
+    'Home Hardware':                 `https://www.homehardware.ca/en/search?q=${q}`,
+    'Canac':                         `https://www.canac.ca/en/search?q=${q}`,
+    'Patrick Morin':                 `https://www.patrickmorin.com/en/search?q=${q}`,
+    'BMR':                           `https://www.bmr.ca/en/search?q=${q}`,
+    'Bath Depot':                    `https://www.bathdepot.ca/en/search?q=${q}`,
+    'Bain Depot':                    `https://www.bathdepot.ca/fr/search?q=${q}`,
+    'Club Piscine':                  `https://www.clubpiscine.ca/en/search?q=${q}`,
+    // Furniture
+    'Canadian Tire':                 `https://www.canadiantire.ca/en/search-results.html?q=${q}`,
+    'IKEA':                          `https://www.ikea.com/ca/en/search/?q=${q}`,
+    'JYSK':                          `https://jysk.ca/search?q=${q}`,
+    "Leon's":                        `https://www.leons.ca/search?q=${q}`,
+    'Léon':                          `https://www.leons.ca/search?q=${q}`,
+    'The Brick':                     `https://www.thebrick.com/search?q=${q}`,
+    'Linen Chest':                   `https://www.linenchest.com/en-ca/search?q=${q}`,
+    'Stokes':                        `https://www.stokes.ca/en/search?q=${q}`,
+    'Dormez-Vous':                   `https://www.dormez-vous.com/en/search?q=${q}`,
+    'Wayfair':                       `https://www.wayfair.ca/keyword.php?keyword=${q}`,
+    'Sleep Country Canada':          `https://www.sleepcountry.ca/pages/search-results?q=${q}`,
+    'La-Z-Boy':                      `https://www.la-z-boy.com/ca/en/search/?q=${q}`,
+    // Sporting & Outdoor
+    'Sport Chek':                    `https://www.sportchek.ca/search?q=${q}`,
+    'Sports Experts':                `https://www.sportsexperts.ca/search?q=${q}`,
+    'SAIL':                          `https://www.sail.ca/search?q=${q}`,
+    'Decathlon':                     `https://www.decathlon.ca/en/search?q=${q}`,
+    'Princess Auto':                 `https://www.princessauto.com/en/search#q=${q}`,
+    "Cabela's & Bass Pro":           `https://www.cabelas.ca/en-CA/search?q=${q}`,
+    // Pets
+    'PetSmart':                      `https://www.petsmart.ca/search/?q=${q}`,
+    'Pet Valu':                      `https://www.petvalu.com/en-ca/search?q=${q}`,
+    "Ren's Pets":                    `https://www.renspets.com/search?type=product&q=${q}`,
+    'Mondou':                        `https://www.mondou.com/en-CA/search?q=${q}`,
+    // Arts & Crafts
+    'Michaels Canada':               `https://canada.michaels.com/en/search?q=${q}`,
+    'Long & McQuade Musical Instruments':`https://www.long-mcquade.com/search/?q=${q}`,
+    // Specialty
+    'SAQ':                           `https://www.saq.com/en/catalogsearch/result/?q=${q}`,
+    'LCBO':                          `https://www.lcbo.com/en/search?searchTerm=${q}`,
+    'The Beer Store':                `https://www.thebeerstore.ca/search?q=${q}`,
+    'Sephora':                       `https://www.sephora.com/ca/en/search?q=${q}`,
+  };
+  return map[s]||'';
+}
+
+/* ══════════════════════════════════════
+   Sidebar — category accordion
+══════════════════════════════════════ */
+function buildStoreList(counts){
+  const list=document.getElementById('storeList');
+  const total=Object.values(counts).reduce((s,c)=>s+c,0);
+
+  // Group stores by category
+  const groups={};
+  for(const [store,cnt] of Object.entries(counts)){
+    if(!cnt) continue;
+    const cat=STORE_CAT[store]||'Other';
+    if(!groups[cat]) groups[cat]=[];
+    groups[cat].push([store,cnt]);
+  }
+  for(const cat in groups) groups[cat].sort((a,b)=>b[1]-a[1]);
+
+  // "All stores" row at top
+  let html=`<div class="store-item-all ${activeStore==='all'?'active':''}" data-store="all">
+    <span class="store-dot" style="background:#555"></span>
+    <span class="store-item-name" style="flex:1">All Stores</span>
+    <span class="sic">${total}</span>
+  </div>`;
+
+  // Categories in order
+  const rendered=new Set();
+  const orderedCats=[...CAT_ORDER.filter(c=>groups[c]),
+                     ...Object.keys(groups).filter(c=>!CAT_ORDER.includes(c))];
+
+  for(const cat of orderedCats){
+    const stores=groups[cat]||[];
+    if(!stores.length) continue;
+    rendered.add(cat);
+    const catTotal=stores.reduce((s,[,c])=>s+c,0);
+    const isOpen=stores.some(([s])=>s===activeStore);
+
+    html+=`<div class="cat-group">
+      <div class="cat-header ${isOpen?'open':''}" data-cat="${esc(cat)}">
+        <span class="cat-name">${esc(cat)}</span>
+        <span class="cat-total">${catTotal}</span>
+        <span class="cat-arrow">›</span>
+      </div>
+      <div class="cat-stores ${isOpen?'open':''}">`;
+
+    for(const [store,cnt] of stores){
+      html+=`<div class="store-item ${activeStore===store?'active':''}" data-store="${esc(store)}">
+        <span class="store-dot" style="background:${storeColor(store)}"></span>
+        <span class="store-item-name">${esc(store)}</span>
+        <span class="sic">${cnt}</span>
+      </div>`;
+    }
+    html+=`</div></div>`;
+  }
+
+  list.innerHTML=html;
+
+  // Category toggle
+  list.querySelectorAll('.cat-header').forEach(hdr=>{
+    hdr.onclick=()=>{
+      hdr.classList.toggle('open');
+      hdr.nextElementSibling.classList.toggle('open');
+    };
+  });
+
+  // Store click (all-stores row + individual rows)
+  list.querySelectorAll('.store-item-all,.store-item').forEach(item=>{
+    item.onclick=e=>{
+      e.stopPropagation();
+      activeStore=item.dataset.store;
+      list.querySelectorAll('.store-item-all,.store-item').forEach(i=>i.classList.remove('active'));
+      item.classList.add('active');
+      applyFilters();
+    };
+  });
+}
+
+/* ══════════════════════════════════════
+   Filter + render
+══════════════════════════════════════ */
+function applyFilters(newTids=[]){
+  const q=searchQ.toLowerCase();
+  filtered=allDeals;
+  if(activeStore!=='all') filtered=filtered.filter(d=>d.store===activeStore);
+  if(activeCat!=='all')   filtered=filtered.filter(d=>d._cat===activeCat);
+  if(q) filtered=filtered.filter(d=>
+    d.title.toLowerCase().includes(q)||
+    (d.store||'').toLowerCase().includes(q)||
+    (d.brand||'').toLowerCase().includes(q)
+  );
+
+  shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
+  renderDeals(newTids);
+}
+
+function renderDeals(newTids=[]){
+  const stats=document.getElementById('statsBar');
+  stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — Quebec & Ontario`;
+
+  const root=document.getElementById('root');
+  const lmRow=document.getElementById('loadMoreRow');
+
+  if(!filtered.length){
+    root.innerHTML=`<div class="deals-grid"><div class="state-box">
+      <h2>No deals found</h2><p>Clear filters or try a different search.</p>
+    </div></div>`;
+    lmRow.style.display='none';
+    return;
+  }
+
+  const visible=filtered.slice(0,shown);
+  root.innerHTML=`<div class="deals-grid">${visible.map(d=>cardHtml(d,newTids)).join('')}</div>`;
+
+  if(shown<filtered.length){
+    lmRow.style.display='block';
+    document.getElementById('loadMoreBtn').textContent=
+      `Load more (${shown} of ${filtered.length}) ↓`;
+  }else{
+    lmRow.style.display='none';
+  }
+}
+
+function loadMore(){
+  const step=pageSize===0?60:pageSize;
+  shown=Math.min(shown+step, filtered.length);
+  renderDeals();
+}
+
+/* ══════════════════════════════════════
+   Card HTML
+══════════════════════════════════════ */
+function cardHtml(d, newTids=[]){
+  const isNew=newTids.includes(d.tid);
+  const srcBadge=d.source==='Walmart'
+    ?'<span class="src-badge wm">Walmart</span>'
+    :d.source==='RedFlagDeals'
+    ?'<span class="src-badge rfd">RFD</span>'
+    :d.source==='Flipp'
+    ?'<span class="src-badge flipp"></span>'
+    :'';
+
+  const clearanceBadge=d.clearance?'<span class="clearance-tag">Clearance</span>':'';
+
+  const img=d.img
+    ?`<img class="deal-img" src="${esc(d.img)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+    :'';
+
+  let priceHtml='';
+  if(d.currentPrice){
+    priceHtml=`<div class="price-row">
+      <span class="price-now">${esc(d.currentPrice)}</span>
+      ${d.originalPrice?`<span class="price-was">${esc(d.originalPrice)}</span>`:''}
+      ${d.savePct?`<span class="save-badge">-${esc(d.savePct)}</span>`:''}
+    </div>
+    ${d.savings?`<div class="savings-label">${esc(d.savings)}</div>`:''}`;
+  }
+
+  const relTag=d.relTime?`<span class="rel-tag">${esc(d.relTime)}</span>`:'';
+
+  let dateTag='';
+  if(d.validUntil){
+    dateTag=`<div class="date-tag">Valid until ${fmtDate(d.validUntil)}</div>`;
+  }else if(d.dropDate){
+    dateTag=`<div class="date-tag">Posted ${fmtDate(d.dropDate)}</div>`;
+  }
+
+  const resolvedLink=d.source==='Flipp'?flippSearchUrl(d.store,d.title):d.link;
+  const viewBtn=resolvedLink
+    ?`<a class="view-btn" href="${esc(resolvedLink)}" target="_blank" rel="noopener noreferrer">View →</a>`
+    :`<span class="view-btn dim">No link</span>`;
+
+  return `
+<div class="deal-card${isNew?' is-new':''}">
+  <div class="card-top">
+    <span class="store-label" style="background:${storeColor(d.store)}">${esc(d.store)}</span>
+    <div class="card-meta">${clearanceBadge}${srcBadge}${relTag}</div>
+  </div>
+  ${img}
+  <div class="card-body">
+    <div class="deal-title">${esc(d.title)}</div>
+    ${priceHtml}
+    ${dateTag}
+  </div>
+  <div class="card-foot">
+    <div class="province-tags">
+      <span class="ptag qc">QC</span>
+      <span class="ptag on">ON</span>
+    </div>
+    ${viewBtn}
+  </div>
+</div>`;
+}
+
+/* ══════════════════════════════════════
+   States
+══════════════════════════════════════ */
+function showLoading(){
+  document.getElementById('statsBar').textContent='Loading…';
+  document.getElementById('root').innerHTML=`<div class="deals-grid"><div class="state-box">
+    <div class="spinner"></div><h2>Fetching live deals…</h2>
+    <p>Contacting Walmart.ca, StockTrack &amp; more</p>
+  </div></div>`;
+  document.getElementById('loadMoreRow').style.display='none';
+}
+function showError(msg){
+  document.getElementById('statsBar').textContent='Error';
+  document.getElementById('root').innerHTML=`<div class="deals-grid"><div class="state-box">
+    <h2 style="color:var(--on)">⚠️ Could not load deals</h2>
+    <p>${esc(msg||'Check the server is running.')}</p>
+    <button class="retry-btn" onclick="loadDeals()">Retry</button>
+  </div></div>`;
+}
+
+/* ══════════════════════════════════════
+   Toast
+══════════════════════════════════════ */
+let _tt;
+function showToast(msg,actLabel,actFn){
+  const t=document.getElementById('toast');
+  const act=actLabel?`<span class="toast-act" id="toast-act">${esc(actLabel)}</span>`:'';
+  t.innerHTML=msg+act;
+  if(actFn) t.querySelector('#toast-act')?.addEventListener('click',actFn);
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>t.classList.remove('show'),5000);
+}
+
+/* ══════════════════════════════════════
+   Helpers
+══════════════════════════════════════ */
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtTime(iso){
+  if(!iso) return '';
+  try{return new Date(iso).toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'})}
+  catch(_){return ''}
+}
+function fmtDate(s){
+  if(!s) return '';
+  try{
+    const d=new Date(s+'T12:00:00');
+    return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+  }catch(_){return s}
+}
+
+/* ══════════════════════════════════════
+   Event wiring
+══════════════════════════════════════ */
+document.getElementById('searchInput').addEventListener('input',e=>{
+  searchQ=e.target.value;
+  shown=pageSize===0?Infinity:pageSize;
+  applyFilters();
+});
+
+document.getElementById('catFilters').addEventListener('click',e=>{
+  const btn=e.target.closest('.fbtn');
+  if(!btn) return;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCat=btn.dataset.cat;
+  shown=pageSize===0?Infinity:pageSize;
+  applyFilters();
+});
+
+document.querySelectorAll('.pgbtn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.pgbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    pageSize=parseInt(b.dataset.pg)||0;
+    shown=pageSize===0?Infinity:pageSize;
+    applyFilters();
+  });
+});
+
+/* ══════════════════════════════════════
+   Boot
+══════════════════════════════════════ */
+loadDeals();
+connectSSE();
+</script>
+</body>
+</html>
