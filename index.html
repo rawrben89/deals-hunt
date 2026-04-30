@@ -266,6 +266,7 @@ footer a{color:var(--qc)}
 <div id="toast"></div>
 
 <script>
+const API_BASE='https://herbal-hunter-motivated-lang.trycloudflare.com';
 /* ══════════════════════════════════════
    State
 ══════════════════════════════════════ */
@@ -401,7 +402,7 @@ async function loadDeals(spinner=true) {
   const btn=document.getElementById('refreshBtn');
   btn.disabled=true; btn.textContent='⟳ Loading…';
   try {
-    const res = await fetch('/api/deals');
+    const res = await fetch(API_BASE+'/api/deals');
     if (res.status === 503) {
       document.getElementById('fetchStatus').textContent = 'Fetching from sources, please wait…';
       setTimeout(() => loadDeals(false), 3000);
@@ -439,12 +440,12 @@ setInterval(()=>loadDeals(false), 60000);
    SSE
 ══════════════════════════════════════ */
 function connectSSE(){
-  const es=new EventSource('/api/events');
+  const es=new EventSource(API_BASE+'/api/events');
   es.onmessage=e=>{
     try{
       const msg=JSON.parse(e.data);
       if(msg.type==='update'){
-        fetch('/api/deals').then(r=>r.json()).then(data=>{
+        fetch(API_BASE+'/api/deals').then(r=>r.json()).then(data=>{
           if(!data.deals?.length) return;
           const prevIds=new Set(allDeals.map(d=>d.tid));
           const newOnes=data.deals.filter(d=>!prevIds.has(d.tid));
