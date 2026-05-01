@@ -280,7 +280,7 @@ def get_stocktrack_deals():
                     "clearance":     False,
                     "dropDate":      "",
                     "validUntil":    "",
-                    "provinces":     _deal_provinces(store_name),
+                    "provinces":     _deal_provinces(sname),
                 })
         except Exception as e:
             errors.append(f"StockTrack {sid}: {e}")
@@ -395,6 +395,8 @@ def _build_and_cache(shared):
         all_errs.extend(errs)
         counts[key] = len(deals)
 
+    SOURCE_PRIORITY = {"Walmart": 0, "StockTrack": 0, "RedFlagDeals": 0, "Flipp": 1}
+
     def sort_key(d):
         pct = 0
         if d["savePct"]:
@@ -402,7 +404,7 @@ def _build_and_cache(shared):
                 pct = float(d["savePct"].rstrip("%"))
             except Exception:
                 pass
-        return (-pct, d["source"], d["store"])
+        return (SOURCE_PRIORITY.get(d["source"], 1), -pct, d["source"], d["store"])
 
     all_deals.sort(key=sort_key)
 
