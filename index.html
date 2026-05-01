@@ -421,10 +421,7 @@ async function loadDeals(spinner=true) {
 
     document.getElementById('fetchStatus').textContent =
       `${data.count} deals · updated ${fmtTime(data.fetched)}`;
-    const parts = [`${data.walmart} Walmart`, `${data.stocktrack} StockTrack`];
-    if (data.redflagdeals) parts.push(`${data.redflagdeals} RFD`);
-    if (data.flipp) parts.push(`${data.flipp} Flipp`);
-    document.getElementById('lastUpdated').textContent = parts.join(' · ');
+    document.getElementById('lastUpdated').textContent = '';
 
     mergeStoreCounts(data.storeCounts);
     buildStoreList(cumulativeStoreCounts);
@@ -458,10 +455,7 @@ function connectSSE(){
           allDeals=data.deals.map(d=>({...d,_cat:detectCat(d)}));
           document.getElementById('fetchStatus').textContent=
             `${data.count} deals · updated ${fmtTime(data.fetched)}`;
-          const pts=[`${data.walmart} Walmart`,`${data.stocktrack} StockTrack`];
-          if(data.redflagdeals) pts.push(`${data.redflagdeals} RFD`);
-          if(data.flipp) pts.push(`${data.flipp} Flipp`);
-          document.getElementById('lastUpdated').textContent=pts.join(' · ');
+          document.getElementById('lastUpdated').textContent='';
           mergeStoreCounts(data.storeCounts);
           buildStoreList(cumulativeStoreCounts);
           applyFilters(newOnes.map(d=>d.tid));
