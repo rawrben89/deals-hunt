@@ -127,9 +127,10 @@ def _parse_walmart_page(url):
         for item in stack.get("items", []):
             if item.get("__typename") != "Product":
                 continue
-            # Skip third-party marketplace sellers
-            seller = (item.get("sellerInfo") or {})
-            seller_name = (seller.get("sellerDisplayName") or seller.get("name") or "").strip().lower()
+            # Skip third-party marketplace sellers — keep only Walmart's own inventory
+            if item.get("sellerType") == "EXTERNAL":
+                continue
+            seller_name = (item.get("sellerName") or "").strip().lower()
             if seller_name and seller_name not in ("walmart.ca", "walmart", ""):
                 continue
             name = _clean(item.get("name", ""))
@@ -180,6 +181,7 @@ def _parse_walmart_page(url):
                 "clearance":     False,
                 "dropDate":      "",
                 "validUntil":    "",
+                "provinces":     ["QC", "ON"],
             })
     return deals
 
@@ -278,6 +280,7 @@ def get_stocktrack_deals():
                     "clearance":     False,
                     "dropDate":      "",
                     "validUntil":    "",
+                    "provinces":     _deal_provinces(store_name),
                 })
         except Exception as e:
             errors.append(f"StockTrack {sid}: {e}")
@@ -366,6 +369,7 @@ def get_redflagdeals():
                 "clearance":     is_clearance,
                 "dropDate":      drop_date,
                 "validUntil":    "",
+                "provinces":     _deal_provinces(store),
             })
     except Exception as e:
         errors.append(f"RedFlagDeals: {e}")
@@ -437,6 +441,51 @@ def _push_sse(payload_str):
                 dead.append(q)
         for q in dead:
             _sse_clients.remove(q)
+
+
+# ─────────────────────────────────────────────────────────
+# Province mapping — QC-only and ON-only stores
+# Anything not listed here is treated as both QC + ON
+# ─────────────────────────────────────────────────────────
+_QC_ONLY_STORES = {
+    "Maxi", "Super C", "Pharmaprix", "Jean Coutu", "SAQ", "Familiprix",
+    "Brunet", "Uniprix", "Proxim", "Accès pharma", "Proximed", "Uniprix Sante",
+    "Ki Nature & Santé", "Panier Santé La Prairie",
+    "Canac", "BMR", "Patrick Morin", "Club Piscine", "Dormez-Vous",
+    "Adonis", "Rachelle Béry", "PA Nature", "Avril Supermarché Santé",
+    "Mayrand", "Marché Richelieu", "Les Marchés Tradition", "Bureau en gros",
+    "Tanguay", "Centre Hi-Fi", "Sports Experts", "Rossy",
+    "SAIL", "SAQ",
+    "Marche C & T", "Marché Newon", "Marche Nuvo Market", "Grand Marché Col-Fax",
+    "Marché Salaberry", "Marché Ami", "Marché Sheng Tai", "Marché Lian Tai",
+    "Euro Marche", "Supermarche Aures", "MarchesTAU", "L'Inter-Marché International",
+    "Vie En Vert", "Pasquier", "Bonanza", "Supermarche PA", "Kim Phat",
+    "Marché Fu Tai", "Val-Mont", "Proxi", "Aubut", "Intermarche Palumbo",
+    "Marché Bonichoix", "Mondou", "Animo Etc.", "Chico",
+}
+
+_ON_ONLY_STORES = {
+    "Shoppers Drug Mart", "Rexall", "No Frills", "Food Basics", "FreshCo",
+    "Loblaws", "Fortinos", "Farm Boy", "Longos", "Foodland",
+    "Highland Farms", "LCBO", "The Beer Store", "Guardian",
+    "Pharmasave", "I.D.A.", "Chalo FreshCo", "Sobeys",
+    "Valu-Mart", "Independent City Market", "Nations Fresh Foods",
+    "Btrust Supermarket", "H Mart",
+    "Fiesta Farms", "Lady York Foods", "Oceans Fresh Food Market",
+    "Galleria Supermarket", "Foody Mart", "Foody World",
+    "Seasons Food Mart", "Cataldi", "Terra Foodmart", "Fresh Land Supermarket",
+    "Fusion Supermarket", "Starsky", "A1 Cash + Carry", "Bestco Foodmart",
+    "Blue Sky Supermarket", "Danforth Food Market", "Pat Mart",
+    "Tone Tai Supermarket", "Winco Food Mart", "Yuan Ming Supermarket",
+    "Pet Valu", "Ren's Pets", "PartSource",
+}
+
+def _deal_provinces(store):
+    if store in _QC_ONLY_STORES:
+        return ["QC"]
+    if store in _ON_ONLY_STORES:
+        return ["ON"]
+    return ["QC", "ON"]
 
 
 # ─────────────────────────────────────────────────────────
@@ -541,6 +590,7 @@ def _flipp_parse_item(item, seen):
         "clearance":     False,
         "dropDate":      valid_from,
         "validUntil":    valid_to,
+        "provinces":     _deal_provinces(store),
     }
 
 
@@ -658,7 +708,7 @@ def _background_refresh():
                       f"({result['count']} total) — SSE pushed")
             last_fp = fp
 
-        time.sleep(60)    # 1 minute
+        time.sleep(300)   # 5 minutes
 
 
 # ─────────────────────────────────────────────────────────

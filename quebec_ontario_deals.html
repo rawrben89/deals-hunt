@@ -439,7 +439,7 @@ async function loadDeals(spinner=true) {
 function manualRefresh(){loadDeals(false)}
 
 /* auto-refresh every 60 s */
-setInterval(()=>loadDeals(false), 60000);
+setInterval(()=>loadDeals(false), 300000);
 
 /* ══════════════════════════════════════
    SSE
@@ -896,8 +896,8 @@ function cardHtml(d, newTids=[]){
   </div>
   <div class="card-foot">
     <div class="province-tags">
-      <span class="ptag qc">QC</span>
-      <span class="ptag on">ON</span>
+      ${(d.provinces||['QC','ON']).includes('QC')?'<span class="ptag qc">QC</span>':''}
+      ${(d.provinces||['QC','ON']).includes('ON')?'<span class="ptag on">ON</span>':''}
     </div>
     ${viewBtn}
   </div>
