@@ -228,6 +228,14 @@ footer a{color:var(--qc)}
     <div class="bottom-bar">
       <div id="statsBar">Loading…</div>
       <div class="pgsize-row">
+        <span class="pgsize-label">Sort:</span>
+        <button class="pgbtn active" data-sort="default">Default</button>
+        <button class="pgbtn" data-sort="price-asc">$ Low→High</button>
+        <button class="pgbtn" data-sort="price-desc">$ High→Low</button>
+        <button class="pgbtn" data-sort="savings-desc">Most Savings</button>
+        <button class="pgbtn" data-sort="pct-desc">Best % Off</button>
+      </div>
+      <div class="pgsize-row">
         <span class="pgsize-label">Show:</span>
         <button class="pgbtn" data-pg="20">20</button>
         <button class="pgbtn" data-pg="40">40</button>
@@ -272,6 +280,7 @@ let shown      = 0;
 let activeCat  = 'all';
 let activeStore= 'all';
 let searchQ    = '';
+let sortBy     = 'default';
 let cumulativeStoreCounts = {};
 
 /* ══════════════════════════════════════
@@ -763,6 +772,12 @@ function buildStoreList(counts){
 /* ══════════════════════════════════════
    Filter + render
 ══════════════════════════════════════ */
+function parsePrice(s){
+  if(!s) return null;
+  const m=(s+'').match(/[\d]+\.?\d*/);
+  return m?parseFloat(m[0]):null;
+}
+
 function applyFilters(newTids=[]){
   const q=searchQ.toLowerCase();
   filtered=allDeals;
@@ -773,6 +788,20 @@ function applyFilters(newTids=[]){
     (d.store||'').toLowerCase().includes(q)||
     (d.brand||'').toLowerCase().includes(q)
   );
+
+  if(sortBy==='price-asc'){
+    filtered=[...filtered].sort((a,b)=>(parsePrice(a.currentPrice)??Infinity)-(parsePrice(b.currentPrice)??Infinity));
+  } else if(sortBy==='price-desc'){
+    filtered=[...filtered].sort((a,b)=>(parsePrice(b.currentPrice)??-1)-(parsePrice(a.currentPrice)??-1));
+  } else if(sortBy==='savings-desc'){
+    filtered=[...filtered].sort((a,b)=>{
+      const sa=(parsePrice(a.currentPrice)&&parsePrice(a.originalPrice))?(parsePrice(a.originalPrice)-parsePrice(a.currentPrice)):0;
+      const sb=(parsePrice(b.currentPrice)&&parsePrice(b.originalPrice))?(parsePrice(b.originalPrice)-parsePrice(b.currentPrice)):0;
+      return sb-sa;
+    });
+  } else if(sortBy==='pct-desc'){
+    filtered=[...filtered].sort((a,b)=>(parseFloat(b.savePct)||0)-(parseFloat(a.savePct)||0));
+  }
 
   shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
   renderDeals(newTids);
@@ -949,9 +978,18 @@ document.getElementById('catFilters').addEventListener('click',e=>{
   applyFilters();
 });
 
-document.querySelectorAll('.pgbtn').forEach(b=>{
+document.querySelectorAll('[data-sort]').forEach(b=>{
   b.addEventListener('click',()=>{
-    document.querySelectorAll('.pgbtn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('[data-sort]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    sortBy=b.dataset.sort;
+    applyFilters();
+  });
+});
+
+document.querySelectorAll('[data-pg]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-pg]').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
     pageSize=parseInt(b.dataset.pg)||0;
     shown=pageSize===0?Infinity:pageSize;
