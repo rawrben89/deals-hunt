@@ -252,8 +252,6 @@ footer a{color:var(--qc)}
       <div class="deals-grid">
         <div class="state-box">
           <div class="spinner"></div>
-          <h2>Fetching live deals…</h2>
-          <p>Contacting Walmart.ca, StockTrack &amp; more</p>
         </div>
       </div>
     </div>
@@ -927,8 +925,7 @@ function cardHtml(d, newTids=[]){
 function showLoading(){
   document.getElementById('statsBar').textContent='Loading…';
   document.getElementById('root').innerHTML=`<div class="deals-grid"><div class="state-box">
-    <div class="spinner"></div><h2>Fetching live deals…</h2>
-    <p>Contacting Walmart.ca, StockTrack &amp; more</p>
+    <div class="spinner"></div>
   </div></div>`;
   document.getElementById('loadMoreRow').style.display='none';
 }
