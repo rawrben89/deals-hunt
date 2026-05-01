@@ -656,7 +656,7 @@ function flippSearchUrl(store, title){
     'Sports Experts':                `https://www.sportsexperts.ca/search?q=${q}`,
     'SAIL':                          `https://www.sail.ca/search?q=${q}`,
     'Decathlon':                     `https://www.decathlon.ca/en/search?q=${q}`,
-    'Princess Auto':                 `https://www.princessauto.com/en/search#q=${q}`,
+    'Princess Auto':                 `https://www.princessauto.com/en/search?q=${q}`,
     "Cabela's & Bass Pro":           `https://www.cabelas.ca/en-CA/search?q=${q}`,
     // Pets
     'PetSmart':                      `https://www.petsmart.ca/search/?q=${q}`,
@@ -671,6 +671,21 @@ function flippSearchUrl(store, title){
     'LCBO':                          `https://www.lcbo.com/en/search?searchTerm=${q}`,
     'The Beer Store':                `https://www.thebeerstore.ca/search?q=${q}`,
     'Sephora':                       `https://www.sephora.com/ca/en/search?q=${q}`,
+    // Fashion
+    'Old Navy':                      `https://oldnavy.gapcanada.ca/browse/search.do?searchString=${q}`,
+    'H&M':                           `https://www2.hm.com/en_ca/search-results.html?q=${q}`,
+    // Bumper to Bumper / auto parts
+    'Bumper to Bumper':              `https://www.bumpertobumper.ca/en/search?q=${q}`,
+    // Home & kitchen
+    'Oxford Mills':                  `https://www.oxfordmills.com/search?q=${q}`,
+    'Kitchen Stuff Plus':            `https://www.kitchenstuffplus.com/search?q=${q}`,
+    // Other
+    'Showcase':                      `https://www.showcaseonline.ca/search?q=${q}`,
+    'Adonis':                        `https://www.adonisepicerie.com/en/search?q=${q}`,
+    'Avril Supermarché Santé':       `https://www.avril.ca/en/search?q=${q}`,
+    'Rachelle Béry':                 `https://www.rachellebery.com/en/search?q=${q}`,
+    'Highland Farms':                `https://www.highlandfarms.ca/search?q=${q}`,
+    'Bumper to Bumper':              `https://www.bumpertobumper.ca/en/search?q=${q}`,
   };
   return map[s]||'';
 }
@@ -871,7 +886,7 @@ function cardHtml(d, newTids=[]){
     dateTag=`<div class="date-tag">Posted ${fmtDate(d.dropDate)}</div>`;
   }
 
-  const resolvedLink=d.source==='Flipp'?flippSearchUrl(d.store,d.title):d.link;
+  const resolvedLink=d.source==='Flipp'?(flippSearchUrl(d.store,d.title)||d.link):d.link;
   const viewBtn=resolvedLink
     ?`<a class="view-btn" href="${esc(resolvedLink)}" target="_blank" rel="noopener noreferrer">View →</a>`
     :`<span class="view-btn dim">No link</span>`;
