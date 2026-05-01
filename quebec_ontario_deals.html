@@ -68,8 +68,9 @@ header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
 /* ── Controls ── */
 .controls{background:#fff;border-bottom:1px solid var(--border);padding:10px 14px;position:sticky;top:0;z-index:80;box-shadow:0 2px 10px rgba(0,0,0,.07)}
 .search-row{display:flex;gap:8px;max-width:640px;margin:0 auto 8px}
-#searchInput{flex:1;padding:9px 14px;border:2px solid var(--border);border-radius:10px;font-size:.9rem;transition:border-color .2s;min-width:0}
+#searchInput{width:100%;display:block;padding:9px 14px;border:2px solid var(--border);border-radius:10px;font-size:.9rem;transition:border-color .2s;min-width:0;box-sizing:border-box}
 #searchInput:focus{outline:none;border-color:var(--qc)}
+#searchInput.dropdown-open{border-radius:10px 10px 0 0;border-bottom-color:transparent}
 #refreshBtn{padding:9px 14px;background:var(--qc);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:700;white-space:nowrap;transition:background .2s;flex-shrink:0}
 #refreshBtn:hover{background:#0d47a1}
 #refreshBtn:disabled{background:#90caf9;cursor:default}
@@ -1077,10 +1078,18 @@ function setProvince(prov){
   localStorage.setItem('province', prov);
   document.querySelectorAll('.provbtn').forEach(b=>{
     b.className='provbtn';
-    if(b.dataset.prov===prov){
+    if(b.dataset.prov===prov)
       b.classList.add(prov==='QC'?'active-qc':prov==='ON'?'active-on':'active-both');
-    }
   });
+  // Rebuild sidebar store counts for the selected province
+  const provDeals = prov==='both' ? allDeals
+    : allDeals.filter(d=>(d.provinces||['QC','ON']).includes(prov));
+  const provCounts = {};
+  provDeals.forEach(d=>{ const s=d.store.trim(); provCounts[s]=(provCounts[s]||0)+1; });
+  // Merge into cumulative (never reduce counts below what province shows)
+  const displayCounts = {};
+  for(const [s,c] of Object.entries(provCounts)) displayCounts[s]=c;
+  buildStoreList(displayCounts);
   shown=pageSize===0?Infinity:pageSize;
   applyFilters();
 }
@@ -1121,16 +1130,26 @@ function buildAutocomplete(){
 
 function showAutocomplete(q){
   const dd=document.getElementById('searchDropdown');
-  if(!q||q.length<2){dd.classList.remove('open');dd.innerHTML='';return;}
+  const inp=document.getElementById('searchInput');
+  if(!q||q.length<2){
+    dd.classList.remove('open'); dd.innerHTML='';
+    inp.classList.remove('dropdown-open');
+    return;
+  }
   const ql=q.toLowerCase();
   const hits=_acIndex.filter(x=>x.label.toLowerCase().includes(ql)).slice(0,7);
-  if(!hits.length){dd.classList.remove('open');dd.innerHTML='';return;}
+  if(!hits.length){
+    dd.classList.remove('open'); dd.innerHTML='';
+    inp.classList.remove('dropdown-open');
+    return;
+  }
   dd.innerHTML=hits.map(h=>`<div class="sdrop-item" data-val="${esc(h.label)}">
     <span class="sdrop-icon">${h.type==='Store'?'🏪':'🏷'}</span>
     <span class="sdrop-label">${esc(h.label)}</span>
     <span class="sdrop-type">${esc(h.type)}</span>
   </div>`).join('');
   dd.classList.add('open');
+  inp.classList.add('dropdown-open');
 }
 
 /* ══════════════════════════════════════
@@ -1146,7 +1165,11 @@ searchInput.addEventListener('input',e=>{
   applyFilters();
 });
 searchInput.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){searchDropdown.classList.remove('open');searchDropdown.innerHTML='';}
+  if(e.key==='Escape'){
+    searchDropdown.classList.remove('open');
+    searchDropdown.innerHTML='';
+    searchInput.classList.remove('dropdown-open');
+  }
 });
 searchDropdown.addEventListener('click',e=>{
   const item=e.target.closest('.sdrop-item');
@@ -1155,11 +1178,16 @@ searchDropdown.addEventListener('click',e=>{
   searchInput.value=val;
   searchQ=val;
   searchDropdown.classList.remove('open');
+  searchDropdown.innerHTML='';
+  searchInput.classList.remove('dropdown-open');
   shown=pageSize===0?Infinity:pageSize;
   applyFilters();
 });
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.search-wrap')) searchDropdown.classList.remove('open');
+  if(!e.target.closest('.search-wrap')){
+    searchDropdown.classList.remove('open');
+    searchInput.classList.remove('dropdown-open');
+  }
 });
 
 document.getElementById('catFilters').addEventListener('click',e=>{
