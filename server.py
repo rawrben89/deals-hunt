@@ -19,12 +19,94 @@ import html as html_mod
 import threading
 import time
 import hashlib
+import sqlite3
+import os
 import xml.etree.ElementTree as ET
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 from datetime import datetime
 
 PORT = 8080
+DB_PATH = os.path.join(os.path.dirname(__file__), "price_history.db")
+_db_lock = threading.Lock()
+
+# ─────────────────────────────────────────────────────────
+# Price history (SQLite)
+# ─────────────────────────────────────────────────────────
+def _init_db():
+    with sqlite3.connect(DB_PATH, timeout=10) as conn:
+        conn.execute("""CREATE TABLE IF NOT EXISTS price_min (
+            tid       TEXT PRIMARY KEY,
+            store     TEXT,
+            title     TEXT,
+            min_price REAL,
+            first_seen TEXT,
+            last_seen  TEXT,
+            count     INTEGER DEFAULT 1
+        )""")
+        conn.commit()
+
+_init_db()
+
+
+def _parse_price_float(price_str):
+    if not price_str:
+        return None
+    m = re.search(r'\$\s*(\d[\d,]*(?:\.\d{1,2})?)', str(price_str))
+    if m:
+        try:
+            return float(m.group(1).replace(',', ''))
+        except Exception:
+            return None
+    return None
+
+
+def _update_price_history(all_deals):
+    """Annotate each deal with isLowest=True/False based on SQLite history."""
+    now = datetime.utcnow().isoformat()
+    try:
+        with _db_lock:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                cur = conn.cursor()
+                for d in all_deals:
+                    price = _parse_price_float(d.get("currentPrice", ""))
+                    if price is None or price <= 0:
+                        d["isLowest"] = False
+                        continue
+                    tid = d["tid"]
+                    cur.execute("SELECT min_price FROM price_min WHERE tid=?", (tid,))
+                    row = cur.fetchone()
+                    if row is None:
+                        cur.execute(
+                            "INSERT INTO price_min VALUES (?,?,?,?,?,?,1)",
+                            (tid, d.get("store",""), d.get("title","")[:120],
+                             price, now, now)
+                        )
+                        d["isLowest"] = True
+                    elif price <= row[0]:
+                        if price < row[0]:
+                            cur.execute(
+                                "UPDATE price_min SET min_price=?,last_seen=?,count=count+1 WHERE tid=?",
+                                (price, now, tid)
+                            )
+                        else:
+                            cur.execute(
+                                "UPDATE price_min SET last_seen=?,count=count+1 WHERE tid=?",
+                                (now, tid)
+                            )
+                        d["isLowest"] = True
+                    else:
+                        cur.execute(
+                            "UPDATE price_min SET last_seen=?,count=count+1 WHERE tid=?",
+                            (now, tid)
+                        )
+                        d["isLowest"] = False
+                conn.commit()
+    except Exception as e:
+        print(f"[price_history] {e}")
+        for d in all_deals:
+            d.setdefault("isLowest", False)
+
 
 # ─────────────────────────────────────────────────────────
 # HTTP helpers
@@ -489,6 +571,8 @@ def _build_and_cache(shared):
         return (SOURCE_PRIORITY.get(d["source"], 1), -pct, d["source"], d["store"])
 
     all_deals.sort(key=sort_key)
+
+    _update_price_history(all_deals)
 
     store_counts = {}
     for d in all_deals:
@@ -979,6 +1063,15 @@ class Handler(BaseHTTPRequestHandler):
 
         elif path in ("/", "/index.html", "/quebec_ontario_deals.html"):
             self._serve_file("quebec_ontario_deals.html", "text/html; charset=utf-8")
+
+        elif path == "/manifest.json":
+            self._serve_file("manifest.json", "application/manifest+json")
+
+        elif path == "/service-worker.js":
+            self._serve_file("service-worker.js", "application/javascript")
+
+        elif path in ("/icon-192.png", "/icon-512.png"):
+            self._serve_file(path.lstrip("/"), "image/png")
 
         else:
             self.send_response(404)

@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1565C0">
+<meta name="description" content="Live price drops and sales from Quebec & Ontario Canadian retailers">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deals">
+<link rel="manifest" href="/manifest.json" >
+<link rel="apple-touch-icon" href="/icon-192.png" >
 <title>QC & ON Deals — Live</title>
 <style>
 :root {
@@ -150,6 +158,39 @@ header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
 footer{text-align:center;padding:16px;font-size:.73rem;color:var(--muted);border-top:1px solid var(--border);background:#fff}
 footer a{color:var(--qc)}
 
+/* ── Province toggle ── */
+.province-row{display:flex;gap:4px;justify-content:center;margin-top:6px}
+.provbtn{padding:4px 13px;border:1.5px solid var(--border);border-radius:99px;background:#fff;cursor:pointer;font-size:.74rem;font-weight:700;color:var(--muted);transition:all .15s}
+.provbtn:hover{border-color:var(--qc);color:var(--qc)}
+.provbtn.active-qc{background:var(--qc);border-color:var(--qc);color:#fff}
+.provbtn.active-on{background:var(--on);border-color:var(--on);color:#fff}
+.provbtn.active-both{background:#555;border-color:#555;color:#fff}
+
+/* ── All-time low badge ── */
+.low-badge{font-size:.58rem;font-weight:800;color:#fff;background:#6a1b9a;padding:2px 6px;border-radius:99px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+
+/* ── Expiry badge ── */
+.expiry-tag{font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.expiry-tag.urgent{background:#fce4ec;color:#c62828;border:1px solid #ef9a9a}
+.expiry-tag.soon{background:#fff8e1;color:#e65100;border:1px solid #ffcc80}
+.expiry-tag.ok{color:var(--muted);font-size:.62rem;font-weight:400}
+
+/* ── New deals tab ── */
+.fbtn.new-btn{border-color:#6a1b9a;color:#6a1b9a}
+.fbtn.new-btn.active{background:#6a1b9a;border-color:#6a1b9a;color:#fff}
+.new-count{font-weight:800}
+
+/* ── Search autocomplete ── */
+.search-wrap{position:relative;flex:1;min-width:0}
+.search-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--border);border-top:none;border-radius:0 0 10px 10px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.1);display:none}
+.search-dropdown.open{display:block}
+.sdrop-item{padding:8px 14px;font-size:.84rem;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.sdrop-item:last-child{border-bottom:none}
+.sdrop-item:hover{background:var(--bg)}
+.sdrop-icon{font-size:.7rem;color:var(--muted);flex-shrink:0}
+.sdrop-label{flex:1}
+.sdrop-type{font-size:.67rem;color:var(--muted)}
+
 /* ── Mobile ── */
 @media(max-width:768px){
   .page-layout{flex-direction:column}
@@ -209,11 +250,15 @@ footer a{color:var(--qc)}
     <!-- CONTROLS -->
     <div class="controls">
       <div class="search-row">
-        <input type="search" id="searchInput" placeholder='Search (e.g. "TV", "drill", "shoes")…' autocomplete="off">
+        <div class="search-wrap">
+          <input type="search" id="searchInput" placeholder='Search deals, brands, stores…' autocomplete="off">
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
         <button id="refreshBtn" onclick="manualRefresh()">⟳ Refresh</button>
       </div>
       <div class="filter-row" id="catFilters">
         <button class="fbtn active" data-cat="all">All</button>
+        <button class="fbtn new-btn" id="newDealsBtn" data-cat="new" style="display:none">New <span class="new-count" id="newCount">0</span></button>
         <button class="fbtn" data-cat="electronics">Electronics</button>
         <button class="fbtn" data-cat="home">Home &amp; Tools</button>
         <button class="fbtn" data-cat="fashion">Fashion</button>
@@ -223,6 +268,11 @@ footer a{color:var(--qc)}
         <button class="fbtn" data-cat="auto">Auto</button>
         <button class="fbtn" data-cat="health">Health &amp; Beauty</button>
         <button class="fbtn" data-cat="food">Food</button>
+      </div>
+      <div class="province-row">
+        <button class="provbtn" data-prov="QC">QC Only</button>
+        <button class="provbtn active-both" data-prov="both">QC + ON</button>
+        <button class="provbtn" data-prov="ON">ON Only</button>
       </div>
     </div>
 
@@ -281,7 +331,11 @@ let activeCat  = 'all';
 let activeStore= 'all';
 let searchQ    = '';
 let sortBy     = 'default';
+let activeProvince = localStorage.getItem('province') || 'both';
 let cumulativeStoreCounts = {};
+let storeCategoryMap = {};
+let seenTids   = new Set();   // TIDs seen on first load
+let newTidSet  = new Set();   // TIDs new since last fetch
 
 /* ══════════════════════════════════════
    Category detection
@@ -421,7 +475,11 @@ async function loadDeals(spinner=true) {
     const data = await res.json();
     if (!data.deals?.length) throw new Error('No deals returned');
 
-    allDeals = data.deals.map(d=>({...d, _cat:detectCat(d)}));
+    allDeals = data.deals.map(d=>({...d, _cat:detectCat(d), _isNew:false}));
+    // On first load, mark all as seen (no "new" badge)
+    if(seenTids.size===0) data.deals.forEach(d=>seenTids.add(d.tid));
+    newTidSet.clear();
+    updateNewBtn();
 
     document.getElementById('fetchStatus').textContent =
       `${data.count} deals · updated ${fmtTime(data.fetched)}`;
@@ -429,6 +487,7 @@ async function loadDeals(spinner=true) {
 
     mergeStoreCounts(data.storeCounts, data.deals);
     buildStoreList(cumulativeStoreCounts);
+    buildAutocomplete();
     applyFilters();
   } catch(e) {
     console.error(e);
@@ -440,7 +499,7 @@ async function loadDeals(spinner=true) {
 
 function manualRefresh(){loadDeals(false)}
 
-/* auto-refresh every 60 s */
+/* auto-refresh every 5 min */
 setInterval(()=>loadDeals(false), 300000);
 
 /* ══════════════════════════════════════
@@ -454,18 +513,22 @@ function connectSSE(){
       if(msg.type==='update'){
         fetch(API_BASE+'/api/deals').then(r=>r.json()).then(data=>{
           if(!data.deals?.length) return;
-          const prevIds=new Set(allDeals.map(d=>d.tid));
-          const newOnes=data.deals.filter(d=>!prevIds.has(d.tid));
-          allDeals=data.deals.map(d=>({...d,_cat:detectCat(d)}));
+          // Track which deals are genuinely new since last fetch
+          const brandNew=data.deals.filter(d=>!seenTids.has(d.tid));
+          data.deals.forEach(d=>seenTids.add(d.tid));
+          brandNew.forEach(d=>newTidSet.add(d.tid));
+          allDeals=data.deals.map(d=>({...d,_cat:detectCat(d),_isNew:newTidSet.has(d.tid)}));
           document.getElementById('fetchStatus').textContent=
             `${data.count} deals · updated ${fmtTime(data.fetched)}`;
           document.getElementById('lastUpdated').textContent='';
           mergeStoreCounts(data.storeCounts, data.deals);
           buildStoreList(cumulativeStoreCounts);
-          applyFilters(newOnes.map(d=>d.tid));
-          if(newOnes.length)
-            showToast(`🆕 ${newOnes.length} new deal${newOnes.length>1?'s':''} found!`,
-              'View', ()=>{ activeStore='all'; activeCat='all'; applyFilters(); });
+          buildAutocomplete();
+          updateNewBtn();
+          applyFilters(brandNew.map(d=>d.tid));
+          if(brandNew.length)
+            showToast(`${brandNew.length} new deal${brandNew.length>1?'s':''} found!`,
+              'View new', ()=>{ activeCat='new'; setActiveCatBtn('new'); applyFilters(); });
         }).catch(()=>{});
       }
     }catch(_){}
@@ -710,8 +773,6 @@ function flippSearchUrl(store, title){
 /* ══════════════════════════════════════
    Sidebar — category accordion
 ══════════════════════════════════════ */
-let storeCategoryMap = {};  // store name → category, built from API data
-
 function mergeStoreCounts(fresh, deals){
   for(const [store,cnt] of Object.entries(fresh)){
     const s=store.trim();
@@ -816,8 +877,12 @@ function parsePrice(s){
 function applyFilters(newTids=[]){
   const q=searchQ.toLowerCase();
   filtered=allDeals;
+  // Province filter
+  if(activeProvince!=='both')
+    filtered=filtered.filter(d=>(d.provinces||['QC','ON']).includes(activeProvince));
   if(activeStore!=='all') filtered=filtered.filter(d=>d.store.trim()===activeStore);
-  if(activeCat!=='all')   filtered=filtered.filter(d=>d._cat===activeCat);
+  if(activeCat==='new')   filtered=filtered.filter(d=>d._isNew);
+  else if(activeCat!=='all') filtered=filtered.filter(d=>d._cat===activeCat);
   if(q) filtered=filtered.filter(d=>
     d.title.toLowerCase().includes(q)||
     (d.store||'').toLowerCase().includes(q)||
@@ -844,7 +909,8 @@ function applyFilters(newTids=[]){
 
 function renderDeals(newTids=[]){
   const stats=document.getElementById('statsBar');
-  stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — Quebec & Ontario`;
+  const provLabel=activeProvince==='both'?'Quebec & Ontario':activeProvince==='QC'?'Quebec':'Ontario';
+  stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — ${provLabel}`;
 
   const root=document.getElementById('root');
   const lmRow=document.getElementById('loadMoreRow');
@@ -906,12 +972,20 @@ function cardHtml(d, newTids=[]){
 
   const relTag=d.relTime?`<span class="rel-tag">${esc(d.relTime)}</span>`:'';
 
-  let dateTag='';
+  // Expiry countdown
+  let expiryTag='';
   if(d.validUntil){
-    dateTag=`<div class="date-tag">Valid until ${fmtDate(d.validUntil)}</div>`;
+    const daysLeft=Math.ceil((new Date(d.validUntil)-new Date())/(1000*60*60*24));
+    if(daysLeft<=0)       expiryTag=`<span class="expiry-tag urgent">Expires today</span>`;
+    else if(daysLeft===1) expiryTag=`<span class="expiry-tag urgent">Expires tomorrow</span>`;
+    else if(daysLeft<=3)  expiryTag=`<span class="expiry-tag soon">Expires in ${daysLeft} days</span>`;
+    else                  expiryTag=`<span class="expiry-tag ok">Until ${fmtDate(d.validUntil)}</span>`;
   }else if(d.dropDate){
-    dateTag=`<div class="date-tag">Posted ${fmtDate(d.dropDate)}</div>`;
+    expiryTag=`<span class="expiry-tag ok">Posted ${fmtDate(d.dropDate)}</span>`;
   }
+
+  // All-time low badge
+  const lowBadge=d.isLowest?`<span class="low-badge">Lowest Price</span>`:'';
 
   let viewBtn='';
   if(d.source!=='Flipp' && d.link){
@@ -925,13 +999,13 @@ function cardHtml(d, newTids=[]){
 <div class="deal-card${isNew?' is-new':''}">
   <div class="card-top">
     <span class="store-label" style="background:${storeColor(d.store)}">${esc(d.store)}</span>
-    <div class="card-meta">${clearanceBadge}${srcBadge}${relTag}</div>
+    <div class="card-meta">${clearanceBadge}${lowBadge}${srcBadge}${relTag}</div>
   </div>
   ${img}
   <div class="card-body">
     <div class="deal-title">${esc(d.title)}</div>
     ${priceHtml}
-    ${dateTag}
+    ${expiryTag?`<div class="date-tag">${expiryTag}</div>`:''}
   </div>
   <div class="card-foot">
     <div class="province-tags">
@@ -997,12 +1071,96 @@ function fmtDate(s){
 }
 
 /* ══════════════════════════════════════
-   Event wiring
+   Province helpers
 ══════════════════════════════════════ */
-document.getElementById('searchInput').addEventListener('input',e=>{
-  searchQ=e.target.value;
+function setProvince(prov){
+  activeProvince=prov;
+  localStorage.setItem('province', prov);
+  document.querySelectorAll('.provbtn').forEach(b=>{
+    b.className='provbtn';
+    if(b.dataset.prov===prov){
+      b.classList.add(prov==='QC'?'active-qc':prov==='ON'?'active-on':'active-both');
+    }
+  });
   shown=pageSize===0?Infinity:pageSize;
   applyFilters();
+}
+
+/* ══════════════════════════════════════
+   New deals helpers
+══════════════════════════════════════ */
+function updateNewBtn(){
+  const btn=document.getElementById('newDealsBtn');
+  const cnt=document.getElementById('newCount');
+  const n=newTidSet.size;
+  btn.style.display=n>0?'':'none';
+  if(cnt) cnt.textContent=n;
+}
+
+function setActiveCatBtn(cat){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  const t=document.querySelector(`.fbtn[data-cat="${cat}"]`);
+  if(t) t.classList.add('active');
+}
+
+/* ══════════════════════════════════════
+   Autocomplete
+══════════════════════════════════════ */
+let _acIndex=[];
+function buildAutocomplete(){
+  const stores=new Set();
+  const brands=new Set();
+  allDeals.forEach(d=>{
+    if(d.store) stores.add(d.store.trim());
+    if(d.brand && d.brand.length>1) brands.add(d.brand.trim());
+  });
+  _acIndex=[
+    ...[...stores].map(s=>({label:s,type:'Store'})),
+    ...[...brands].slice(0,120).map(b=>({label:b,type:'Brand'})),
+  ];
+}
+
+function showAutocomplete(q){
+  const dd=document.getElementById('searchDropdown');
+  if(!q||q.length<2){dd.classList.remove('open');dd.innerHTML='';return;}
+  const ql=q.toLowerCase();
+  const hits=_acIndex.filter(x=>x.label.toLowerCase().includes(ql)).slice(0,7);
+  if(!hits.length){dd.classList.remove('open');dd.innerHTML='';return;}
+  dd.innerHTML=hits.map(h=>`<div class="sdrop-item" data-val="${esc(h.label)}">
+    <span class="sdrop-icon">${h.type==='Store'?'🏪':'🏷'}</span>
+    <span class="sdrop-label">${esc(h.label)}</span>
+    <span class="sdrop-type">${esc(h.type)}</span>
+  </div>`).join('');
+  dd.classList.add('open');
+}
+
+/* ══════════════════════════════════════
+   Event wiring
+══════════════════════════════════════ */
+const searchInput=document.getElementById('searchInput');
+const searchDropdown=document.getElementById('searchDropdown');
+
+searchInput.addEventListener('input',e=>{
+  searchQ=e.target.value;
+  shown=pageSize===0?Infinity:pageSize;
+  showAutocomplete(searchQ);
+  applyFilters();
+});
+searchInput.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){searchDropdown.classList.remove('open');searchDropdown.innerHTML='';}
+});
+searchDropdown.addEventListener('click',e=>{
+  const item=e.target.closest('.sdrop-item');
+  if(!item) return;
+  const val=item.dataset.val;
+  searchInput.value=val;
+  searchQ=val;
+  searchDropdown.classList.remove('open');
+  shown=pageSize===0?Infinity:pageSize;
+  applyFilters();
+});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-wrap')) searchDropdown.classList.remove('open');
 });
 
 document.getElementById('catFilters').addEventListener('click',e=>{
@@ -1011,8 +1169,14 @@ document.getElementById('catFilters').addEventListener('click',e=>{
   document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   activeCat=btn.dataset.cat;
+  // Clear new badge when user views new deals
+  if(activeCat==='new'){ newTidSet.clear(); updateNewBtn(); }
   shown=pageSize===0?Infinity:pageSize;
   applyFilters();
+});
+
+document.querySelectorAll('.provbtn').forEach(b=>{
+  b.addEventListener('click',()=>setProvince(b.dataset.prov));
 });
 
 document.querySelectorAll('[data-sort]').forEach(b=>{
@@ -1037,6 +1201,14 @@ document.querySelectorAll('[data-pg]').forEach(b=>{
 /* ══════════════════════════════════════
    Boot
 ══════════════════════════════════════ */
+// Apply saved province preference on load
+setProvince(activeProvince);
+
+// Register PWA service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register(API_BASE+'/service-worker.js').catch(()=>{});
+}
+
 loadDeals();
 connectSSE();
 </script>
