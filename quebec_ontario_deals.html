@@ -125,6 +125,8 @@ header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
 .view-btn{font-size:.76rem;color:var(--qc);text-decoration:none;font-weight:700;padding:5px 11px;border:1.5px solid var(--qc);border-radius:8px;transition:all .15s;white-space:nowrap}
 .view-btn:hover{background:var(--qc);color:#fff}
 .view-btn.dim{opacity:.3;cursor:default;pointer-events:none}
+.view-btn.search-btn{color:#777;border-color:#bbb}
+.view-btn.search-btn:hover{background:#777;color:#fff;border-color:#777}
 
 /* ── Load more ── */
 #loadMoreRow{text-align:center;padding:12px 14px 28px}
@@ -891,10 +893,13 @@ function cardHtml(d, newTids=[]){
     dateTag=`<div class="date-tag">Posted ${fmtDate(d.dropDate)}</div>`;
   }
 
-  // Show View button only for sources with real product URLs (not Flipp search/flyer pages)
-  const viewBtn=(d.source!=='Flipp' && d.link)
-    ?`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer">View →</a>`
-    :'';
+  let viewBtn='';
+  if(d.source!=='Flipp' && d.link){
+    viewBtn=`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer">View →</a>`;
+  } else if(d.source==='Flipp'){
+    const searchUrl=flippSearchUrl(d.store, d.title);
+    if(searchUrl) viewBtn=`<a class="view-btn search-btn" href="${esc(searchUrl)}" target="_blank" rel="noopener noreferrer">Search →</a>`;
+  }
 
   return `
 <div class="deal-card${isNew?' is-new':''}">
