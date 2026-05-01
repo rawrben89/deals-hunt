@@ -892,6 +892,10 @@ function cardHtml(d, newTids=[]){
     dateTag=`<div class="date-tag">Posted ${fmtDate(d.dropDate)}</div>`;
   }
 
+  // Show View button only for sources with real product URLs (not Flipp search/flyer pages)
+  const viewBtn=(d.source!=='Flipp' && d.link)
+    ?`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer">View →</a>`
+    :'';
 
   return `
 <div class="deal-card${isNew?' is-new':''}">
@@ -910,6 +914,7 @@ function cardHtml(d, newTids=[]){
       ${(d.provinces||['QC','ON']).includes('QC')?'<span class="ptag qc">QC</span>':''}
       ${(d.provinces||['QC','ON']).includes('ON')?'<span class="ptag on">ON</span>':''}
     </div>
+    ${viewBtn}
   </div>
 </div>`;
 }
