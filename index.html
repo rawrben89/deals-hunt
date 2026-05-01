@@ -159,13 +159,6 @@ header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
 footer{text-align:center;padding:16px;font-size:.73rem;color:var(--muted);border-top:1px solid var(--border);background:#fff}
 footer a{color:var(--qc)}
 
-/* ── Province toggle ── */
-.province-row{display:flex;gap:4px;justify-content:center;margin-top:6px}
-.provbtn{padding:4px 13px;border:1.5px solid var(--border);border-radius:99px;background:#fff;cursor:pointer;font-size:.74rem;font-weight:700;color:var(--muted);transition:all .15s}
-.provbtn:hover{border-color:var(--qc);color:var(--qc)}
-.provbtn.active-qc{background:var(--qc);border-color:var(--qc);color:#fff}
-.provbtn.active-on{background:var(--on);border-color:var(--on);color:#fff}
-.provbtn.active-both{background:#555;border-color:#555;color:#fff}
 
 /* ── All-time low badge ── */
 .low-badge{font-size:.58rem;font-weight:800;color:#fff;background:#6a1b9a;padding:2px 6px;border-radius:99px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
@@ -204,7 +197,6 @@ footer a{color:var(--qc)}
 [data-theme="dark"] .fbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
 [data-theme="dark"] .pgbtn{background:var(--card);border-color:var(--border);color:var(--muted)}
 [data-theme="dark"] .pgbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
-[data-theme="dark"] .provbtn{background:var(--card);border-color:var(--border);color:var(--muted)}
 [data-theme="dark"] .search-dropdown{background:var(--card);border-color:var(--border)}
 [data-theme="dark"] .sdrop-item:hover{background:#1a2f50}
 [data-theme="dark"] footer{background:#16213e}
@@ -330,11 +322,6 @@ footer a{color:var(--qc)}
         <button class="fbtn" data-cat="health">Health &amp; Beauty</button>
         <button class="fbtn" data-cat="food">Food</button>
       </div>
-      <div class="province-row">
-        <button class="provbtn" data-prov="QC">QC Only</button>
-        <button class="provbtn active-both" data-prov="both">QC + ON</button>
-        <button class="provbtn" data-prov="ON">ON Only</button>
-      </div>
     </div>
 
     <!-- STATS + PAGE SIZE -->
@@ -408,7 +395,6 @@ let activeCat  = (() => { const c=localStorage.getItem('activeCat')||'all'; retu
 let activeStore= 'all';
 let searchQ    = '';
 let sortBy     = localStorage.getItem('sortBy') || 'default';
-let activeProvince = localStorage.getItem('province') || 'both';
 let cumulativeStoreCounts = {};
 let storeCategoryMap = {};
 let seenTids   = new Set();   // TIDs seen on first load
@@ -427,12 +413,13 @@ let _alertTid='', _alertDealData=null;
    Category detection
 ══════════════════════════════════════ */
 const CAT_KW = {
-  electronics:['tv','television','monitor','laptop','computer','tablet','ipad','phone',
-    'iphone','android','samsung','apple','headphone','earbuds','speaker','camera',
-    'gaming','ps5','playstation','xbox','nintendo','switch','gpu','cpu','ssd','nvme',
-    'router','wifi','smart home','alexa','nest','drone','macbook','lenovo','dell',
-    'asus','acer','hp ','projector','printer','scanner','ink','cartridge','keyboard',
-    'mouse','webcam','charger','cable','ups','tech','bestbuy','staples'],
+  electronics:['tv ','television','monitor','laptop','computer','tablet','ipad','iphone',
+    'android','galaxy','pixel ','headphone','earbuds','airpods','speaker','camera',
+    'gaming','ps5','playstation','xbox','nintendo switch','gpu','cpu','ssd','nvme',
+    'router','wifi','smart home','alexa','echo dot','google nest','drone','macbook',
+    'lenovo','dell ','asus ','acer ','projector','laser printer','ink cartridge',
+    'toner','keyboard','mouse','webcam','usb hub','power bank','smartwatch',
+    'fitness tracker','electric toothbrush','robot vacuum','air purifier'],
   home:['furniture','sofa','couch','bed','mattress','desk','chair','kitchen',
     'appliance','vacuum','washer','dryer','fridge','dishwasher','oven','microwave',
     'blender','toaster','home','garden','tool','drill','saw','workbench','storage',
@@ -460,10 +447,25 @@ const CAT_KW = {
     'frozen','fresh','produce','meat','chicken','walmart grocery'],
 };
 
+// Map server storeCategory → filter tab
+const _STORECAT_TO_TAB = {
+  'Electronics':'electronics', 'Home & Garden':'home', 'Furniture':'home',
+  'Clothing':'fashion', 'Sporting & Outdoor':'sports', 'Pets':'health',
+  'Pharmacy':'health', 'Grocery':'food', 'Arts & Crafts':'other',
+  'Specialty':'other', 'General':'other',
+};
+
 function detectCat(d) {
+  // Trust the server's store-level category for specialty stores
+  const sc = d.storeCategory;
+  if (sc && sc !== 'General' && sc !== 'Other') {
+    const tab = _STORECAT_TO_TAB[sc];
+    if (tab) return tab;
+  }
+  // Then check the deal's own category field (Walmart, StockTrack provide this)
   if (d.category) {
     const lc = d.category.toLowerCase();
-    if (/electron|comput|tv|phone|tablet|printer|ink|camera/i.test(lc)) return 'electronics';
+    if (/electron|comput|tv |phone|tablet|printer|ink|camera/i.test(lc)) return 'electronics';
     if (/furniture|appliance|kitchen|garden|tool|home|hardware|decor/i.test(lc)) return 'home';
     if (/cloth|apparel|shoe|fashion|wear|access/i.test(lc)) return 'fashion';
     if (/sport|outdoor|fitness|bike|camp|exercise/i.test(lc)) return 'sports';
@@ -473,6 +475,7 @@ function detectCat(d) {
     if (/health|beauty|vitamin|pharma|personal care|cosmetic/i.test(lc)) return 'health';
     if (/food|grocery|beverage|snack/i.test(lc)) return 'food';
   }
+  // Finally fall back to title keyword matching
   const text = (d.title + ' ' + (d.store||'')).toLowerCase();
   for (const [cat, kws] of Object.entries(CAT_KW))
     if (kws.some(kw => text.includes(kw))) return cat;
@@ -963,9 +966,6 @@ function parsePrice(s){
 function applyFilters(newTids=[]){
   const q=searchQ.toLowerCase();
   filtered=allDeals;
-  // Province filter
-  if(activeProvince!=='both')
-    filtered=filtered.filter(d=>(d.provinces||['QC','ON']).includes(activeProvince));
   if(activeStore!=='all') filtered=filtered.filter(d=>d.store.trim()===activeStore);
   if(activeCat==='new')        filtered=filtered.filter(d=>d._isNew);
   else if(activeCat==='saved') filtered=filtered.filter(d=>savedTids.has(d.tid));
@@ -996,8 +996,7 @@ function applyFilters(newTids=[]){
 
 function renderDeals(newTids=[]){
   const stats=document.getElementById('statsBar');
-  const provLabel=activeProvince==='both'?'Quebec & Ontario':activeProvince==='QC'?'Quebec':'Ontario';
-  stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — ${provLabel}`;
+  stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — Quebec &amp; Ontario`;
 
   const root=document.getElementById('root');
   const lmRow=document.getElementById('loadMoreRow');
@@ -1260,29 +1259,6 @@ async function submitAlert(){
   }catch(_){ showToast('Could not save alert. Check connection.'); }
 }
 
-/* ══════════════════════════════════════
-   Province helpers
-══════════════════════════════════════ */
-function setProvince(prov){
-  activeProvince=prov;
-  localStorage.setItem('province', prov);
-  document.querySelectorAll('.provbtn').forEach(b=>{
-    b.className='provbtn';
-    if(b.dataset.prov===prov)
-      b.classList.add(prov==='QC'?'active-qc':prov==='ON'?'active-on':'active-both');
-  });
-  // Rebuild sidebar store counts for the selected province
-  const provDeals = prov==='both' ? allDeals
-    : allDeals.filter(d=>(d.provinces||['QC','ON']).includes(prov));
-  const provCounts = {};
-  provDeals.forEach(d=>{ const s=d.store.trim(); provCounts[s]=(provCounts[s]||0)+1; });
-  // Merge into cumulative (never reduce counts below what province shows)
-  const displayCounts = {};
-  for(const [s,c] of Object.entries(provCounts)) displayCounts[s]=c;
-  buildStoreList(displayCounts);
-  shown=pageSize===0?Infinity:pageSize;
-  applyFilters();
-}
 
 /* ══════════════════════════════════════
    New deals helpers
@@ -1394,9 +1370,6 @@ document.getElementById('catFilters').addEventListener('click',e=>{
   applyFilters();
 });
 
-document.querySelectorAll('.provbtn').forEach(b=>{
-  b.addEventListener('click',()=>setProvince(b.dataset.prov));
-});
 
 document.querySelectorAll('[data-sort]').forEach(b=>{
   b.addEventListener('click',()=>{
@@ -1459,9 +1432,6 @@ document.querySelectorAll('[data-pg]').forEach(b=>{
 
 // Restore persisted category tab
 setActiveCatBtn(activeCat);
-
-// Apply saved province preference
-setProvince(activeProvince);
 
 // Show initial saved count
 updateSavedCount();
