@@ -377,6 +377,88 @@ def get_redflagdeals():
 
 
 # ─────────────────────────────────────────────────────────
+# SOURCE 5: Shopify clothing retailers (sale collections)
+# ─────────────────────────────────────────────────────────
+_SHOPIFY_CLOTHING_STORES = [
+    ("Reitmans",        "www.reitmans.com"),
+    ("Penningtons",     "penningtons.com"),
+    ("Laura",           "www.laura.ca"),
+    ("Melanie Lyne",    "www.melanielyne.com"),
+    ("Thyme Maternity", "thymematernity.com"),
+]
+
+
+def get_shopify_clothing():
+    deals, errors = [], []
+    seen = set()
+
+    for store_name, domain in _SHOPIFY_CLOTHING_STORES:
+        for page in range(1, 4):
+            url = (f"https://{domain}/collections/sale/products.json"
+                   f"?limit=250&page={page}")
+            try:
+                data = _get_json(url, referer=f"https://{domain}/")
+                products = data.get("products", [])
+                if not products:
+                    break
+                for p in products:
+                    handle = p.get("handle", "").strip()
+                    title  = _clean(p.get("title", ""))
+                    brand  = _clean(p.get("vendor", ""))
+                    if not title or not handle:
+                        continue
+
+                    imgs = p.get("images", [])
+                    img  = imgs[0].get("src", "") if imgs else ""
+
+                    for v in p.get("variants", []):
+                        try:
+                            cur = float(v.get("price") or 0)
+                            old = float(v.get("compare_at_price") or 0)
+                        except (TypeError, ValueError):
+                            continue
+                        if cur <= 0 or old <= cur:
+                            continue
+
+                        tid = f"shopcloth-{domain}-{handle}-{v.get('id','')}"
+                        if tid in seen:
+                            continue
+                        seen.add(tid)
+
+                        save_amt = round(old - cur, 2)
+                        save_pct = str(round((old - cur) / old * 100)) + "%"
+                        link     = f"https://{domain}/products/{handle}"
+
+                        deals.append({
+                            "source":        "Shopify",
+                            "tid":           tid,
+                            "title":         title,
+                            "brand":         brand,
+                            "store":         store_name,
+                            "link":          link,
+                            "currentPrice":  f"${cur:.2f}",
+                            "originalPrice": f"${old:.2f}",
+                            "savings":       f"Save ${save_amt:.2f}",
+                            "savePct":       save_pct,
+                            "pubDate":       "",
+                            "relTime":       "Sale",
+                            "votes":         0,
+                            "img":           img,
+                            "category":      "Clothing",
+                            "clearance":     False,
+                            "dropDate":      "",
+                            "validUntil":    "",
+                            "provinces":     _deal_provinces(store_name),
+                        })
+                        break  # one variant per product is enough
+            except Exception as e:
+                errors.append(f"Shopify {store_name} p{page}: {e}")
+                break
+
+    return deals, errors
+
+
+# ─────────────────────────────────────────────────────────
 # Combined fetch + background cache
 # ─────────────────────────────────────────────────────────
 _cache_lock    = threading.Lock()
@@ -537,6 +619,7 @@ _FLIPP_TARGET_MERCHANTS = {
     "Michaels Canada", "Long & McQuade Musical Instruments", "Fabricland",
     # Clothing & Beauty
     "Old Navy", "H&M", "Chatters Salon", "Len's Mill Store", "Sephora",
+    "Holt Renfrew",
     # Specialty
     "SAQ", "LCBO", "The Beer Store",
 }
@@ -661,6 +744,7 @@ _SOURCES = [
     ("stocktrack",   get_stocktrack_deals,   "StockTrack"),
     ("redflagdeals", get_redflagdeals,       "RedFlagDeals"),
     ("flipp",        get_flipp_deals,        "Flipp"),
+    ("shopcloth",    get_shopify_clothing,   "ShopCloth"),
 ]
 
 
