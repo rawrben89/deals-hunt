@@ -886,10 +886,6 @@ function cardHtml(d, newTids=[]){
     dateTag=`<div class="date-tag">Posted ${fmtDate(d.dropDate)}</div>`;
   }
 
-  const resolvedLink=d.source==='Flipp'?(flippSearchUrl(d.store,d.title)||d.link):d.link;
-  const viewBtn=resolvedLink
-    ?`<a class="view-btn" href="${esc(resolvedLink)}" target="_blank" rel="noopener noreferrer">View →</a>`
-    :`<span class="view-btn dim">No link</span>`;
 
   return `
 <div class="deal-card${isNew?' is-new':''}">
@@ -908,7 +904,6 @@ function cardHtml(d, newTids=[]){
       ${(d.provinces||['QC','ON']).includes('QC')?'<span class="ptag qc">QC</span>':''}
       ${(d.provinces||['QC','ON']).includes('ON')?'<span class="ptag on">ON</span>':''}
     </div>
-    ${viewBtn}
   </div>
 </div>`;
 }
