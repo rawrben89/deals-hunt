@@ -13,6 +13,7 @@ Features:
 
 import json
 import urllib.request
+import urllib.parse
 import gzip
 import re
 import html as html_mod
@@ -21,7 +22,10 @@ import time
 import hashlib
 import sqlite3
 import os
+import smtplib
 import xml.etree.ElementTree as ET
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 from datetime import datetime
@@ -29,6 +33,11 @@ from datetime import datetime
 PORT = 8080
 DB_PATH = os.path.join(os.path.dirname(__file__), "price_history.db")
 _db_lock = threading.Lock()
+
+SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_PASS = os.environ.get("SMTP_PASS", "")
 
 # ─────────────────────────────────────────────────────────
 # Price history (SQLite)
@@ -43,6 +52,24 @@ def _init_db():
             first_seen TEXT,
             last_seen  TEXT,
             count     INTEGER DEFAULT 1
+        )""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS price_points (
+            tid      TEXT,
+            price    REAL,
+            seen_at  TEXT,
+            PRIMARY KEY (tid, seen_at)
+        )""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS alerts (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            email        TEXT NOT NULL,
+            tid          TEXT NOT NULL,
+            store        TEXT,
+            title        TEXT,
+            target_price REAL,
+            current_price REAL,
+            link         TEXT,
+            created_at   TEXT,
+            fired_at     TEXT
         )""")
         conn.commit()
 
@@ -82,6 +109,8 @@ def _update_price_history(all_deals):
                             (tid, d.get("store",""), d.get("title","")[:120],
                              price, now, now)
                         )
+                        cur.execute("INSERT OR IGNORE INTO price_points VALUES (?,?,?)",
+                                    (tid, price, now[:10]))
                         d["isLowest"] = True
                     elif price <= row[0]:
                         if price < row[0]:
@@ -94,18 +123,110 @@ def _update_price_history(all_deals):
                                 "UPDATE price_min SET last_seen=?,count=count+1 WHERE tid=?",
                                 (now, tid)
                             )
+                        # Record a new point only if price differs from last recorded
+                        last = cur.execute(
+                            "SELECT price FROM price_points WHERE tid=? ORDER BY seen_at DESC LIMIT 1",
+                            (tid,)
+                        ).fetchone()
+                        if not last or last[0] != price:
+                            cur.execute("INSERT OR IGNORE INTO price_points VALUES (?,?,?)",
+                                        (tid, price, now[:10]))
                         d["isLowest"] = True
                     else:
                         cur.execute(
                             "UPDATE price_min SET last_seen=?,count=count+1 WHERE tid=?",
                             (now, tid)
                         )
+                        last = cur.execute(
+                            "SELECT price FROM price_points WHERE tid=? ORDER BY seen_at DESC LIMIT 1",
+                            (tid,)
+                        ).fetchone()
+                        if not last or last[0] != price:
+                            cur.execute("INSERT OR IGNORE INTO price_points VALUES (?,?,?)",
+                                        (tid, price, now[:10]))
                         d["isLowest"] = False
                 conn.commit()
     except Exception as e:
         print(f"[price_history] {e}")
         for d in all_deals:
             d.setdefault("isLowest", False)
+
+
+# ─────────────────────────────────────────────────────────
+# Deal deduplication
+# ─────────────────────────────────────────────────────────
+_STOP = {"the","a","an","and","with","for","in","of","to","&","x"}
+
+def _normalize_title(title):
+    t = re.sub(r"[^a-z0-9\s]", " ", title.lower())
+    words = [w for w in t.split() if w not in _STOP and len(w) > 1]
+    return " ".join(words[:9])
+
+
+def _deduplicate(deals):
+    seen, out = set(), []
+    for d in deals:
+        key = f"{d['store'].strip().lower()}::{_normalize_title(d['title'])}"
+        if key not in seen:
+            seen.add(key)
+            out.append(d)
+    return out
+
+
+# ─────────────────────────────────────────────────────────
+# Email alerts
+# ─────────────────────────────────────────────────────────
+def _send_email(to_addr, subject, body_html):
+    if not SMTP_USER or not SMTP_PASS:
+        return
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = SMTP_USER
+        msg["To"] = to_addr
+        msg.attach(MIMEText(body_html, "html"))
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as s:
+            s.ehlo()
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASS)
+            s.sendmail(SMTP_USER, to_addr, msg.as_string())
+    except Exception as e:
+        print(f"[email] {e}")
+
+
+def _check_alerts(all_deals):
+    """Fire any price alerts whose target price has been reached."""
+    if not SMTP_USER:
+        return
+    deal_by_tid = {d["tid"]: d for d in all_deals}
+    try:
+        with _db_lock:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                rows = conn.execute(
+                    "SELECT id,email,tid,store,title,target_price,link "
+                    "FROM alerts WHERE fired_at IS NULL"
+                ).fetchall()
+                now = datetime.utcnow().isoformat()
+                for row in rows:
+                    aid, email, tid, store, title, target, link = row
+                    deal = deal_by_tid.get(tid)
+                    if not deal:
+                        continue
+                    price = _parse_price_float(deal.get("currentPrice",""))
+                    if price is None or price > target:
+                        continue
+                    # Target hit — fire the alert
+                    html = f"""<h2>Price Alert: {title}</h2>
+<p>{store} — now <strong>${price:.2f}</strong> (your target: ${target:.2f})</p>
+<p><a href="{link or '#'}">View deal →</a></p>
+<p style="color:#999;font-size:12px">QC &amp; ON Deals alert — reply to unsubscribe.</p>"""
+                    _send_email(email, f"Price drop: {title[:60]}", html)
+                    conn.execute(
+                        "UPDATE alerts SET fired_at=? WHERE id=?", (now, aid)
+                    )
+                conn.commit()
+    except Exception as e:
+        print(f"[alerts] {e}")
 
 
 # ─────────────────────────────────────────────────────────
@@ -572,6 +693,7 @@ def _build_and_cache(shared):
 
     all_deals.sort(key=sort_key)
 
+    all_deals = _deduplicate(all_deals)
     _update_price_history(all_deals)
 
     store_counts = {}
@@ -963,6 +1085,7 @@ def _background_refresh():
                 print(f"[{datetime.now():%H:%M:%S}] Deals updated "
                       f"({result['count']} total) — SSE pushed")
             last_fp = fp
+            _check_alerts(result["deals"])
 
         time.sleep(300)   # 5 minutes
 
@@ -1061,6 +1184,29 @@ class Handler(BaseHTTPRequestHandler):
                     if q in _sse_clients:
                         _sse_clients.remove(q)
 
+        elif path == "/api/history":
+            qs = {}
+            if "?" in self.path:
+                for kv in self.path.split("?", 1)[1].split("&"):
+                    if "=" in kv:
+                        k, v = kv.split("=", 1)
+                        qs[urllib.parse.unquote_plus(k)] = urllib.parse.unquote_plus(v)
+            tid = qs.get("tid", "")
+            if not tid:
+                self._send_json({"error": "missing tid"}, 400)
+            else:
+                try:
+                    with _db_lock:
+                        with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                            rows = conn.execute(
+                                "SELECT price, seen_at FROM price_points "
+                                "WHERE tid=? ORDER BY seen_at",
+                                (tid,)
+                            ).fetchall()
+                    self._send_json({"points": [{"price": r[0], "at": r[1]} for r in rows]})
+                except Exception as ex:
+                    self._send_json({"error": str(ex)}, 500)
+
         elif path in ("/", "/index.html", "/quebec_ontario_deals.html"):
             self._serve_file("quebec_ontario_deals.html", "text/html; charset=utf-8")
 
@@ -1073,6 +1219,45 @@ class Handler(BaseHTTPRequestHandler):
         elif path in ("/icon-192.png", "/icon-512.png"):
             self._serve_file(path.lstrip("/"), "image/png")
 
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
+    def do_POST(self):
+        path = self.path.split("?")[0]
+
+        if path == "/api/alerts":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length))
+                email = body.get("email", "").strip()
+                tid   = body.get("tid", "").strip()
+                target = float(body.get("target_price", 0))
+                title  = body.get("title", "")[:120]
+                store  = body.get("store", "")[:80]
+                link   = body.get("link", "")[:500]
+                if not email or not tid or target <= 0:
+                    self._send_json({"error": "invalid fields"}, 400)
+                    return
+                now = datetime.utcnow().isoformat()
+                with _db_lock:
+                    with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                        conn.execute(
+                            "INSERT INTO alerts(email,tid,store,title,target_price,link,created_at) "
+                            "VALUES(?,?,?,?,?,?,?)",
+                            (email, tid, store, title, target, link, now)
+                        )
+                        conn.commit()
+                self._send_json({"ok": True})
+            except Exception as ex:
+                self._send_json({"error": str(ex)}, 500)
         else:
             self.send_response(404)
             self.end_headers()

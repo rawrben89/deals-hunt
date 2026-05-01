@@ -192,6 +192,64 @@ footer a{color:var(--qc)}
 .sdrop-label{flex:1}
 .sdrop-type{font-size:.67rem;color:var(--muted)}
 
+/* ── Dark mode ── */
+[data-theme="dark"]{--bg:#111827;--card:#1e2a40;--border:#2a3a5c;--text:#dde4f5;--muted:#7986b0;--green:#4caf50}
+[data-theme="dark"] .sidebar,[data-theme="dark"] .sidebar-hd{background:#16213e;border-color:var(--border)}
+[data-theme="dark"] .controls{background:#16213e;border-color:var(--border)}
+[data-theme="dark"] .bottom-bar{background:#111827}
+[data-theme="dark"] .cat-header{background:#1a2740;color:var(--muted)}
+[data-theme="dark"] .cat-header:hover,[data-theme="dark"] .store-item:hover,[data-theme="dark"] .store-item-all:hover{background:#1a2f50}
+[data-theme="dark"] #searchInput{background:var(--card);color:var(--text);border-color:var(--border)}
+[data-theme="dark"] .fbtn{background:var(--card);border-color:var(--border);color:var(--muted)}
+[data-theme="dark"] .fbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
+[data-theme="dark"] .pgbtn{background:var(--card);border-color:var(--border);color:var(--muted)}
+[data-theme="dark"] .pgbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
+[data-theme="dark"] .provbtn{background:var(--card);border-color:var(--border);color:var(--muted)}
+[data-theme="dark"] .search-dropdown{background:var(--card);border-color:var(--border)}
+[data-theme="dark"] .sdrop-item:hover{background:#1a2f50}
+[data-theme="dark"] footer{background:#16213e}
+[data-theme="dark"] #loadMoreBtn{background:var(--card);color:var(--qc)}
+[data-theme="dark"] .store-item-all.active{background:#1a3a6a}
+[data-theme="dark"] .store-item.active{background:#1a3a6a}
+
+/* ── Theme toggle button ── */
+.theme-btn{padding:4px 10px;border:1.5px solid rgba(255,255,255,.5);border-radius:99px;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:background .15s;margin-left:10px}
+.theme-btn:hover{background:rgba(255,255,255,.28)}
+
+/* ── Wishlist heart ── */
+.heart-btn{background:none;border:none;cursor:pointer;font-size:1rem;padding:3px 4px;opacity:.3;transition:opacity .15s,transform .15s;line-height:1;flex-shrink:0}
+.heart-btn:hover{opacity:.7}
+.heart-btn.saved{opacity:1;color:#e91e63}
+.heart-btn.saved:hover{transform:scale(1.18)}
+.fbtn.saved-btn{border-color:#e91e63;color:#e91e63}
+.fbtn.saved-btn.active{background:#e91e63;border-color:#e91e63;color:#fff}
+
+/* ── Alert bell ── */
+.alert-btn{background:none;border:none;cursor:pointer;font-size:.82rem;padding:3px 4px;opacity:.3;transition:opacity .15s;line-height:1;flex-shrink:0}
+.alert-btn:hover{opacity:1}
+
+/* ── Card actions group ── */
+.card-actions{display:flex;align-items:center;gap:3px}
+
+/* ── Sparkline ── */
+.sparkline-wrap{height:32px;margin-top:8px}
+.sparkline-svg{width:100%;height:100%;overflow:visible}
+
+/* ── Price alert modal ── */
+#alertModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center}
+#alertModal.open{display:flex}
+.modal-box{background:var(--card);color:var(--text);border-radius:16px;padding:24px;width:min(360px,92vw);box-shadow:0 24px 64px rgba(0,0,0,.35)}
+.modal-title{font-size:1rem;font-weight:800;margin-bottom:4px}
+.modal-sub{font-size:.78rem;color:var(--muted);margin-bottom:16px;line-height:1.5;word-break:break-word}
+.modal-label{font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:4px;display:block}
+.modal-inp{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;margin-bottom:12px;box-sizing:border-box;background:var(--bg);color:var(--text)}
+.modal-inp:focus{outline:none;border-color:var(--qc)}
+.modal-row{display:flex;gap:8px;margin-top:4px}
+.modal-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .15s}
+.modal-btn.primary{background:var(--qc);color:#fff}
+.modal-btn.cancel{background:var(--border);color:var(--muted)}
+.modal-btn.primary:hover{background:#0d47a1}
+
 /* ── Mobile ── */
 @media(max-width:768px){
   .page-layout{flex-direction:column}
@@ -234,6 +292,7 @@ footer a{color:var(--qc)}
   <div class="live-row">
     <span class="live-dot"></span>
     <span id="fetchStatus">Connecting…</span>
+    <button class="theme-btn" id="themeBtn" onclick="toggleDark()">🌙</button>
   </div>
 </header>
 
@@ -260,6 +319,7 @@ footer a{color:var(--qc)}
       <div class="filter-row" id="catFilters">
         <button class="fbtn active" data-cat="all">All</button>
         <button class="fbtn new-btn" id="newDealsBtn" data-cat="new" style="display:none">New <span class="new-count" id="newCount">0</span></button>
+        <button class="fbtn saved-btn" data-cat="saved" id="savedDealsBtn">♥ Saved <span id="savedCount"></span></button>
         <button class="fbtn" data-cat="electronics">Electronics</button>
         <button class="fbtn" data-cat="home">Home &amp; Tools</button>
         <button class="fbtn" data-cat="fashion">Fashion</button>
@@ -319,24 +379,49 @@ footer a{color:var(--qc)}
 
 <div id="toast"></div>
 
+<!-- Price alert modal -->
+<div id="alertModal">
+  <div class="modal-box">
+    <div class="modal-title">🔔 Price Alert</div>
+    <div class="modal-sub" id="alertItemTitle"></div>
+    <label class="modal-label">Your email</label>
+    <input class="modal-inp" id="alertEmail" type="email" placeholder="you@example.com">
+    <label class="modal-label">Alert me when price drops to ($)</label>
+    <input class="modal-inp" id="alertTargetPrice" type="number" step="0.01" min="0.01" placeholder="e.g. 49.99">
+    <div class="modal-row">
+      <button class="modal-btn cancel" onclick="closeAlertModal()">Cancel</button>
+      <button class="modal-btn primary" onclick="submitAlert()">Set Alert</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const API_BASE='https://herbal-hunter-motivated-lang.trycloudflare.com';
+const API_BASE="https://herbal-hunter-motivated-lang.trycloudflare.com";
 /* ══════════════════════════════════════
    State
 ══════════════════════════════════════ */
 let allDeals   = [];
 let filtered   = [];
-let pageSize   = 60;
+let pageSize   = parseInt(localStorage.getItem('pageSize') || '60');
 let shown      = 0;
-let activeCat  = 'all';
+let activeCat  = (() => { const c=localStorage.getItem('activeCat')||'all'; return (c==='new'||c==='saved')?'all':c; })();
 let activeStore= 'all';
 let searchQ    = '';
-let sortBy     = 'default';
+let sortBy     = localStorage.getItem('sortBy') || 'default';
 let activeProvince = localStorage.getItem('province') || 'both';
 let cumulativeStoreCounts = {};
 let storeCategoryMap = {};
 let seenTids   = new Set();   // TIDs seen on first load
 let newTidSet  = new Set();   // TIDs new since last fetch
+
+// Wishlist
+let savedTids  = new Set(JSON.parse(localStorage.getItem('savedTids') || '[]'));
+
+// Dark mode
+let darkMode   = localStorage.getItem('darkMode') === '1';
+
+// Alert modal state
+let _alertTid='', _alertDealData=null;
 
 /* ══════════════════════════════════════
    Category detection
@@ -882,8 +967,9 @@ function applyFilters(newTids=[]){
   if(activeProvince!=='both')
     filtered=filtered.filter(d=>(d.provinces||['QC','ON']).includes(activeProvince));
   if(activeStore!=='all') filtered=filtered.filter(d=>d.store.trim()===activeStore);
-  if(activeCat==='new')   filtered=filtered.filter(d=>d._isNew);
-  else if(activeCat!=='all') filtered=filtered.filter(d=>d._cat===activeCat);
+  if(activeCat==='new')        filtered=filtered.filter(d=>d._isNew);
+  else if(activeCat==='saved') filtered=filtered.filter(d=>savedTids.has(d.tid));
+  else if(activeCat!=='all')   filtered=filtered.filter(d=>d._cat===activeCat);
   if(q) filtered=filtered.filter(d=>
     d.title.toLowerCase().includes(q)||
     (d.store||'').toLowerCase().includes(q)||
@@ -996,6 +1082,10 @@ function cardHtml(d, newTids=[]){
     if(searchUrl) viewBtn=`<a class="view-btn search-btn" href="${esc(searchUrl)}" target="_blank" rel="noopener noreferrer">Search →</a>`;
   }
 
+  const tid_esc=esc(d.tid);
+  const heartBtn=`<button class="heart-btn${savedTids.has(d.tid)?' saved':''}" data-tid="${tid_esc}" title="${savedTids.has(d.tid)?'Remove from saved':'Save deal'}">♥</button>`;
+  const alertBtn=`<button class="alert-btn" data-tid="${tid_esc}" title="Set price alert">🔔</button>`;
+
   return `
 <div class="deal-card${isNew?' is-new':''}">
   <div class="card-top">
@@ -1007,13 +1097,14 @@ function cardHtml(d, newTids=[]){
     <div class="deal-title">${esc(d.title)}</div>
     ${priceHtml}
     ${expiryTag?`<div class="date-tag">${expiryTag}</div>`:''}
+    <div class="sparkline-wrap" data-tid="${tid_esc}"></div>
   </div>
   <div class="card-foot">
     <div class="province-tags">
       ${(d.provinces||['QC','ON']).includes('QC')?'<span class="ptag qc">QC</span>':''}
       ${(d.provinces||['QC','ON']).includes('ON')?'<span class="ptag on">ON</span>':''}
     </div>
-    ${viewBtn}
+    <div class="card-actions">${heartBtn}${alertBtn}${viewBtn}</div>
   </div>
 </div>`;
 }
@@ -1069,6 +1160,104 @@ function fmtDate(s){
     const d=new Date(s+'T12:00:00');
     return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
   }catch(_){return s}
+}
+
+/* ══════════════════════════════════════
+   Dark mode
+══════════════════════════════════════ */
+function applyDark(){
+  document.documentElement.dataset.theme = darkMode ? 'dark' : '';
+  const btn=document.getElementById('themeBtn');
+  if(btn) btn.textContent = darkMode ? '☀️' : '🌙';
+}
+function toggleDark(){
+  darkMode=!darkMode;
+  localStorage.setItem('darkMode', darkMode?'1':'0');
+  applyDark();
+}
+
+/* ══════════════════════════════════════
+   Wishlist
+══════════════════════════════════════ */
+function toggleSave(tid){
+  if(savedTids.has(tid)) savedTids.delete(tid);
+  else savedTids.add(tid);
+  localStorage.setItem('savedTids', JSON.stringify([...savedTids]));
+  updateSavedCount();
+  // Flip heart buttons for this tid in place
+  document.querySelectorAll(`.heart-btn[data-tid="${CSS.escape(tid)}"]`).forEach(b=>{
+    b.classList.toggle('saved', savedTids.has(tid));
+    b.title = savedTids.has(tid)?'Remove from saved':'Save deal';
+  });
+  // If we're in Saved view, re-render to remove unsaved card
+  if(activeCat==='saved') applyFilters();
+}
+function updateSavedCount(){
+  const el=document.getElementById('savedCount');
+  if(el) el.textContent = savedTids.size ? savedTids.size : '';
+}
+
+/* ══════════════════════════════════════
+   Sparkline
+══════════════════════════════════════ */
+async function loadSparkline(tid, el){
+  if(el.dataset.loaded) return;
+  el.dataset.loaded='1';
+  try{
+    const r=await fetch(API_BASE+'/api/history?tid='+encodeURIComponent(tid));
+    const data=await r.json();
+    const pts=(data.points||[]);
+    if(pts.length<2) return;
+    const prices=pts.map(p=>p.price);
+    const min=Math.min(...prices), max=Math.max(...prices);
+    const W=100, H=28;
+    const coords=prices.map((p,i)=>{
+      const x=(i/(prices.length-1))*W;
+      const y=max===min ? H/2 : H-((p-min)/(max-min))*(H-4)-2;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" class="sparkline-svg" preserveAspectRatio="none">
+      <polyline points="${coords}" fill="none" stroke="var(--qc)" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    </svg><div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);margin-top:1px">
+      <span>$${min.toFixed(2)}</span><span>$${max.toFixed(2)}</span></div>`;
+  }catch(_){}
+}
+
+/* ══════════════════════════════════════
+   Alert modal
+══════════════════════════════════════ */
+function openAlertModal(tid, deal){
+  _alertTid=tid;
+  _alertDealData=deal;
+  document.getElementById('alertItemTitle').textContent=deal.title;
+  document.getElementById('alertEmail').value=localStorage.getItem('alertEmail')||'';
+  const pf=parsePrice(deal.currentPrice);
+  document.getElementById('alertTargetPrice').value=pf?(pf*0.9).toFixed(2):'';
+  document.getElementById('alertModal').classList.add('open');
+}
+function closeAlertModal(){
+  document.getElementById('alertModal').classList.remove('open');
+}
+async function submitAlert(){
+  const email=document.getElementById('alertEmail').value.trim();
+  const target=parseFloat(document.getElementById('alertTargetPrice').value);
+  if(!email||!target||target<=0){
+    showToast('Enter a valid email and target price.');
+    return;
+  }
+  localStorage.setItem('alertEmail',email);
+  const d=_alertDealData||{};
+  try{
+    const r=await fetch(API_BASE+'/api/alerts',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({tid:_alertTid,email,target_price:target,
+        title:d.title||'',store:d.store||'',link:d.link||''})
+    });
+    if(r.ok){ closeAlertModal(); showToast('Alert set! We\'ll email you when the price drops.'); }
+    else showToast('Could not save alert. Try again.');
+  }catch(_){ showToast('Could not save alert. Check connection.'); }
 }
 
 /* ══════════════════════════════════════
@@ -1199,6 +1388,8 @@ document.getElementById('catFilters').addEventListener('click',e=>{
   activeCat=btn.dataset.cat;
   // Clear new badge when user views new deals
   if(activeCat==='new'){ newTidSet.clear(); updateNewBtn(); }
+  // Persist cat (but not ephemeral tabs)
+  if(activeCat!=='new') localStorage.setItem('activeCat', activeCat);
   shown=pageSize===0?Infinity:pageSize;
   applyFilters();
 });
@@ -1212,6 +1403,7 @@ document.querySelectorAll('[data-sort]').forEach(b=>{
     document.querySelectorAll('[data-sort]').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
     sortBy=b.dataset.sort;
+    localStorage.setItem('sortBy', sortBy);
     applyFilters();
   });
 });
@@ -1221,20 +1413,62 @@ document.querySelectorAll('[data-pg]').forEach(b=>{
     document.querySelectorAll('[data-pg]').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
     pageSize=parseInt(b.dataset.pg)||0;
+    localStorage.setItem('pageSize', pageSize);
     shown=pageSize===0?Infinity:pageSize;
     applyFilters();
   });
 });
 
+// Event delegation for heart/alert/sparkline on deal cards
+document.getElementById('root').addEventListener('click',e=>{
+  const hb=e.target.closest('.heart-btn');
+  if(hb){ e.stopPropagation(); toggleSave(hb.dataset.tid); return; }
+  const ab=e.target.closest('.alert-btn');
+  if(ab){
+    e.stopPropagation();
+    const deal=allDeals.find(d=>d.tid===ab.dataset.tid);
+    if(deal) openAlertModal(ab.dataset.tid, deal);
+    return;
+  }
+});
+document.getElementById('root').addEventListener('mouseover',e=>{
+  const wrap=e.target.closest('.sparkline-wrap');
+  if(wrap && !wrap.dataset.loaded) loadSparkline(wrap.dataset.tid, wrap);
+});
+// Close alert modal on backdrop click
+document.getElementById('alertModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('alertModal')) closeAlertModal();
+});
+
 /* ══════════════════════════════════════
    Boot
 ══════════════════════════════════════ */
-// Apply saved province preference on load
+// Dark mode
+applyDark();
+
+// Restore persisted sort button
+document.querySelectorAll('[data-sort]').forEach(b=>{
+  b.classList.toggle('active', b.dataset.sort===sortBy);
+});
+
+// Restore persisted page-size button
+document.querySelectorAll('[data-pg]').forEach(b=>{
+  const pg=parseInt(b.dataset.pg)||0;
+  b.classList.toggle('active', pg===pageSize);
+});
+
+// Restore persisted category tab
+setActiveCatBtn(activeCat);
+
+// Apply saved province preference
 setProvince(activeProvince);
+
+// Show initial saved count
+updateSavedCount();
 
 // Register PWA service worker
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register(API_BASE+'/service-worker.js').catch(()=>{});
+  navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
 }
 
 loadDeals();
