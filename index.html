@@ -702,7 +702,8 @@ function flippSearchUrl(store, title){
 ══════════════════════════════════════ */
 function mergeStoreCounts(fresh){
   for(const [store,cnt] of Object.entries(fresh)){
-    cumulativeStoreCounts[store]=Math.max(cumulativeStoreCounts[store]||0, cnt);
+    const s=store.trim();
+    cumulativeStoreCounts[s]=Math.max(cumulativeStoreCounts[s]||0, cnt);
   }
 }
 
@@ -719,9 +720,9 @@ function buildStoreList(counts){
   const groups={};
   for(const [store,cnt] of Object.entries(counts)){
     if(!cnt) continue;
-    const cat=STORE_CAT[store]||'Other';
+    const cat=STORE_CAT[store.trim()]||'Other';
     if(!groups[cat]) groups[cat]=[];
-    groups[cat].push([store,cnt]);
+    groups[cat].push([store.trim(),cnt]);
   }
   for(const cat in groups) groups[cat].sort((a,b)=>b[1]-a[1]);
 
@@ -796,7 +797,7 @@ function parsePrice(s){
 function applyFilters(newTids=[]){
   const q=searchQ.toLowerCase();
   filtered=allDeals;
-  if(activeStore!=='all') filtered=filtered.filter(d=>d.store===activeStore);
+  if(activeStore!=='all') filtered=filtered.filter(d=>d.store.trim()===activeStore);
   if(activeCat!=='all')   filtered=filtered.filter(d=>d._cat===activeCat);
   if(q) filtered=filtered.filter(d=>
     d.title.toLowerCase().includes(q)||
