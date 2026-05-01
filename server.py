@@ -127,6 +127,11 @@ def _parse_walmart_page(url):
         for item in stack.get("items", []):
             if item.get("__typename") != "Product":
                 continue
+            # Skip third-party marketplace sellers
+            seller = (item.get("sellerInfo") or {})
+            seller_name = (seller.get("sellerDisplayName") or seller.get("name") or "").strip().lower()
+            if seller_name and seller_name not in ("walmart.ca", "walmart", ""):
+                continue
             name = _clean(item.get("name", ""))
             if not name:
                 continue

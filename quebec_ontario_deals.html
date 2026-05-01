@@ -271,6 +271,7 @@ let shown      = 0;
 let activeCat  = 'all';
 let activeStore= 'all';
 let searchQ    = '';
+let cumulativeStoreCounts = {};
 
 /* ══════════════════════════════════════
    Category detection
@@ -415,7 +416,8 @@ async function loadDeals(spinner=true) {
     if (data.flipp) parts.push(`${data.flipp} Flipp`);
     document.getElementById('lastUpdated').textContent = parts.join(' · ');
 
-    buildStoreList(data.storeCounts);
+    mergeStoreCounts(data.storeCounts);
+    buildStoreList(cumulativeStoreCounts);
     applyFilters();
   } catch(e) {
     console.error(e);
@@ -450,7 +452,8 @@ function connectSSE(){
           if(data.redflagdeals) pts.push(`${data.redflagdeals} RFD`);
           if(data.flipp) pts.push(`${data.flipp} Flipp`);
           document.getElementById('lastUpdated').textContent=pts.join(' · ');
-          buildStoreList(data.storeCounts);
+          mergeStoreCounts(data.storeCounts);
+          buildStoreList(cumulativeStoreCounts);
           applyFilters(newOnes.map(d=>d.tid));
           if(newOnes.length)
             showToast(`🆕 ${newOnes.length} new deal${newOnes.length>1?'s':''} found!`,
@@ -672,8 +675,19 @@ function flippSearchUrl(store, title){
 /* ══════════════════════════════════════
    Sidebar — category accordion
 ══════════════════════════════════════ */
+function mergeStoreCounts(fresh){
+  for(const [store,cnt] of Object.entries(fresh)){
+    cumulativeStoreCounts[store]=Math.max(cumulativeStoreCounts[store]||0, cnt);
+  }
+}
+
 function buildStoreList(counts){
   const list=document.getElementById('storeList');
+
+  // Save which categories are currently open
+  const openCats=new Set();
+  list.querySelectorAll('.cat-header.open').forEach(h=>openCats.add(h.dataset.cat));
+
   const total=Object.values(counts).reduce((s,c)=>s+c,0);
 
   // Group stores by category
@@ -703,7 +717,7 @@ function buildStoreList(counts){
     if(!stores.length) continue;
     rendered.add(cat);
     const catTotal=stores.reduce((s,[,c])=>s+c,0);
-    const isOpen=stores.some(([s])=>s===activeStore);
+    const isOpen=openCats.has(cat)||stores.some(([s])=>s===activeStore);
 
     html+=`<div class="cat-group">
       <div class="cat-header ${isOpen?'open':''}" data-cat="${esc(cat)}">
