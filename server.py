@@ -492,6 +492,7 @@ def _build_and_cache(shared):
 
     store_counts = {}
     for d in all_deals:
+        d["storeCategory"] = _store_category(d["store"])
         store_counts[d["store"]] = store_counts.get(d["store"], 0) + 1
 
     result = {
@@ -571,6 +572,88 @@ def _deal_provinces(store):
     if store in _ON_ONLY_STORES:
         return ["ON"]
     return ["QC", "ON"]
+
+
+_STORE_CATEGORY = {
+    # General
+    "Walmart": "General", "Costco": "General", "Giant Tiger": "General",
+    "Rossy": "General", "Hart Stores": "General", "Dollarama": "General",
+    # Grocery
+    "Metro": "Grocery", "IGA": "Grocery", "Maxi": "Grocery", "Super C": "Grocery",
+    "Provigo": "Grocery", "Adonis": "Grocery", "T&T Supermarket": "Grocery",
+    "Wholesale Club and Club Entrepôt": "Grocery", "Rachelle Béry": "Grocery",
+    "PA Nature": "Grocery", "Avril Supermarché Santé": "Grocery",
+    "M&M Food Market": "Grocery", "Mayrand": "Grocery",
+    "Marché Richelieu": "Grocery", "Les Marchés Tradition": "Grocery",
+    "Real Canadian Superstore": "Grocery", "Your Independent Grocer": "Grocery",
+    "No Frills": "Grocery", "Sobeys": "Grocery", "Food Basics": "Grocery",
+    "FreshCo": "Grocery", "Loblaws": "Grocery", "Fortinos": "Grocery",
+    "Farm Boy": "Grocery", "Longos": "Grocery", "Foodland": "Grocery",
+    "Valu-Mart": "Grocery", "Independent City Market": "Grocery",
+    "H Mart": "Grocery", "Highland Farms": "Grocery",
+    "Btrust Supermarket": "Grocery", "Nations Fresh Foods": "Grocery",
+    "Chalo FreshCo": "Grocery", "Fiesta Farms": "Grocery",
+    "Lady York Foods": "Grocery", "Oceans Fresh Food Market": "Grocery",
+    "Galleria Supermarket": "Grocery", "Foody Mart": "Grocery",
+    "Foody World": "Grocery", "Seasons Food Mart": "Grocery",
+    "Cataldi": "Grocery", "Terra Foodmart": "Grocery",
+    "Fresh Land Supermarket": "Grocery", "Fusion Supermarket": "Grocery",
+    "Starsky": "Grocery", "A1 Cash + Carry": "Grocery",
+    "Bestco Foodmart": "Grocery", "Blue Sky Supermarket": "Grocery",
+    "Danforth Food Market": "Grocery", "Pat Mart": "Grocery",
+    "Tone Tai Supermarket": "Grocery", "Winco Food Mart": "Grocery",
+    "Yuan Ming Supermarket": "Grocery",
+    # Pharmacy
+    "Jean Coutu": "Pharmacy", "Pharmaprix": "Pharmacy", "Familiprix": "Pharmacy",
+    "Brunet": "Pharmacy", "Shoppers Drug Mart": "Pharmacy", "Uniprix": "Pharmacy",
+    "Proxim": "Pharmacy", "Rexall": "Pharmacy", "Guardian": "Pharmacy",
+    "Pharmasave": "Pharmacy", "Accès pharma": "Pharmacy", "Proximed": "Pharmacy",
+    "Uniprix Sante": "Pharmacy", "Ki Nature & Santé": "Pharmacy",
+    "I.D.A.": "Pharmacy",
+    # Electronics
+    "Best Buy": "Electronics", "EB Games Canada": "Electronics",
+    "Staples": "Electronics", "Bureau en gros": "Electronics",
+    "Centre Hi-Fi": "Electronics", "Tanguay": "Electronics",
+    "Newegg": "Electronics", "2001 Audio Video": "Electronics",
+    "The Source": "Electronics",
+    # Home & Garden
+    "Home Depot": "Home & Garden", "RONA & RONA +": "Home & Garden",
+    "Home Hardware": "Home & Garden", "Canac": "Home & Garden",
+    "Patrick Morin": "Home & Garden", "BMR": "Home & Garden",
+    "Bath Depot": "Home & Garden", "Club Piscine": "Home & Garden",
+    # Furniture
+    "Canadian Tire": "Furniture", "IKEA": "Furniture", "JYSK": "Furniture",
+    "Leon's": "Furniture", "The Brick": "Furniture", "Linen Chest": "Furniture",
+    "Stokes": "Furniture", "Dormez-Vous": "Furniture",
+    "Wayfair": "Furniture", "Sleep Country Canada": "Furniture",
+    "La-Z-Boy": "Furniture", "Oxford Mills": "Furniture",
+    "Kitchen Stuff Plus": "Furniture",
+    # Sporting & Outdoor
+    "SAIL": "Sporting & Outdoor", "Sports Experts": "Sporting & Outdoor",
+    "Sport Chek": "Sporting & Outdoor", "Atmosphere": "Sporting & Outdoor",
+    "Decathlon": "Sporting & Outdoor", "Princess Auto": "Sporting & Outdoor",
+    "Bumper to Bumper": "Sporting & Outdoor",
+    "Cabela's & Bass Pro": "Sporting & Outdoor",
+    # Clothing & Beauty
+    "Old Navy": "Clothing", "H&M": "Clothing", "Fabricland": "Clothing",
+    "Len's Mill Store": "Clothing", "Chatters Salon": "Clothing",
+    "Sephora": "Clothing", "Holt Renfrew": "Clothing",
+    "Reitmans": "Clothing", "Penningtons": "Clothing", "Laura": "Clothing",
+    "Melanie Lyne": "Clothing", "Thyme Maternity": "Clothing",
+    # Pets
+    "PetSmart": "Pets", "Mondou": "Pets", "Pet Valu": "Pets",
+    "Ren's Pets": "Pets", "Animo Etc.": "Pets", "Chico": "Pets",
+    # Arts & Crafts
+    "Michaels Canada": "Arts & Crafts",
+    "Long & McQuade Musical Instruments": "Arts & Crafts",
+    # Specialty
+    "SAQ": "Specialty", "LCBO": "Specialty", "The Beer Store": "Specialty",
+    "Party City": "Specialty", "Showcase": "Specialty",
+}
+
+
+def _store_category(store):
+    return _STORE_CATEGORY.get(store.strip(), "Other")
 
 
 # ─────────────────────────────────────────────────────────
