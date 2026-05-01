@@ -391,10 +391,12 @@ const STORE_COLORS = {
   // Arts & Crafts
   'Michaels Canada':'#e53935',
   'Long & McQuade Musical Instruments':'#1565C0',
+  // Clothing & Beauty
+  'Old Navy':'#0055a5','H&M':'#cc0000','Fabricland':'#7b1fa2',
+  'Sephora':'#212121','Chatters Salon':'#880e4f',
   // Specialty
   'Staples':'#cc0000','Toys R Us':'#bf360c',
   'SAQ':'#7b1fa2','LCBO':'#c62828','The Beer Store':'#d32f2f',
-  'Sephora':'#212121',
 };
 function storeColor(name){return STORE_COLORS[name.trim()]||'#546e7a'}
 
@@ -553,16 +555,20 @@ const STORE_CAT = {
   'Michaels Canada':'Arts & Crafts',
   'Long & McQuade Musical Instruments':'Arts & Crafts',
   'Fabricland':'Arts & Crafts',
+  // Clothing & Beauty
+  'Old Navy':'Clothing','H&M':'Clothing','Fabricland':'Clothing',
+  'Len\'s Mill Store':'Clothing','Chatters Salon':'Clothing',
+  'Sephora':'Clothing',
   // Specialty
   'SAQ':'Specialty','LCBO':'Specialty','The Beer Store':'Specialty',
-  'Sephora':'Specialty','Party City':'Specialty','Showcase':'Specialty',
+  'Party City':'Specialty','Showcase':'Specialty',
   "McDonald's":'Specialty','TeleTime':'Specialty','On the Run':'Specialty',
 };
 
 const CAT_ORDER = [
   'General','Grocery','Pharmacy','Electronics',
   'Home & Garden','Furniture','Sporting & Outdoor',
-  'Pets','Arts & Crafts','Specialty','Other',
+  'Clothing','Pets','Arts & Crafts','Specialty','Other',
 ];
 
 /* ══════════════════════════════════════

@@ -478,6 +478,7 @@ _ON_ONLY_STORES = {
     "Blue Sky Supermarket", "Danforth Food Market", "Pat Mart",
     "Tone Tai Supermarket", "Winco Food Mart", "Yuan Ming Supermarket",
     "Pet Valu", "Ren's Pets", "PartSource",
+    "Old Navy", "H&M", "Fabricland", "Chatters Salon", "Len's Mill Store",
 }
 
 def _deal_provinces(store):
@@ -531,9 +532,11 @@ _FLIPP_TARGET_MERCHANTS = {
     # Pets
     "PetSmart", "Mondou", "Pet Valu", "Ren's Pets",
     # Arts & Crafts
-    "Michaels Canada", "Long & McQuade Musical Instruments",
+    "Michaels Canada", "Long & McQuade Musical Instruments", "Fabricland",
+    # Clothing & Beauty
+    "Old Navy", "H&M", "Chatters Salon", "Len's Mill Store", "Sephora",
     # Specialty
-    "SAQ", "LCBO", "The Beer Store", "Sephora",
+    "SAQ", "LCBO", "The Beer Store",
 }
 
 
