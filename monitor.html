@@ -50,6 +50,12 @@
     .footer { text-align:center; font-size:6px; color:var(--surf0); padding-top:8px; }
     .footer a { color:var(--overlay); text-decoration:none; }
     .footer a:hover { color:var(--blue); }
+    .rpt { font-size:6px; line-height:2.2; background:var(--mantle); padding:8px;
+           border:1px solid var(--surf0); margin-top:8px; }
+    .rpt-row { margin-bottom:3px; }
+    .rpt-ok   { color:var(--green); } .rpt-warn { color:var(--yellow); }
+    .rpt-err  { color:var(--red); }  .rpt-act  { color:var(--peach); }
+    .rpt-dim  { color:var(--overlay); }
   </style>
 </head>
 <body>
@@ -86,6 +92,24 @@
     <div class="panel-title">WATCHDOG LOG</div>
     <div id="log"><div class="ll">Loading…</div></div>
   </div>
+  <!-- Health agent report -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <span class="panel-title">HEALTH AGENT</span>
+      <span id="health-age" style="font-size:6px;color:var(--overlay)">HOURLY CCR</span>
+    </div>
+    <div class="rpt" id="health-content"><div class="rpt-dim">Awaiting first report… (runs every hour)</div></div>
+  </div>
+
+  <!-- Scout agent report -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <span class="panel-title">SCOUT AGENT</span>
+      <span id="scout-age" style="font-size:6px;color:var(--overlay)">WEEKLY CCR</span>
+    </div>
+    <div class="rpt" id="scout-content"><div class="rpt-dim">Awaiting first scout… (runs every Monday 10:00 UTC)</div></div>
+  </div>
+
   <div class="footer">
     CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log &nbsp;|&nbsp; <a href="/">← DEALS</a>
   </div>
@@ -444,6 +468,51 @@ async function poll(){
     :'<div class="ll">No log entries yet.</div>';
 }
 poll();setInterval(poll,5000);
+
+// ── Agent report polling ───────────────────────────────────────────────────────
+function renderHealthReport(d){
+  const el=document.getElementById('health-content');
+  const ageEl=document.getElementById('health-age');
+  if(!d||d.status==='no_report_yet'){
+    el.innerHTML='<div class="rpt-dim">Awaiting first report… (runs every hour)</div>'; return;
+  }
+  const col=d.overall==='healthy'?'rpt-ok':d.overall==='degraded'?'rpt-warn':'rpt-err';
+  let html=`<div class="rpt-row ${col}">STATUS: ${(d.overall||'?').toUpperCase()}</div>`;
+  (d.issues||[]).forEach(i=>{ html+=`<div class="rpt-row rpt-warn">⚠ ${i}</div>`; });
+  if((d.dead_scrapers||[]).length)
+    html+=`<div class="rpt-row rpt-err">DEAD SCRAPERS: ${d.dead_scrapers.join(', ')}</div>`;
+  if((d.healthy_scrapers||[]).length)
+    html+=`<div class="rpt-row rpt-ok">ALIVE: ${d.healthy_scrapers.join(', ')}</div>`;
+  if(d.staleness_minutes!=null)
+    html+=`<div class="rpt-row rpt-dim">DATA AGE: ${d.staleness_minutes}m</div>`;
+  if(!(d.issues||[]).length&&!(d.dead_scrapers||[]).length)
+    html+='<div class="rpt-row rpt-ok">All systems nominal</div>';
+  ageEl.textContent=d.checked_at?'LAST: '+d.checked_at.slice(0,16)+'Z':'HOURLY CCR';
+  el.innerHTML=html;
+}
+
+function renderScoutReport(d){
+  const el=document.getElementById('scout-content');
+  const ageEl=document.getElementById('scout-age');
+  if(!d||d.status==='no_report_yet'){
+    el.innerHTML='<div class="rpt-dim">Awaiting first scout… (runs every Monday 10:00 UTC)</div>'; return;
+  }
+  let html='';
+  if(d.summary) html+=`<div class="rpt-row rpt-act">${d.summary}</div>`;
+  if((d.top_picks||[]).length)
+    html+=`<div class="rpt-row rpt-warn">TOP PICKS: ${d.top_picks.join(' · ')}</div>`;
+  (d.new_sources||[]).slice(0,6).forEach(s=>{
+    html+=`<div class="rpt-row">+ ${s.name}${s.has_api?' <span class="rpt-ok">[API]</span>':''}: <span class="rpt-dim">${s.notes||''}</span></div>`;
+  });
+  ageEl.textContent=d.scouted_at?'LAST: '+d.scouted_at.slice(0,16)+'Z':'WEEKLY CCR';
+  el.innerHTML=html;
+}
+
+async function pollReports(){
+  try{const r=await fetch('/api/health-report',{cache:'no-store'});if(r.ok)renderHealthReport(await r.json());}catch(e){}
+  try{const r=await fetch('/api/scout-report',{cache:'no-store'});if(r.ok)renderScoutReport(await r.json());}catch(e){}
+}
+pollReports();setInterval(pollReports,30000);
 
 })();
 </script>

@@ -707,6 +707,9 @@ _cache_lock    = threading.Lock()
 _cached_result = None
 _sse_clients   = []
 _sse_lock      = threading.Lock()
+_health_report = {}
+_scout_report  = {}
+_reports_lock  = threading.Lock()
 
 
 def _build_and_cache(shared):
@@ -1923,6 +1926,14 @@ class Handler(BaseHTTPRequestHandler):
                 "watchdog": {"last_run_ts": _log_mtime, "log": _log_lines},
             })
 
+        elif path == "/api/health-report":
+            with _reports_lock:
+                self._send_json(_health_report or {"status": "no_report_yet"})
+
+        elif path == "/api/scout-report":
+            with _reports_lock:
+                self._send_json(_scout_report or {"status": "no_report_yet"})
+
         elif path == "/api/events":
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
@@ -2013,7 +2024,23 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         path = self.path.split("?")[0]
 
-        if path == "/api/alerts":
+        if path in ("/api/health-report", "/api/scout-report"):
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length))
+                body["received_at"] = datetime.utcnow().isoformat() + "Z"
+                with _reports_lock:
+                    if path == "/api/health-report":
+                        _health_report.clear()
+                        _health_report.update(body)
+                    else:
+                        _scout_report.clear()
+                        _scout_report.update(body)
+                self._send_json({"ok": True})
+            except Exception as ex:
+                self._send_json({"error": str(ex)}, 400)
+
+        elif path == "/api/alerts":
             try:
                 length = int(self.headers.get("Content-Length", 0))
                 body = json.loads(self.rfile.read(length))
