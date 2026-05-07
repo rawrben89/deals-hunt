@@ -358,6 +358,7 @@ footer a{color:var(--qc)}
         <button class="fbtn" data-cat="home">Home &amp; Tools</button>
         <button class="fbtn" data-cat="fashion">Fashion</button>
         <button class="fbtn" data-cat="sports">Sports</button>
+        <button class="fbtn" data-cat="baby">Baby</button>
         <button class="fbtn" data-cat="toys">Toys</button>
         <button class="fbtn" data-cat="office">Office</button>
         <button class="fbtn" data-cat="auto">Auto</button>
@@ -545,8 +546,12 @@ const CAT_KW = {
     'outdoor','ski','snowboard','skate','golf','tennis','basketball','soccer',
     'hockey','swimming','pool','sport chek','mec','atmosphere','decathlon',
     'princess auto'],
-  toys:['toy','lego','doll','puzzle','board game','baby','infant','kid','child',
-    'action figure','stuffed','rc car','craft kit','toys r','playmat'],
+  baby:['diaper','stroller','formula','crib','bassinet','onesie','car seat',
+    'teether','breast pump','swaddle','baby monitor','high chair','pacifier',
+    'baby bottle','bib','bouncer','playmat baby','bugaboo','uppababy',
+    'babies r us','buybuy baby',"carter's baby",'infant formula','baby wipe'],
+  toys:['toy','lego','doll','puzzle','board game','kid','child',
+    'action figure','stuffed','rc car','craft kit','toys r'],
   office:['office','stapler','pen','notebook','binder','laminator','shredder',
     'calculator','toner','supply','ergonomic','bureau en gros','staples office'],
   auto:['car ','vehicle','auto ','tire ','oil change','motor oil','engine','fuel',
@@ -563,7 +568,7 @@ const _STORECAT_TO_TAB = {
   'Electronics':'electronics', 'Home & Garden':'home', 'Furniture':'home',
   'Clothing':'fashion', 'Sporting & Outdoor':'sports', 'Pets':'health',
   'Pharmacy':'health', 'Grocery':'food', 'Arts & Crafts':'other',
-  'Specialty':'other', 'General':'other',
+  'Specialty':'other', 'General':'other', 'Baby & Kids':'baby',
 };
 
 function detectCat(d) {
@@ -580,7 +585,8 @@ function detectCat(d) {
     if (/furniture|appliance|kitchen|garden|tool|home|hardware|decor/i.test(lc)) return 'home';
     if (/cloth|apparel|shoe|fashion|wear|access/i.test(lc)) return 'fashion';
     if (/sport|outdoor|fitness|bike|camp|exercise/i.test(lc)) return 'sports';
-    if (/toy|baby|child|game board|infant/i.test(lc)) return 'toys';
+    if (/baby|infant|diaper|stroller|nursery|formula|crib|onesie/i.test(lc)) return 'baby';
+    if (/toy|child|game board/i.test(lc)) return 'toys';
     if (/office|supply|stationery/i.test(lc)) return 'office';
     if (/auto|tire|vehicle|car|motor/i.test(lc)) return 'auto';
     if (/health|beauty|vitamin|pharma|personal care|cosmetic/i.test(lc)) return 'health';

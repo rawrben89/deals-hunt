@@ -908,6 +908,10 @@ _STORE_CATEGORY = {
     "SAQ": "Specialty", "LCBO": "Specialty", "BC Liquor Stores": "Specialty",
     "The Beer Store": "Specialty",
     "Party City": "Specialty", "Showcase": "Specialty",
+    # Baby & Kids
+    "Babies R Us": "Baby & Kids", "buybuy BABY": "Baby & Kids",
+    "Carter's": "Baby & Kids", "OshKosh": "Baby & Kids",
+    "Mastermind Toys": "Baby & Kids",
 }
 
 

@@ -239,8 +239,9 @@ const AGENTS=[
 const TEAM_MID=[
   {label:'DEV', ax:60,  off:0,   ratio:0.82, pal:[null,'#d4a574','#22d3ee','#1f2937','#0891b2','#334155','#e2e8f0']},
   {label:'QA',  ax:175, off:110, ratio:0.58, pal:[null,'#d4a574','#c084fc','#1f2937','#9333ea','#334155','#e2e8f0']},
-  {label:'BEND',ax:425, off:55,  ratio:0.88, pal:[null,'#d4a574','#fb923c','#1f2937','#ea580c','#334155','#e2e8f0']},
-  {label:'DES', ax:540, off:160, ratio:0.65, pal:[null,'#d4a574','#a3e635','#1f2937','#65a30d','#334155','#e2e8f0']},
+  {label:'HR',  ax:360, off:75,  ratio:0.70, pal:[null,'#d4a574','#f87171','#1f2937','#dc2626','#334155','#e2e8f0']},
+  {label:'BEND',ax:450, off:55,  ratio:0.88, pal:[null,'#d4a574','#fb923c','#1f2937','#ea580c','#334155','#e2e8f0']},
+  {label:'DES', ax:560, off:160, ratio:0.65, pal:[null,'#d4a574','#a3e635','#1f2937','#65a30d','#334155','#e2e8f0']},
 ];
 
 // ── Deals search team far-back row ─────────────────────────────────────────────
@@ -254,7 +255,7 @@ const TEAM_FAR=[
 // PM visits each mid-row desk, then returns home, then repeats
 const PM_PAL =[null,'#d4a574','#f472b6','#1f2937','#db2777','#334155','#e2e8f0'];
 const PM_HOME=300;
-const PM_ROUTE=[175, 60, 425, 540, PM_HOME];   // x stops: QA, DEV, BEND, DES, home
+const PM_ROUTE=[175, 60, 360, 450, 560, 575, PM_HOME]; // QA, DEV, HR, BEND, DES, agents-briefing, home
 const PM_SPEED=1.4;          // px/tick
 const PM_CHECK_T=220;        // ticks spent checking at each desk
 const PM_SIT_T  =700;        // ticks sitting at own desk between rounds
@@ -352,21 +353,25 @@ function drawChar(ax,label,state,pal,ep,tick,dy,led,fast){
 }
 
 // Speech bubble above PM when checking on someone
-function drawBubble(ax,dy,tick){
-  const py=dy-SPH-4; // standing y
+function drawBubble(ax,dy,tick,babyMode){
+  const py=dy-SPH-4;
   const bx=ax+13, by=py-16;
-  // Shadow
   gx.fillStyle='#1f2937'; gx.fillRect(bx+2,by+2,14,10);
-  // Body
-  gx.fillStyle='#e2e8f0'; gx.fillRect(bx,by,14,10);
-  // Tail
-  gx.fillRect(bx+2,by+10,4,3);
-  // Content: cycles between dots and checkmark
+  gx.fillStyle=babyMode?'#fce7f3':'#e2e8f0'; gx.fillRect(bx,by,14,10);
+  gx.fillStyle=babyMode?'#fce7f3':'#e2e8f0'; gx.fillRect(bx+2,by+10,4,3);
   gx.fillStyle='#1f2937';
-  const f=Math.floor(tick/20)%3;
+  const f=Math.floor(tick/20)%(babyMode?4:3);
   if(f===0){gx.fillRect(bx+2,by+4,2,2);gx.fillRect(bx+6,by+4,2,2);gx.fillRect(bx+10,by+4,2,2);}
   else if(f===1){gx.fillRect(bx+3,by+5,2,2);gx.fillRect(bx+5,by+3,2,2);gx.fillRect(bx+7,by+2,4,2);}
-  else{gx.fillRect(bx+5,by+2,4,2);gx.fillRect(bx+8,by+4,2,2);gx.fillRect(bx+6,by+6,2,2);}
+  else if(f===2){gx.fillRect(bx+5,by+2,4,2);gx.fillRect(bx+8,by+4,2,2);gx.fillRect(bx+6,by+6,2,2);}
+  else{
+    // baby bottle in pink
+    gx.fillStyle='#f9a8d4';
+    gx.fillRect(bx+6,by+1,2,2); // nipple
+    gx.fillRect(bx+5,by+3,4,1); // collar
+    gx.fillRect(bx+4,by+4,6,5); // body
+    gx.fillRect(bx+5,by+9,4,1); // base
+  }
 }
 
 // Scrum banner across the canvas
@@ -434,8 +439,8 @@ function render(){
   TEAM_MID.forEach(w=>{drawDeskFront(w.ax,DY_MID);});
   drawDeskFront(PM_HOME,DY_MID);
 
-  // Speech bubble if PM is checking
-  if(pm.state==='checking') drawBubble(Math.round(pm.x),DY_MID,tick);
+  // Speech bubble if PM is checking (baby mode when briefing agents at far right)
+  if(pm.state==='checking') drawBubble(Math.round(pm.x),DY_MID,tick,pm.x>565);
 
   // ── Front: watchdog agents ──
   AGENTS.forEach(a=>{drawDeskBack(a.ax,a.state,tick,DY_FRON);});
