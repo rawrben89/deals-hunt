@@ -302,13 +302,13 @@ function blit(sp,px,py,pal){
 
 // ── Watchdog agents (front row) ────────────────────────────────────────────────
 const AGENTS=[
-  {id:'server',label:'SRVR',ax:100,state:'idle',
+  {id:'server',label:'SRVR',ax:90,state:'idle',
    pal:[null,'#d4a574','#818cf8','#1f2937','#4f46e5','#334155','#e2e8f0'],
    ep: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0']},
-  {id:'tunnel',label:'TUNL',ax:300,state:'idle',
+  {id:'tunnel',label:'TUNL',ax:220,state:'idle',
    pal:[null,'#d4a574','#34d399','#1f2937','#059669','#334155','#e2e8f0'],
    ep: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0']},
-  {id:'deals', label:'DEAL',ax:500,state:'idle',
+  {id:'deals', label:'DEAL',ax:350,state:'idle',
    pal:[null,'#d4a574','#fbbf24','#1f2937','#d97706','#334155','#e2e8f0'],
    ep: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0']},
 ];
@@ -324,9 +324,9 @@ const TEAM_MID=[
 
 // ── Deals search team far-back row ─────────────────────────────────────────────
 const TEAM_FAR=[
-  {label:'SCOT',ax:120, off:30,  ratio:0.90, pal:[null,'#d4a574','#2dd4bf','#1f2937','#0d9488','#334155','#e2e8f0']},
-  {label:'SRAP',ax:300, off:180, ratio:0.95, pal:[null,'#d4a574','#e879f9','#1f2937','#a21caf','#334155','#e2e8f0']},
-  {label:'CMPR',ax:480, off:90,  ratio:0.88, pal:[null,'#d4a574','#38bdf8','#1f2937','#0284c7','#334155','#e2e8f0']},
+  {label:'SCOT',ax:90,  off:30,  ratio:0.90, pal:[null,'#d4a574','#2dd4bf','#1f2937','#0d9488','#334155','#e2e8f0']},
+  {label:'SRAP',ax:220, off:180, ratio:0.95, pal:[null,'#d4a574','#e879f9','#1f2937','#a21caf','#334155','#e2e8f0']},
+  {label:'CMPR',ax:350, off:90,  ratio:0.88, pal:[null,'#d4a574','#38bdf8','#1f2937','#0284c7','#334155','#e2e8f0']},
 ];
 
 // ── PM walk state machine ─────────────────────────────────────────────────────
@@ -452,35 +452,185 @@ function drawBubble(ax,dy,tick,babyMode){
   }
 }
 
-// Scrum banner across the canvas
-function drawScrumBanner(tick){
-  if(Math.floor(tick/25)%2===0)return; // blink
-  const bw=230,bh=14,bx=(CW-bw)/2,by=19;
-  gx.fillStyle='#6030ff'; gx.fillRect(bx,by,bw,bh);
-  gx.fillStyle='#cba6f7';
-  gx.font='7px "Press Start 2P",monospace';
-  gx.textAlign='center';
-  gx.fillText('SCRUM IN PROGRESS',CW/2,by+10);
+// ── Meeting room (top-right corner, x=435-597, y=4-100) ──────────────────────
+function drawMeetingRoom(tick){
+  const rx=435,ry=4,rw=162,rh=100;
+  // Background
+  gx.fillStyle='#12122a'; gx.fillRect(rx,ry,rw,rh);
+  // Left wall edge
+  gx.fillStyle='#2d2b55'; gx.fillRect(rx,ry,2,rh);
+  // Top accent
+  gx.fillStyle=scrumActive?(Math.floor(tick/18)%2===0?'#6030ff':'#cba6f7'):'#2d2b55';
+  gx.fillRect(rx,ry,rw,2);
+
+  // Header
+  gx.font='5px "Press Start 2P",monospace';
+  gx.textAlign='left';
+  gx.fillStyle='#45475a'; gx.fillText('MTG RM',rx+6,ry+12);
+  // Sprint badge inside room header
+  const sp=sprintInfo();
+  gx.textAlign='right';
+  if(sp.release){
+    gx.fillStyle=Math.floor(tick/20)%2===0?'#a6e3a1':'#6030ff';
+    gx.fillText('RELEASE!',rx+rw-4,ry+12);
+  } else {
+    gx.fillStyle='#313244';
+    gx.fillText('S'+sp.num+'·D'+sp.day+'/14',rx+rw-4,ry+12);
+  }
+
+  // Whiteboard on back wall
+  gx.fillStyle='#1a1a3e'; gx.fillRect(rx+6,ry+16,58,24); // frame
+  gx.fillStyle='#d8d8f0'; gx.fillRect(rx+8,ry+18,54,20); // surface
+  gx.fillStyle='#89b4fa'; gx.fillRect(rx+11,ry+22,30,2);
+  gx.fillStyle='#a6e3a1'; gx.fillRect(rx+11,ry+26,22,2);
+  gx.fillStyle='#f9e2af'; gx.fillRect(rx+11,ry+30,18,2);
+  gx.fillStyle='#cba6f7'; gx.fillRect(rx+36,ry+20,18,12); // mini chart
+  gx.fillStyle='#6030ff'; gx.fillRect(rx+38,ry+28,3,4);
+  gx.fillStyle='#89b4fa'; gx.fillRect(rx+43,ry+25,3,7);
+  gx.fillStyle='#a6e3a1'; gx.fillRect(rx+48,ry+23,3,9);
+  // Board frame
+  gx.strokeStyle='#45475a'; gx.lineWidth=1;
+  gx.strokeRect(rx+6.5,ry+16.5,57,23);
+
+  // Conference table
+  const tx=rx+rw/2+5, ty=ry+68;
+  gx.fillStyle='#252450'; gx.fillRect(tx-46,ty+3,92,4); // shadow
+  gx.fillStyle='#3d3a6e'; gx.fillRect(tx-46,ty-1,92,4); // edge
+  gx.fillStyle='#4a4785'; gx.fillRect(tx-46,ty-22,92,24); // surface
+  gx.fillStyle='#5858a0'; gx.fillRect(tx-46,ty-22,92,3); // top rim
+  // Table legs
+  gx.fillStyle='#252450'; gx.fillRect(tx-44,ty+3,4,6);
+  gx.fillStyle='#252450'; gx.fillRect(tx+40,ty+3,4,6);
+
+  // Chairs (4 top, 4 bottom)
+  const chairC=scrumActive?'#4030a0':'#252450';
+  const chairH=scrumActive?'#6040d0':'#35356a';
+  for(let i=0;i<4;i++){
+    const cx=tx-36+i*22;
+    gx.fillStyle=chairC; gx.fillRect(cx,ty-31,14,8);
+    gx.fillStyle=chairH; gx.fillRect(cx,ty-31,14,2);
+    gx.fillStyle=chairC; gx.fillRect(cx,ty+7,14,8);
+    gx.fillStyle=chairH; gx.fillRect(cx,ty+7,14,2);
+  }
+  // Head-of-table chair (right)
+  gx.fillStyle=chairC; gx.fillRect(tx+48,ty-14,8,14);
+  gx.fillStyle=chairH; gx.fillRect(tx+48,ty-14,2,14);
+
+  // During scrum: mini attendees + PM icon + "SCRUM" flash
+  if(scrumActive){
+    const hues=['#89b4fa','#a6e3a1','#f38ba8','#cba6f7','#fbbf24'];
+    for(let i=0;i<4;i++){
+      const cx=tx-33+i*22;
+      // top-side attendees
+      gx.fillStyle=hues[i]; gx.fillRect(cx+2,ty-38,5,5);
+      gx.fillStyle='#45475a'; gx.fillRect(cx+2,ty-33,5,3);
+      // bottom-side attendees
+      gx.fillStyle=hues[(i+2)%5]; gx.fillRect(cx+2,ty+15,5,5);
+    }
+    // PM at head of table
+    gx.fillStyle='#f472b6'; gx.fillRect(tx+52,ty-13,5,5);
+    gx.fillStyle='#db2777'; gx.fillRect(tx+52,ty-8,5,4);
+    // Scrum label
+    if(Math.floor(tick/22)%2===0){
+      gx.fillStyle='#cba6f7';
+      gx.font='4px "Press Start 2P",monospace';
+      gx.textAlign='center';
+      gx.fillText('SCRUM',tx,ry+rh-6);
+    }
+  }
 }
 
-function drawLabels(tick){
-  const sp=sprintInfo();
+// ── Cafeteria (bottom-right corner, x=435-597, y=202-314) ────────────────────
+function drawCafeteria(tick){
+  const rx=435,ry=202,rw=162,rh=114;
+  // Background
+  gx.fillStyle='#0d1a1f'; gx.fillRect(rx,ry,rw,rh);
+  // Left wall edge
+  gx.fillStyle='#2d2b55'; gx.fillRect(rx,ry,2,rh);
+  // Bottom accent
+  gx.fillStyle='#0891b2'; gx.fillRect(rx,ry+rh-2,rw,2);
+
+  // Header
   gx.font='5px "Press Start 2P",monospace';
-  // Left labels
+  gx.textAlign='left';
+  gx.fillStyle='#45475a'; gx.fillText('CAFE',rx+6,ry+12);
+
+  // Coffee machine (right side)
+  const mx=rx+rw-32,my=ry+18;
+  gx.fillStyle='#1f2937'; gx.fillRect(mx,my,24,40);
+  gx.fillStyle='#374151'; gx.fillRect(mx+1,my+1,22,38);
+  gx.fillStyle='#4b5563'; gx.fillRect(mx+3,my+4,18,16); // panel
+  gx.fillStyle='#059669'; gx.fillRect(mx+5,my+8,5,4);   // green light
+  gx.fillStyle='#ef4444'; gx.fillRect(mx+12,my+8,5,4);  // red light
+  gx.fillStyle='#1f2937'; gx.fillRect(mx+6,my+22,12,8); // cup area
+  gx.fillStyle='#111827'; gx.fillRect(mx+8,my+24,8,5);  // cup shadow
+  gx.fillStyle='#6b7280'; gx.fillRect(mx+3,my+36,18,4); // drip tray
+  // Coffee cup on tray
+  gx.fillStyle='#e2e8f0'; gx.fillRect(mx+9,my+30,6,6);
+  gx.fillStyle='#92400e'; gx.fillRect(mx+10,my+31,4,4); // coffee in cup
+  // Steam animation
+  const sf=Math.floor(tick/14)%3;
+  gx.fillStyle='#6b7280';
+  if(sf===0){gx.fillRect(mx+10,my-4,2,3);gx.fillRect(mx+15,my-3,2,2);}
+  if(sf===1){gx.fillRect(mx+9,my-5,2,4);gx.fillRect(mx+14,my-4,2,3);}
+  if(sf===2){gx.fillRect(mx+10,my-6,2,4);gx.fillRect(mx+15,my-5,2,3);gx.fillRect(mx+8,my-3,2,2);}
+
+  // Sofa (left area)
+  const sx=rx+6,sy=ry+62;
+  // Back
+  gx.fillStyle='#252450'; gx.fillRect(sx,sy,72,14);
+  gx.fillStyle='#3d3a6e'; gx.fillRect(sx+2,sy+2,68,10);
+  gx.fillStyle='#4a4785'; gx.fillRect(sx+2,sy+2,68,3); // highlight
+  // Seat base
+  gx.fillStyle='#1e1c40'; gx.fillRect(sx,sy+14,72,24);
+  gx.fillStyle='#2d2b55'; gx.fillRect(sx+2,sy+16,68,20);
+  // Seat cushions
+  gx.fillStyle='#3d3a6e'; gx.fillRect(sx+4,sy+18,30,16);
+  gx.fillStyle='#3d3a6e'; gx.fillRect(sx+38,sy+18,30,16);
+  gx.fillStyle='#4a4785'; gx.fillRect(sx+4,sy+18,30,3);
+  gx.fillStyle='#4a4785'; gx.fillRect(sx+38,sy+18,30,3);
+  // Arms
+  gx.fillStyle='#252450'; gx.fillRect(sx,sy,6,38);
+  gx.fillStyle='#252450'; gx.fillRect(sx+66,sy,6,38);
+  // Legs
+  gx.fillStyle='#374151'; gx.fillRect(sx+4,sy+38,4,6);
+  gx.fillStyle='#374151'; gx.fillRect(sx+64,sy+38,4,6);
+  // Throw pillow (purple, between cushions)
+  gx.fillStyle='#cba6f7'; gx.fillRect(sx+32,sy+18,8,14);
+  gx.fillStyle='#a78bfa'; gx.fillRect(sx+33,sy+20,6,10);
+
+  // Side table
+  const ttx=rx+88,tty=ry+84;
+  gx.fillStyle='#2d2b55'; gx.fillRect(ttx,tty,28,4);
+  gx.fillStyle='#3d3a6e'; gx.fillRect(ttx,tty,28,2); // rim
+  gx.fillStyle='#1f2937'; gx.fillRect(ttx+2,tty+4,3,16);
+  gx.fillStyle='#1f2937'; gx.fillRect(ttx+23,tty+4,3,16);
+  // Items on table
+  gx.fillStyle='#ef4444'; gx.fillRect(ttx+2,tty-9,6,9);  // soda can
+  gx.fillStyle='#dc2626'; gx.fillRect(ttx+2,tty-9,6,2);  // can top
+  gx.fillStyle='#f97316'; gx.fillRect(ttx+10,tty-7,8,7); // snack bag
+  gx.fillStyle='#fbbf24'; gx.fillRect(ttx+20,tty-6,6,6); // cookie
+
+  // Plant (top-right corner)
+  const px=rx+rw-20,py=ry+16;
+  gx.fillStyle='#92400e'; gx.fillRect(px+2,py+26,12,10); // pot
+  gx.fillStyle='#78350f'; gx.fillRect(px,py+24,16,4);    // rim
+  gx.fillStyle='#14532d'; gx.fillRect(px+7,py+6,2,20);   // stem
+  gx.fillStyle='#15803d'; gx.fillRect(px-1,py+10,12,6);  // leaf L
+  gx.fillStyle='#15803d'; gx.fillRect(px+7,py+6,12,5);   // leaf R
+  gx.fillStyle='#166534'; gx.fillRect(px+4,py+1,8,8);    // top leaf
+  // Leaf highlights
+  gx.fillStyle='#16a34a'; gx.fillRect(px,py+11,5,2);
+  gx.fillStyle='#16a34a'; gx.fillRect(px+8,py+7,5,2);
+}
+
+function drawLabels(){
+  gx.font='5px "Press Start 2P",monospace';
   gx.fillStyle='#313244';
   gx.textAlign='left';
   gx.fillText('DEALS SEARCH',4,13);
   gx.fillText('DEV TEAM',4,118);
   gx.fillText('WATCHDOG',4,210);
-  // Right: sprint badge
-  gx.textAlign='right';
-  if(sp.release){
-    gx.fillStyle=Math.floor(tick/20)%2===0?'#a6e3a1':'#6030ff';
-    gx.fillText('RELEASE DAY!',CW-4,13);
-  } else {
-    gx.fillStyle='#45475a';
-    gx.fillText('S'+sp.num+' · D'+sp.day+'/14',CW-4,13);
-  }
 }
 
 function ambState(w,tick){
@@ -494,8 +644,9 @@ function render(){
   drawFloor();
   drawWall(108, CW*0.67|0);
   drawWall(200, CW*0.33|0);
-  drawLabels(tick);
-  if(scrumActive) drawScrumBanner(tick);
+  drawMeetingRoom(tick);
+  drawCafeteria(tick);
+  drawLabels();
 
   // ── Far-back: deals search ──
   TEAM_FAR.forEach(w=>{drawDeskBack(w.ax,ambState(w,tick),tick,DY_FAR);});

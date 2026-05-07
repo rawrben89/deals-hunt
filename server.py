@@ -713,7 +713,18 @@ _scout_report    = {}
 _pending_command = {"status": "no_command"}
 _reports_lock    = threading.Lock()
 
-_monitor_password = "Hackmepokai1!"
+def _load_env_password():
+    env_file = os.path.join(os.path.dirname(__file__), ".env")
+    try:
+        for line in open(env_file):
+            line = line.strip()
+            if line.startswith("MONITOR_PASSWORD="):
+                return line.split("=", 1)[1]
+    except FileNotFoundError:
+        pass
+    return os.environ.get("MONITOR_PASSWORD", "")
+
+_monitor_password = _load_env_password()
 _admin_token      = _secrets_mod.token_hex(32)
 
 

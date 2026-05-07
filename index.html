@@ -354,16 +354,17 @@ footer a{color:var(--qc)}
         <button class="fbtn active" data-cat="all">All</button>
         <button class="fbtn new-btn" id="newDealsBtn" data-cat="new" style="display:none">New <span class="new-count" id="newCount">0</span></button>
         <button class="fbtn saved-btn" data-cat="saved" id="savedDealsBtn">♥ Saved <span id="savedCount"></span></button>
-        <button class="fbtn" data-cat="electronics">Electronics</button>
-        <button class="fbtn" data-cat="home">Home &amp; Tools</button>
+        <button class="fbtn" data-cat="tech">Electronics</button>
+        <button class="fbtn" data-cat="gaming">Gaming</button>
+        <button class="fbtn" data-cat="home">Home &amp; Kitchen</button>
+        <button class="fbtn" data-cat="tools">Tools &amp; Reno</button>
         <button class="fbtn" data-cat="fashion">Fashion</button>
-        <button class="fbtn" data-cat="sports">Sports</button>
-        <button class="fbtn" data-cat="baby">Baby</button>
-        <button class="fbtn" data-cat="toys">Toys</button>
-        <button class="fbtn" data-cat="office">Office</button>
-        <button class="fbtn" data-cat="auto">Auto</button>
+        <button class="fbtn" data-cat="sports">Sports &amp; Outdoors</button>
+        <button class="fbtn" data-cat="baby">Baby &amp; Kids</button>
         <button class="fbtn" data-cat="health">Health &amp; Beauty</button>
-        <button class="fbtn" data-cat="food">Grocery</button>
+        <button class="fbtn" data-cat="grocery">Grocery &amp; Drinks</button>
+        <button class="fbtn" data-cat="auto">Auto</button>
+        <button class="fbtn" data-cat="office">Office</button>
       </div>
     </div>
 
@@ -525,53 +526,97 @@ let priceMin = 0, priceMax = Infinity;
    Category detection
 ══════════════════════════════════════ */
 const CAT_KW = {
-  electronics:['tv ','television','monitor','laptop','computer','tablet','ipad','iphone',
-    'android','galaxy','pixel ','headphone','earbuds','airpods','speaker','camera',
-    'gaming','ps5','playstation','xbox','nintendo switch','gpu','cpu','ssd','nvme',
-    'router','wifi','smart home','alexa','echo dot','google nest','drone','macbook',
+  tech:['tv ','television','monitor','laptop','computer','tablet','ipad','iphone',
+    'android','samsung','pixel ','headphone','earbuds','airpods','speaker','camera',
+    'router','wifi','smart home','alexa','echo','google nest','drone','macbook',
     'lenovo','dell ','asus ','acer ','projector','laser printer','ink cartridge',
     'toner','keyboard','mouse','webcam','usb hub','power bank','smartwatch',
-    'fitness tracker','electric toothbrush','robot vacuum','air purifier'],
-  home:['furniture','sofa','couch','bed','mattress','desk','chair','kitchen',
-    'appliance','vacuum','washer','dryer','fridge','dishwasher','oven','microwave',
-    'blender','toaster','home','garden','tool','drill','saw','workbench','storage',
-    'shed','ikea','wayfair','home depot','rona','lowe','toolbox','ladder','paint',
-    'hardware','plumbing','lighting','canadian tire home','reno'],
+    'electric toothbrush','robot vacuum','air purifier','smart tv','streaming',
+    'chromecast','apple tv','fire stick','sonos','bose','jbl','razer','logitech',
+    'newegg','best buy','the source'],
+  gaming:['gaming','ps5','playstation','xbox','nintendo switch','steam deck',
+    'controller','game console','video game','gpu','rtx ','rx ','graphics card',
+    'gaming chair','gaming desk','gaming mouse','gaming keyboard','gaming headset',
+    'esports','game pass','ea play','nfs ','call of duty','fifa ','nba 2k',
+    'assassin','zelda','pokemon','mario ','sonic ','elden ring','lego star wars',
+    'eb games','meta quest'],
+  home:['furniture','sofa','couch','sectional','bed frame','mattress','desk chair',
+    'kitchen','appliance','vacuum','washer','dryer','fridge','refrigerator',
+    'dishwasher','oven','range','microwave','blender','toaster','instant pot',
+    'air fryer','coffee maker','keurig','curtain','rug','lamp','bedding','pillow',
+    'duvet','towel','bath mat','shower','ikea','wayfair','leon','the brick','jysk',
+    'sleep country','linen chest','dormez-vous'],
+  tools:['tool','drill','saw','circular saw','jigsaw','workbench','toolbox','ladder',
+    'paint','hardware','plumbing','electrical','generator','compressor','wrench',
+    'socket set','screwdriver','nail gun','sandpaper','caulk','drywall','insulation',
+    'flooring','tile','grout','home depot','rona','home hardware','lowes','canac',
+    'patrick morin','bmr','summit tools','work light','extension cord','tarp',
+    'deck stain','concrete','mulch','hose','lawn mower','snow blower','chainsaw',
+    'pressure washer','shed','worklight'],
   fashion:['clothing','shirt','pants','dress','shoe','sneaker','jacket','coat',
-    'jeans','sweater','hoodie','fashion','apparel','boot','sandal','sock','underwear',
-    'h&m','zara','gap','old navy','roots','lululemon','winners','hudson','uniqlo',
-    'aritzia','aldo','skechers','nike','adidas'],
-  sports:['sport','fitness','exercise','gym','bike','bicycle','kayak','canoe',
-    'tent','camping','hiking','yoga','weight','dumbbell','treadmill','elliptical',
-    'outdoor','ski','snowboard','skate','golf','tennis','basketball','soccer',
-    'hockey','swimming','pool','sport chek','mec','atmosphere','decathlon',
-    'princess auto'],
-  baby:['diaper','stroller','formula','crib','bassinet','onesie','car seat',
-    'teether','breast pump','swaddle','baby monitor','high chair','pacifier',
-    'baby bottle','bib','bouncer','playmat baby','bugaboo','uppababy',
-    'babies r us','buybuy baby',"carter's baby",'infant formula','baby wipe'],
-  toys:['toy','lego','doll','puzzle','board game','kid','child',
-    'action figure','stuffed','rc car','craft kit','toys r'],
-  office:['office','stapler','pen','notebook','binder','laminator','shredder',
-    'calculator','toner','supply','ergonomic','bureau en gros','staples office'],
-  auto:['car ','vehicle','auto ','tire ','oil change','motor oil','engine','fuel',
-    'garage','wiper','brake','muffler','seat cover','princess auto','canadian tire auto'],
-  health:['vitamin','supplement','protein','medicine','pharmacy','cosmetic','beauty',
-    'lotion','sunscreen','shampoo','cleanser','skincare','makeup','shoppers',
-    'rexall','jean coutu','drug','health'],
-  food:['food','grocery','snack','beverage','coffee','tea','protein bar','organic',
-    'frozen','fresh','produce','meat','chicken','walmart grocery'],
+    'jeans','sweater','hoodie','apparel','boot','sandal','sock','underwear',
+    'leggings','activewear','swimwear','h&m','zara','gap','old navy','roots',
+    'lululemon','winners','hudson\'s bay','uniqlo','aritzia','aldo','skechers',
+    'nike','adidas','puma','new balance','fila','vans','converse','timberland',
+    'columbia','north face','bag','purse','wallet','belt','hat','toque','scarf',
+    'gloves','sunglasses','jewelry','watch','bracelet','necklace'],
+  sports:['sport','fitness','exercise','gym','bike','bicycle','e-bike','kayak',
+    'canoe','tent','sleeping bag','camping','hiking','yoga mat','weight','dumbbell',
+    'barbell','treadmill','elliptical','stationary bike','rowing machine','outdoor',
+    'ski','snowboard','skate','golf','tennis','basketball','soccer ball','hockey',
+    'swimming','pool','sport chek','mec','atmosphere','decathlon','altitude sports',
+    'fishing','hunting','climbing','volleyball','badminton','pickle ball',
+    'lacrosse','baseball','football','rugby','cycling helmet','life jacket'],
+  baby:['baby','infant','diaper','stroller','formula','crib','bassinet','onesie',
+    'car seat','teether','breast pump','swaddle','baby monitor','high chair',
+    'pacifier','baby bottle','bib','bouncer','playmat','bugaboo','uppababy',
+    'graco','chicco','babies r us','buybuy baby','carter\'s','oshkosh','gerber',
+    'newborn','toddler','nursery','layette','toy','lego','doll','puzzle',
+    'board game','action figure','stuffed animal','rc car','craft kit',
+    'mastermind toys','toys r us','imaginext','play-doh','hot wheels','barbie',
+    'nerf','kids clothing','children'],
+  health:['vitamin','supplement','protein powder','medicine','pharmacy','cosmetic',
+    'beauty','lotion','sunscreen','spf','shampoo','conditioner','cleanser',
+    'skincare','makeup','foundation','mascara','lipstick','serum','moisturizer',
+    'face mask','retinol','collagen','melatonin','shoppers drug mart','rexall',
+    'jean coutu','pharmaprix','drug','health','wellness','essential oil',
+    'diffuser','heating pad','first aid','bandage','cold & flu','allergy',
+    'probiotic','omega','multivitamin','pet food','dog food','cat food',
+    'petsmart','mondou','pet valu'],
+  grocery:['food','grocery','snack','beverage','coffee','tea','protein bar',
+    'organic','frozen','produce','meat','chicken','seafood','bread','cereal',
+    'sauce','seasoning','walmart grocery','costco food','meal prep',
+    'wine','beer','spirits','lcbo','saq','whisky','bourbon','vodka','gin',
+    'rum','cider','craft beer','champagne','alcohol','liquor','cocktail',
+    'red wine','white wine','rosé','tequila','prosecco'],
+  auto:['car ','vehicle','auto ','tire ','winter tire','all-season tire',
+    'oil change','motor oil','engine oil','synthetic oil','fuel additive',
+    'wiper blade','brake pad','muffler','exhaust','seat cover','floor mat',
+    'dash cam','jump starter','car wash','car wax','detailing','touch up paint',
+    'battery charger','canadian tire auto','princess auto','bumper to bumper',
+    'partsource','transmission fluid','coolant','antifreeze','brake fluid',
+    'air filter','cabin filter','spark plug'],
+  office:['office supply','stapler','pen set','pencil','notebook','binder',
+    'laminator','shredder','calculator','printer paper','sticky note',
+    'whiteboard','cork board','file folder','file cabinet','ergonomic chair',
+    'standing desk','monitor arm','desk organizer','staples','bureau en gros',
+    'school supply','backpack','lunch bag','pencil case','highlighter',
+    'correction tape','scotch tape','scissors','ruler','compass'],
 };
 
 // Map server storeCategory → filter tab
 const _STORECAT_TO_TAB = {
-  'Electronics':'electronics', 'Home & Garden':'home', 'Furniture':'home',
+  'Electronics':'tech', 'Home & Garden':'home', 'Furniture':'home',
   'Clothing':'fashion', 'Sporting & Outdoor':'sports', 'Pets':'health',
-  'Pharmacy':'health', 'Grocery':'food', 'Arts & Crafts':'other',
-  'Specialty':'other', 'General':'other', 'Baby & Kids':'baby',
+  'Pharmacy':'health', 'Grocery':'grocery', 'Arts & Crafts':'other',
+  'Specialty':'grocery', 'General':'other', 'Baby & Kids':'baby',
+  'Automotive':'auto', 'Tools':'tools',
 };
 
 function detectCat(d) {
+  // Direct store overrides (before storeCategory)
+  if (['LCBO','SAQ','The Beer Store','BC Liquor Stores'].includes(d.store)) return 'grocery';
+  if (['Princess Auto','Bumper to Bumper','PartSource'].includes(d.store)) return 'auto';
   // Trust the server's store-level category for specialty stores
   const sc = d.storeCategory;
   if (sc && sc !== 'General' && sc !== 'Other') {
@@ -581,16 +626,17 @@ function detectCat(d) {
   // Then check the deal's own category field (Walmart, StockTrack provide this)
   if (d.category) {
     const lc = d.category.toLowerCase();
-    if (/electron|comput|tv |phone|tablet|printer|ink|camera/i.test(lc)) return 'electronics';
-    if (/furniture|appliance|kitchen|garden|tool|home|hardware|decor/i.test(lc)) return 'home';
-    if (/cloth|apparel|shoe|fashion|wear|access/i.test(lc)) return 'fashion';
-    if (/sport|outdoor|fitness|bike|camp|exercise/i.test(lc)) return 'sports';
-    if (/baby|infant|diaper|stroller|nursery|formula|crib|onesie/i.test(lc)) return 'baby';
-    if (/toy|child|game board/i.test(lc)) return 'toys';
-    if (/office|supply|stationery/i.test(lc)) return 'office';
-    if (/auto|tire|vehicle|car|motor/i.test(lc)) return 'auto';
-    if (/health|beauty|vitamin|pharma|personal care|cosmetic/i.test(lc)) return 'health';
-    if (/food|grocery|beverage|snack/i.test(lc)) return 'food';
+    if (/gaming|console|playstation|xbox|nintendo|video game/i.test(lc)) return 'gaming';
+    if (/electron|comput|tv |phone|tablet|printer|ink|camera|smart|streaming/i.test(lc)) return 'tech';
+    if (/tool|drill|saw|hardware|reno|plumb|home improve|workshop/i.test(lc)) return 'tools';
+    if (/furniture|appliance|kitchen|garden|home|decor|bedding|bath/i.test(lc)) return 'home';
+    if (/cloth|apparel|shoe|fashion|wear|access|handbag/i.test(lc)) return 'fashion';
+    if (/sport|outdoor|fitness|bike|camp|exercise|hockey/i.test(lc)) return 'sports';
+    if (/baby|infant|diaper|stroller|nursery|formula|crib|toy|child|kid/i.test(lc)) return 'baby';
+    if (/health|beauty|vitamin|pharma|personal care|cosmetic|pet /i.test(lc)) return 'health';
+    if (/food|grocery|beverage|snack|wine|beer|spirits|liquor/i.test(lc)) return 'grocery';
+    if (/auto|tire|vehicle|car |motor|garage/i.test(lc)) return 'auto';
+    if (/office|supply|stationery|school/i.test(lc)) return 'office';
   }
   // Finally fall back to title keyword matching
   const text = (d.title + ' ' + (d.store||'')).toLowerCase();
