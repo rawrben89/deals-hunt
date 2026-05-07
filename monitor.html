@@ -9,118 +9,55 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:      #1e1e2e;
-      --base:    #181825;
-      --mantle:  #11111b;
-      --surf0:   #313244;
-      --overlay: #6c7086;
-      --text:    #cdd6f4;
-      --mauve:   #cba6f7;
-      --blue:    #89b4fa;
-      --green:   #a6e3a1;
-      --yellow:  #f9e2af;
-      --peach:   #fab387;
-      --red:     #f38ba8;
-      --accent:  #6030ff;
+      --bg:#1e1e2e; --base:#181825; --mantle:#11111b; --surf0:#313244;
+      --overlay:#6c7086; --text:#cdd6f4; --mauve:#cba6f7; --blue:#89b4fa;
+      --green:#a6e3a1; --yellow:#f9e2af; --peach:#fab387; --red:#f38ba8; --accent:#6030ff;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Press Start 2P', monospace;
-      font-size: 10px;
-      padding: 20px 16px 32px;
-      min-height: 100vh;
-    }
-
-    .wrap { max-width: 640px; margin: 0 auto; }
-
-    header { text-align: center; margin-bottom: 20px; }
-    header h1 { font-size: 14px; color: var(--mauve); letter-spacing: 3px; }
-    header p  { font-size: 6px; color: var(--overlay); margin-top: 8px; letter-spacing: 1px; }
-
-    .panel {
-      border: 2px solid var(--accent);
-      background: var(--base);
-      padding: 14px;
-      margin-bottom: 14px;
-      box-shadow: 4px 4px 0 rgba(96,48,255,.25);
-    }
-
-    .panel-hdr {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 10px;
-    }
-    .panel-title { font-size: 7px; color: var(--blue); letter-spacing: 2px; }
-    #clock { font-size: 6px; color: var(--mauve); letter-spacing: 1px; }
-
-    #office {
-      display: block; width: 100%;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
-
-    .cards {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 10px; margin-bottom: 14px;
-    }
-
-    .card {
-      border: 2px solid var(--surf0);
-      background: var(--base);
-      padding: 10px 8px 8px;
-      transition: border-color .3s;
-    }
-    .card[data-s="ok"]   { border-color: var(--green); }
-    .card[data-s="warn"] { border-color: var(--yellow); }
-    .card[data-s="err"]  { border-color: var(--red); }
-
-    .card-name { font-size: 7px; color: var(--mauve); margin-bottom: 7px; }
-    .card-row  { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-
-    .led { width: 6px; height: 6px; background: var(--surf0); flex-shrink: 0; }
-    .led[data-s="ok"]   { background: var(--green); }
-    .led[data-s="warn"] { background: var(--yellow); animation: blink 1s steps(1) infinite; }
-    .led[data-s="err"]  { background: var(--red);   animation: blink .5s steps(1) infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
-
-    .card-val  { font-size: 8px; }
-    .card-meta { font-size: 6px; color: var(--overlay); margin-top: 4px; line-height: 2; }
-
-    #log {
-      font-size: 6px; line-height: 2.2;
-      max-height: 240px; overflow-y: auto;
-      background: var(--mantle); padding: 8px;
-      border: 1px solid var(--surf0);
-      scrollbar-width: thin;
-      scrollbar-color: var(--surf0) var(--mantle);
-    }
-
-    .ll       { color: var(--overlay); }
-    .ll-start { color: var(--blue); }
-    .ll-done  { color: var(--surf0); }
-    .ll-ok    { color: var(--green); }
-    .ll-act   { color: var(--yellow); }
-    .ll-warn  { color: var(--peach); }
-    .ll-err   { color: var(--red); }
-
-    .footer {
-      text-align: center; font-size: 6px; color: var(--surf0); padding-top: 8px;
-    }
-    .footer a { color: var(--overlay); text-decoration: none; }
-    .footer a:hover { color: var(--blue); }
+    body { background:var(--bg); color:var(--text); font-family:'Press Start 2P',monospace;
+           font-size:10px; padding:20px 16px 32px; min-height:100vh; }
+    .wrap { max-width:640px; margin:0 auto; }
+    header { text-align:center; margin-bottom:20px; }
+    header h1 { font-size:14px; color:var(--mauve); letter-spacing:3px; }
+    header p  { font-size:6px; color:var(--overlay); margin-top:8px; }
+    .panel { border:2px solid var(--accent); background:var(--base); padding:14px;
+             margin-bottom:14px; box-shadow:4px 4px 0 rgba(96,48,255,.25); }
+    .panel-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .panel-title { font-size:7px; color:var(--blue); letter-spacing:2px; }
+    #clock { font-size:6px; color:var(--mauve); }
+    #office { display:block; width:100%; image-rendering:pixelated; image-rendering:crisp-edges; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+    .card { border:2px solid var(--surf0); background:var(--base); padding:10px 8px 8px; transition:border-color .3s; }
+    .card[data-s="ok"]   { border-color:var(--green); }
+    .card[data-s="warn"] { border-color:var(--yellow); }
+    .card[data-s="err"]  { border-color:var(--red); }
+    .card-name { font-size:7px; color:var(--mauve); margin-bottom:7px; }
+    .card-row  { display:flex; align-items:center; gap:5px; margin-bottom:5px; }
+    .led { width:6px; height:6px; background:var(--surf0); flex-shrink:0; }
+    .led[data-s="ok"]   { background:var(--green); }
+    .led[data-s="warn"] { background:var(--yellow); animation:blink 1s steps(1) infinite; }
+    .led[data-s="err"]  { background:var(--red); animation:blink .5s steps(1) infinite; }
+    @keyframes blink { 50% { opacity:0; } }
+    .card-val  { font-size:8px; }
+    .card-meta { font-size:6px; color:var(--overlay); margin-top:4px; line-height:2; }
+    #log { font-size:6px; line-height:2.2; max-height:240px; overflow-y:auto;
+           background:var(--mantle); padding:8px; border:1px solid var(--surf0);
+           scrollbar-width:thin; scrollbar-color:var(--surf0) var(--mantle); }
+    .ll      { color:var(--overlay); }
+    .ll-start{ color:var(--blue); }   .ll-done { color:var(--surf0); }
+    .ll-ok   { color:var(--green); }  .ll-act  { color:var(--yellow); }
+    .ll-warn { color:var(--peach); }  .ll-err  { color:var(--red); }
+    .footer { text-align:center; font-size:6px; color:var(--surf0); padding-top:8px; }
+    .footer a { color:var(--overlay); text-decoration:none; }
+    .footer a:hover { color:var(--blue); }
   </style>
 </head>
 <body>
 <div class="wrap">
-
   <header>
     <h1>WATCHDOG</h1>
     <p>DEALS-HUNT INFRASTRUCTURE MONITOR &nbsp;·&nbsp; AUTO-REFRESH 5s</p>
   </header>
-
   <div class="panel">
     <div class="panel-hdr">
       <span class="panel-title">OFFICE</span>
@@ -128,391 +65,385 @@
     </div>
     <canvas id="office"></canvas>
   </div>
-
   <div class="cards">
     <div class="card" id="c-server" data-s="">
       <div class="card-name">SERVER</div>
-      <div class="card-row">
-        <div class="led" id="l-server" data-s=""></div>
-        <div class="card-val" id="v-server">—</div>
-      </div>
+      <div class="card-row"><div class="led" id="l-server" data-s=""></div><div class="card-val" id="v-server">—</div></div>
       <div class="card-meta" id="m-server">—</div>
     </div>
     <div class="card" id="c-tunnel" data-s="">
       <div class="card-name">TUNNEL</div>
-      <div class="card-row">
-        <div class="led" id="l-tunnel" data-s=""></div>
-        <div class="card-val" id="v-tunnel">—</div>
-      </div>
+      <div class="card-row"><div class="led" id="l-tunnel" data-s=""></div><div class="card-val" id="v-tunnel">—</div></div>
       <div class="card-meta" id="m-tunnel">—</div>
     </div>
     <div class="card" id="c-deals" data-s="">
       <div class="card-name">DEALS</div>
-      <div class="card-row">
-        <div class="led" id="l-deals" data-s=""></div>
-        <div class="card-val" id="v-deals">—</div>
-      </div>
+      <div class="card-row"><div class="led" id="l-deals" data-s=""></div><div class="card-val" id="v-deals">—</div></div>
       <div class="card-meta" id="m-deals">—</div>
     </div>
   </div>
-
   <div class="panel">
     <div class="panel-title">WATCHDOG LOG</div>
     <div id="log"><div class="ll">Loading…</div></div>
   </div>
-
   <div class="footer">
-    CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log
-    &nbsp;&nbsp;|&nbsp;&nbsp; <a href="/">← DEALS</a>
+    CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log &nbsp;|&nbsp; <a href="/">← DEALS</a>
   </div>
-
 </div>
 
 <script>
-(function () {
+(function(){
 'use strict';
 
 // ── Montreal clock ─────────────────────────────────────────────────────────────
-const MTL_FMT = new Intl.DateTimeFormat('en-CA', {
-  timeZone:    'America/Toronto',
-  weekday: 'short', day: '2-digit', month: 'short',
-  hour: '2-digit', minute: '2-digit', second: '2-digit',
-  hour12: false,
-});
-function updateClock() {
-  const p = Object.fromEntries(MTL_FMT.formatToParts(new Date()).map(x => [x.type, x.value]));
-  document.getElementById('clock').textContent =
-    (p.weekday||'').toUpperCase() + ' ' + (p.day||'') + ' ' + (p.month||'').toUpperCase() +
-    '  ' + (p.hour||'') + ':' + (p.minute||'') + ':' + (p.second||'') + ' MTL';
+const CLK_FMT = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',
+  weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+const TIME_FMT = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',
+  hour:'2-digit',minute:'2-digit',hour12:false});
+
+function updateClock(){
+  const p=Object.fromEntries(CLK_FMT.formatToParts(new Date()).map(x=>[x.type,x.value]));
+  document.getElementById('clock').textContent=
+    (p.weekday||'').toUpperCase()+' '+(p.day||'')+' '+(p.month||'').toUpperCase()+
+    '  '+(p.hour||'')+':'+(p.minute||'')+':'+(p.second||'')+' MTL';
 }
 updateClock();
-setInterval(updateClock, 1000);
+setInterval(updateClock,1000);
+
+// Scrum windows: 09:00–09:29 and 14:00–14:29 Montreal time
+function isScrumTime(){
+  const p=Object.fromEntries(TIME_FMT.formatToParts(new Date()).map(x=>[x.type,x.value]));
+  const h=parseInt(p.hour||0), m=parseInt(p.minute||0);
+  return (h===9&&m<30)||(h===14&&m<30);
+}
+let scrumActive=isScrumTime();
+setInterval(()=>{ scrumActive=isScrumTime(); },30000);
+
+// Sprint badge (2-week sprints from April 27 2026)
+const SPRINT_REF=new Date('2026-04-27T00:00:00-04:00');
+function sprintInfo(){
+  const days=Math.floor((Date.now()-SPRINT_REF)/86400000);
+  const num=Math.floor(days/14)+1;
+  const day=(days%14)+1;
+  return {num, day, release: day>=13};
+}
 
 // ── Canvas ─────────────────────────────────────────────────────────────────────
-const cv  = document.getElementById('office');
-const DPR = Math.min(window.devicePixelRatio || 1, 2);
-const CW  = 600, CH = 320;
-cv.width  = CW * DPR;
-cv.height = CH * DPR;
-cv.style.height = CH + 'px';
-const gx  = cv.getContext('2d');
-gx.scale(DPR, DPR);
-gx.imageSmoothingEnabled = false;
+const cv=document.getElementById('office');
+const DPR=Math.min(window.devicePixelRatio||1,2);
+const CW=600, CH=320;
+cv.width=CW*DPR; cv.height=CH*DPR; cv.style.height=CH+'px';
+const gx=cv.getContext('2d');
+gx.scale(DPR,DPR);
+gx.imageSmoothingEnabled=false;
 
-const SC      = 3;        // 1 sprite pixel = SC canvas pixels
-const SPW     = 7  * SC;  // 21 px
-const SPH     = 11 * SC;  // 33 px
-const DY_FAR  = 65;       // far-back row  — deals search team
-const DY_MID  = 155;      // mid-back row  — dev / qa / pm / design team
-const DY_FRON = 245;      // front row     — watchdog agents
+const SC=3, SPW=7*SC, SPH=11*SC;
+const DY_FAR=65, DY_MID=155, DY_FRON=245;
 
 // ── Sprites ────────────────────────────────────────────────────────────────────
-// Palette indices: 0=transparent  1=skin  2=hair  3=eyes  4=shirt  5=pants  6=shoes
-const SP_IDLE = [
+const SP_IDLE=[
   [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
    [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0]],
   [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
    [0,4,4,4,4,4,0],[0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0]],
 ];
-const SP_TYPE = [
+const SP_TYPE=[
   [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
    [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[4,4,0,4,0,4,4],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]],
   [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
    [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[0,4,4,0,4,4,0],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]],
 ];
-const SP_ERR = [
+const SP_ERR=[
   [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,3,1,3,1],[1,1,3,1,3,1,1],
    [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0]],
 ];
 
-function drawSprite(sp, px, py, pal) {
-  sp.forEach((row, ry) => row.forEach((ci, rx) => {
-    if (!ci || !pal[ci]) return;
-    gx.fillStyle = pal[ci];
-    gx.fillRect(px + rx * SC, py + ry * SC, SC, SC);
+function blit(sp,px,py,pal){
+  sp.forEach((row,ry)=>row.forEach((ci,rx)=>{
+    if(!ci||!pal[ci])return;
+    gx.fillStyle=pal[ci];
+    gx.fillRect(px+rx*SC,py+ry*SC,SC,SC);
   }));
 }
 
 // ── Watchdog agents (front row) ────────────────────────────────────────────────
-const AGENTS = [
-  { id:'server', label:'SRVR', ax:100, state:'idle',
-    pal:    [null,'#d4a574','#818cf8','#1f2937','#4f46e5','#334155','#e2e8f0'],
-    errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
-  { id:'tunnel', label:'TUNL', ax:300, state:'idle',
-    pal:    [null,'#d4a574','#34d399','#1f2937','#059669','#334155','#e2e8f0'],
-    errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
-  { id:'deals',  label:'DEAL', ax:500, state:'idle',
-    pal:    [null,'#d4a574','#fbbf24','#1f2937','#d97706','#334155','#e2e8f0'],
-    errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
+const AGENTS=[
+  {id:'server',label:'SRVR',ax:100,state:'idle',
+   pal:[null,'#d4a574','#818cf8','#1f2937','#4f46e5','#334155','#e2e8f0'],
+   ep: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0']},
+  {id:'tunnel',label:'TUNL',ax:300,state:'idle',
+   pal:[null,'#d4a574','#34d399','#1f2937','#059669','#334155','#e2e8f0'],
+   ep: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0']},
+  {id:'deals', label:'DEAL',ax:500,state:'idle',
+   pal:[null,'#d4a574','#fbbf24','#1f2937','#d97706','#334155','#e2e8f0'],
+   ep: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0']},
 ];
 
-// ── Mid-row team: dev / qa / pm / backend / design ─────────────────────────────
-const TEAM_MID = [
-  { label:'DEV',  ax: 60,  offset:  0,  typeRatio:0.82,
-    pal:[null,'#d4a574','#22d3ee','#1f2937','#0891b2','#334155','#e2e8f0'] },
-  { label:'QA',   ax:175,  offset:110,  typeRatio:0.58,
-    pal:[null,'#d4a574','#c084fc','#1f2937','#9333ea','#334155','#e2e8f0'] },
-  { label:'PM',   ax:300,  offset:200,  typeRatio:0.38,
-    pal:[null,'#d4a574','#f472b6','#1f2937','#db2777','#334155','#e2e8f0'] },
-  { label:'BEND', ax:425,  offset: 55,  typeRatio:0.88,
-    pal:[null,'#d4a574','#fb923c','#1f2937','#ea580c','#334155','#e2e8f0'] },
-  { label:'DES',  ax:540,  offset:160,  typeRatio:0.65,
-    pal:[null,'#d4a574','#a3e635','#1f2937','#65a30d','#334155','#e2e8f0'] },
+// ── Dev team mid-row (PM handled separately) ───────────────────────────────────
+const TEAM_MID=[
+  {label:'DEV', ax:60,  off:0,   ratio:0.82, pal:[null,'#d4a574','#22d3ee','#1f2937','#0891b2','#334155','#e2e8f0']},
+  {label:'QA',  ax:175, off:110, ratio:0.58, pal:[null,'#d4a574','#c084fc','#1f2937','#9333ea','#334155','#e2e8f0']},
+  {label:'BEND',ax:425, off:55,  ratio:0.88, pal:[null,'#d4a574','#fb923c','#1f2937','#ea580c','#334155','#e2e8f0']},
+  {label:'DES', ax:540, off:160, ratio:0.65, pal:[null,'#d4a574','#a3e635','#1f2937','#65a30d','#334155','#e2e8f0']},
 ];
 
-// ── Far-back row: deals search team ────────────────────────────────────────────
-const TEAM_FAR = [
-  { label:'SCOT', ax:120,  offset: 30,  typeRatio:0.90,
-    pal:[null,'#d4a574','#2dd4bf','#1f2937','#0d9488','#334155','#e2e8f0'] },
-  { label:'SRAP', ax:300,  offset:180,  typeRatio:0.95,
-    pal:[null,'#d4a574','#e879f9','#1f2937','#a21caf','#334155','#e2e8f0'] },
-  { label:'CMPR', ax:480,  offset: 90,  typeRatio:0.88,
-    pal:[null,'#d4a574','#38bdf8','#1f2937','#0284c7','#334155','#e2e8f0'] },
+// ── Deals search team far-back row ─────────────────────────────────────────────
+const TEAM_FAR=[
+  {label:'SCOT',ax:120, off:30,  ratio:0.90, pal:[null,'#d4a574','#2dd4bf','#1f2937','#0d9488','#334155','#e2e8f0']},
+  {label:'SRAP',ax:300, off:180, ratio:0.95, pal:[null,'#d4a574','#e879f9','#1f2937','#a21caf','#334155','#e2e8f0']},
+  {label:'CMPR',ax:480, off:90,  ratio:0.88, pal:[null,'#d4a574','#38bdf8','#1f2937','#0284c7','#334155','#e2e8f0']},
 ];
 
-// Screen content lines [width, base-color]
-const SCR = [[14,'#89b4fa'],[10,'#a6e3a1'],[12,'#89b4fa'],[7,'#f9e2af']];
+// ── PM walk state machine ─────────────────────────────────────────────────────
+// PM visits each mid-row desk, then returns home, then repeats
+const PM_PAL =[null,'#d4a574','#f472b6','#1f2937','#db2777','#334155','#e2e8f0'];
+const PM_HOME=300;
+const PM_ROUTE=[175, 60, 425, 540, PM_HOME];   // x stops: QA, DEV, BEND, DES, home
+const PM_SPEED=1.4;          // px/tick
+const PM_CHECK_T=220;        // ticks spent checking at each desk
+const PM_SIT_T  =700;        // ticks sitting at own desk between rounds
 
-// ── Draw helpers ───────────────────────────────────────────────────────────────
-function drawFloor() {
-  gx.fillStyle = '#11111b';
-  gx.fillRect(0, 0, CW, CH);
-  const T = 16;
-  for (let tx = 0; tx < CW; tx += T)
-    for (let ty = 0; ty < CH; ty += T)
-      if ((Math.floor(tx/T) + Math.floor(ty/T)) % 2 === 0) {
-        gx.fillStyle = '#181825';
-        gx.fillRect(tx, ty, T, T);
+const pm={x:PM_HOME, state:'sitting', routeIdx:0, wait:PM_SIT_T};
+
+function stepPM(){
+  if(pm.state==='sitting'){
+    if(--pm.wait<=0){pm.routeIdx=0; pm.state='walking';}
+  } else if(pm.state==='walking'){
+    const tx=PM_ROUTE[pm.routeIdx];
+    const dx=tx-pm.x;
+    if(Math.abs(dx)<=PM_SPEED){
+      pm.x=tx;
+      if(pm.routeIdx===PM_ROUTE.length-1){pm.state='sitting'; pm.wait=PM_SIT_T;}
+      else{pm.state='checking'; pm.wait=PM_CHECK_T;}
+    } else {
+      pm.x+=Math.sign(dx)*PM_SPEED;
+    }
+  } else { // checking
+    if(--pm.wait<=0){pm.routeIdx++; pm.state='walking';}
+  }
+}
+
+// ── Screen lines ───────────────────────────────────────────────────────────────
+const SCR=[[14,'#89b4fa'],[10,'#a6e3a1'],[12,'#89b4fa'],[7,'#f9e2af']];
+
+// ── Draw functions ─────────────────────────────────────────────────────────────
+function drawFloor(){
+  gx.fillStyle='#11111b'; gx.fillRect(0,0,CW,CH);
+  const T=16;
+  for(let tx=0;tx<CW;tx+=T)
+    for(let ty=0;ty<CH;ty+=T)
+      if((Math.floor(tx/T)+Math.floor(ty/T))%2===0){
+        gx.fillStyle='#181825'; gx.fillRect(tx,ty,T,T);
       }
-  gx.strokeStyle = '#1e1e2e'; gx.lineWidth = 1;
-  for (let tx = 0; tx <= CW; tx += T) {
-    gx.beginPath(); gx.moveTo(tx+.5,0); gx.lineTo(tx+.5,CH); gx.stroke();
-  }
-  for (let ty = 0; ty <= CH; ty += T) {
-    gx.beginPath(); gx.moveTo(0,ty+.5); gx.lineTo(CW,ty+.5); gx.stroke();
-  }
+  gx.strokeStyle='#1e1e2e'; gx.lineWidth=1;
+  for(let tx=0;tx<=CW;tx+=T){gx.beginPath();gx.moveTo(tx+.5,0);gx.lineTo(tx+.5,CH);gx.stroke();}
+  for(let ty=0;ty<=CH;ty+=T){gx.beginPath();gx.moveTo(0,ty+.5);gx.lineTo(CW,ty+.5);gx.stroke();}
 }
 
-function drawWall(wy, doorX) {
-  gx.fillStyle = '#2d2b55';
-  gx.fillRect(0, wy, CW, 4);
-  gx.fillStyle = '#4040a0';
-  gx.fillRect(0, wy, CW, 1);
-  // Doorway gap
-  gx.fillStyle = '#11111b';
-  gx.fillRect(doorX - 20, wy, 40, 4);
-  // Door frame pillars
-  gx.fillStyle = '#6030ff';
-  gx.fillRect(doorX - 22, wy - 2, 2, 8);
-  gx.fillRect(doorX + 20, wy - 2, 2, 8);
+function drawWall(wy,doorX){
+  gx.fillStyle='#2d2b55'; gx.fillRect(0,wy,CW,4);
+  gx.fillStyle='#4040a0'; gx.fillRect(0,wy,CW,1);
+  gx.fillStyle='#11111b'; gx.fillRect(doorX-20,wy,40,4);
+  gx.fillStyle='#6030ff';
+  gx.fillRect(doorX-22,wy-2,2,8);
+  gx.fillRect(doorX+20,wy-2,2,8);
 }
 
-function drawDeskBack(ax, state, tick, deskY) {
-  const mx  = ax - 28;
-  const isE = state === 'err';
-
-  gx.fillStyle = '#0d0d1a';
-  gx.fillRect(mx, deskY - 22, 22, 22);
-  gx.fillStyle = isE ? '#3a1020' : '#1a2f4e';
-  gx.fillRect(mx+2, deskY - 20, 18, 18);
-
-  const al = Math.floor(tick / 28) % SCR.length;
-  SCR.forEach(([w, c], i) => {
-    gx.fillStyle = isE ? '#f38ba822' : (i === al ? c : c + '44');
-    gx.fillRect(mx+3, deskY - 19 + i*4, w, 2);
+function drawDeskBack(ax,state,tick,dy){
+  const mx=ax-28, err=state==='err';
+  gx.fillStyle='#0d0d1a'; gx.fillRect(mx,dy-22,22,22);
+  gx.fillStyle=err?'#3a1020':'#1a2f4e'; gx.fillRect(mx+2,dy-20,18,18);
+  const al=Math.floor(tick/28)%SCR.length;
+  SCR.forEach(([w,c],i)=>{
+    gx.fillStyle=err?'#f38ba822':(i===al?c:c+'44');
+    gx.fillRect(mx+3,dy-19+i*4,w,2);
   });
-
-  gx.fillStyle = '#1e1e30';
-  gx.fillRect(mx+6, deskY, 10, 4);
-
-  gx.fillStyle = '#2d2b55';
-  gx.fillRect(ax-40, deskY, 80, 4);
-  gx.fillStyle = '#4040a0';
-  gx.fillRect(ax-40, deskY, 80, 1);
+  gx.fillStyle='#1e1e30'; gx.fillRect(mx+6,dy,10,4);
+  gx.fillStyle='#2d2b55'; gx.fillRect(ax-40,dy,80,4);
+  gx.fillStyle='#4040a0'; gx.fillRect(ax-40,dy,80,1);
 }
 
-function drawDeskFront(ax, deskY) {
-  gx.fillStyle = '#2a2a3e';
-  gx.fillRect(ax-12, deskY+1, 24, 4);
-  gx.fillStyle = '#45475a';
-  for (let i = 0; i < 5; i++) gx.fillRect(ax-10+i*4, deskY+2, 3, 2);
-
-  gx.fillStyle = '#1e1c3e';
-  gx.fillRect(ax-40, deskY+4, 80, 14);
-  gx.fillStyle = '#2d2b55';
-  gx.fillRect(ax-40, deskY+4, 80, 2);
+function drawDeskFront(ax,dy){
+  gx.fillStyle='#2a2a3e'; gx.fillRect(ax-12,dy+1,24,4);
+  gx.fillStyle='#45475a';
+  for(let i=0;i<5;i++) gx.fillRect(ax-10+i*4,dy+2,3,2);
+  gx.fillStyle='#1e1c3e'; gx.fillRect(ax-40,dy+4,80,14);
+  gx.fillStyle='#2d2b55'; gx.fillRect(ax-40,dy+4,80,2);
 }
 
-function drawChar(ax, label, state, pal, errPal, tick, deskY, ledColor) {
-  const isErr  = state === 'err';
-  const isType = state === 'ok';
+function drawChar(ax,label,state,pal,ep,tick,dy,led,fast){
+  const isE=state==='err', isT=state==='ok'&&!fast;
+  let sp,p;
+  if(isE){sp=SP_ERR[0];p=ep||pal;}
+  else if(isT){sp=SP_TYPE[Math.floor(tick/18)%SP_TYPE.length];p=pal;}
+  else{const per=fast?10:60;sp=SP_IDLE[Math.floor(tick/per)%SP_IDLE.length];p=pal;}
 
-  let sp, palette;
-  if (isErr) {
-    sp = SP_ERR[Math.floor(tick / 30) % SP_ERR.length];
-    palette = errPal || pal;
-  } else if (isType) {
-    sp = SP_TYPE[Math.floor(tick / 18) % SP_TYPE.length];
-    palette = pal;
+  const bob=(!isT&&!isE&&Math.floor(tick/(fast?10:60))%2===1)?1:0;
+  const py=isT?dy-SPH+12:dy-SPH-4+bob;
+  blit(sp,ax-Math.floor(SPW/2),py,p);
+
+  // LED
+  const on=isE?Math.floor(tick/15)%2===0:true;
+  if(on){
+    gx.fillStyle=led||(isT?'#a6e3a1':isE?'#f38ba8':state==='warn'?'#f9e2af':'#89b4fa');
+    gx.fillRect(ax-2,py-8,4,4);
+  }
+  // Name
+  gx.fillStyle='#585b70';
+  gx.font=`${SC*2}px "Press Start 2P",monospace`;
+  gx.textAlign='center';
+  gx.fillText(label,ax,py-12);
+}
+
+// Speech bubble above PM when checking on someone
+function drawBubble(ax,dy,tick){
+  const py=dy-SPH-4; // standing y
+  const bx=ax+13, by=py-16;
+  // Shadow
+  gx.fillStyle='#1f2937'; gx.fillRect(bx+2,by+2,14,10);
+  // Body
+  gx.fillStyle='#e2e8f0'; gx.fillRect(bx,by,14,10);
+  // Tail
+  gx.fillRect(bx+2,by+10,4,3);
+  // Content: cycles between dots and checkmark
+  gx.fillStyle='#1f2937';
+  const f=Math.floor(tick/20)%3;
+  if(f===0){gx.fillRect(bx+2,by+4,2,2);gx.fillRect(bx+6,by+4,2,2);gx.fillRect(bx+10,by+4,2,2);}
+  else if(f===1){gx.fillRect(bx+3,by+5,2,2);gx.fillRect(bx+5,by+3,2,2);gx.fillRect(bx+7,by+2,4,2);}
+  else{gx.fillRect(bx+5,by+2,4,2);gx.fillRect(bx+8,by+4,2,2);gx.fillRect(bx+6,by+6,2,2);}
+}
+
+// Scrum banner across the canvas
+function drawScrumBanner(tick){
+  if(Math.floor(tick/25)%2===0)return; // blink
+  const bw=230,bh=14,bx=(CW-bw)/2,by=19;
+  gx.fillStyle='#6030ff'; gx.fillRect(bx,by,bw,bh);
+  gx.fillStyle='#cba6f7';
+  gx.font='7px "Press Start 2P",monospace';
+  gx.textAlign='center';
+  gx.fillText('SCRUM IN PROGRESS',CW/2,by+10);
+}
+
+function drawLabels(tick){
+  const sp=sprintInfo();
+  gx.font='5px "Press Start 2P",monospace';
+  // Left labels
+  gx.fillStyle='#313244';
+  gx.textAlign='left';
+  gx.fillText('DEALS SEARCH',4,13);
+  gx.fillText('DEV TEAM',4,118);
+  gx.fillText('WATCHDOG',4,210);
+  // Right: sprint badge
+  gx.textAlign='right';
+  if(sp.release){
+    gx.fillStyle=Math.floor(tick/20)%2===0?'#a6e3a1':'#6030ff';
+    gx.fillText('RELEASE DAY!',CW-4,13);
   } else {
-    sp = SP_IDLE[Math.floor(tick / 60) % SP_IDLE.length];
-    palette = pal;
+    gx.fillStyle='#45475a';
+    gx.fillText('S'+sp.num+' · D'+sp.day+'/14',CW-4,13);
   }
-
-  const bob = (!isType && !isErr && Math.floor(tick / 60) % 2 === 1) ? 1 : 0;
-  const py  = isType ? deskY - SPH + 12 : deskY - SPH - 4 + bob;
-  const px  = ax - Math.floor(SPW / 2);
-
-  drawSprite(sp, px, py, palette);
-
-  // Status LED
-  const on = isErr ? Math.floor(tick / 15) % 2 === 0 : true;
-  if (on) {
-    gx.fillStyle = ledColor || (isType ? '#a6e3a1' : isErr ? '#f38ba8'
-                   : state === 'warn' ? '#f9e2af' : '#89b4fa');
-    gx.fillRect(ax-2, py-8, 4, 4);
-  }
-
-  gx.fillStyle = '#585b70';
-  gx.font = `${SC*2}px "Press Start 2P", monospace`;
-  gx.textAlign = 'center';
-  gx.fillText(label, ax, py - 12);
 }
 
-function ambientState(worker, tick) {
-  const t = (tick + worker.offset) % 320;
-  return t < worker.typeRatio * 320 ? 'ok' : 'idle';
+function ambState(w,tick){
+  if(scrumActive)return'idle';
+  return(tick+w.off)%320<w.ratio*320?'ok':'idle';
 }
 
 // ── Render loop ────────────────────────────────────────────────────────────────
-let tick = 0;
-function render() {
+let tick=0;
+function render(){
   drawFloor();
+  drawWall(108, CW*0.67|0);
+  drawWall(200, CW*0.33|0);
+  drawLabels(tick);
+  if(scrumActive) drawScrumBanner(tick);
 
-  // Walls (two horizontal dividers with doorways)
-  drawWall(108, CW * 0.67);   // between far-back and mid
-  drawWall(200, CW * 0.33);   // between mid and front
+  // ── Far-back: deals search ──
+  TEAM_FAR.forEach(w=>{drawDeskBack(w.ax,ambState(w,tick),tick,DY_FAR);});
+  TEAM_FAR.forEach(w=>{drawChar(w.ax,w.label,ambState(w,tick),w.pal,w.pal,tick,DY_FAR,w.pal[2]);});
+  TEAM_FAR.forEach(w=>{drawDeskFront(w.ax,DY_FAR);});
 
-  // Row labels
-  gx.fillStyle = '#313244';
-  gx.font = `5px "Press Start 2P", monospace`;
-  gx.textAlign = 'left';
-  gx.fillText('DEALS SEARCH', 4, 14);
-  gx.fillText('DEV TEAM', 4, 118);
-  gx.fillText('WATCHDOG', 4, 210);
+  // ── Mid: dev team + PM ──
+  // All desk backs first
+  TEAM_MID.forEach(w=>{drawDeskBack(w.ax,ambState(w,tick),tick,DY_MID);});
+  drawDeskBack(PM_HOME, pm.state==='sitting'?'ok':'idle', tick, DY_MID);
 
-  // Far-back row — deals search team
-  TEAM_FAR.forEach(w => {
-    const s = ambientState(w, tick);
-    drawDeskBack(w.ax, s, tick, DY_FAR);
-    drawChar(w.ax, w.label, s, w.pal, w.pal, tick, DY_FAR, w.pal[2]);
-    drawDeskFront(w.ax, DY_FAR);
-  });
+  // All characters
+  TEAM_MID.forEach(w=>{drawChar(w.ax,w.label,ambState(w,tick),w.pal,w.pal,tick,DY_MID,w.pal[2]);});
+  // PM character at current (moving) position
+  stepPM();
+  drawChar(Math.round(pm.x),'PM',pm.state==='sitting'?'ok':'idle',PM_PAL,PM_PAL,tick,DY_MID,'#f472b6',pm.state==='walking');
 
-  // Mid-back row — dev / qa / pm / backend / design
-  TEAM_MID.forEach(w => {
-    const s = ambientState(w, tick);
-    drawDeskBack(w.ax, s, tick, DY_MID);
-    drawChar(w.ax, w.label, s, w.pal, w.pal, tick, DY_MID, w.pal[2]);
-    drawDeskFront(w.ax, DY_MID);
-  });
+  // Desk fronts
+  TEAM_MID.forEach(w=>{drawDeskFront(w.ax,DY_MID);});
+  drawDeskFront(PM_HOME,DY_MID);
 
-  // Front row — watchdog agents
-  AGENTS.forEach(a => {
-    drawDeskBack(a.ax, a.state, tick, DY_FRON);
-    drawChar(a.ax, a.label, a.state, a.pal, a.errPal, tick, DY_FRON, null);
-    drawDeskFront(a.ax, DY_FRON);
-  });
+  // Speech bubble if PM is checking
+  if(pm.state==='checking') drawBubble(Math.round(pm.x),DY_MID,tick);
+
+  // ── Front: watchdog agents ──
+  AGENTS.forEach(a=>{drawDeskBack(a.ax,a.state,tick,DY_FRON);});
+  AGENTS.forEach(a=>{drawChar(a.ax,a.label,a.state,a.pal,a.ep,tick,DY_FRON,null);});
+  AGENTS.forEach(a=>{drawDeskFront(a.ax,DY_FRON);});
 
   tick++;
   requestAnimationFrame(render);
 }
 
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(render);
-} else {
-  setTimeout(render, 400);
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(render);}
+else{setTimeout(render,400);}
+
+// ── Status cards ───────────────────────────────────────────────────────────────
+function setCard(id,state,val,meta){
+  document.getElementById('c-'+id).dataset.s=state;
+  document.getElementById('l-'+id).dataset.s=state;
+  document.getElementById('v-'+id).textContent=val;
+  document.getElementById('m-'+id).textContent=meta;
+  const a=AGENTS.find(x=>x.id===id);
+  if(a)a.state=state;
+}
+function age(s){
+  if(s<0)return'—';if(s<60)return s+'s ago';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  return Math.floor(s/3600)+'h ago';
+}
+function logCls(l){
+  const s=l.toLowerCase();
+  if(s.includes('=== watchdog done'))return'done';
+  if(s.includes('=== watchdog'))return'start';
+  if(s.includes(' ok')||s.includes('unchanged')||s.includes('alive'))return'ok';
+  if(s.includes('start')||s.includes('restart')||s.includes('push')||s.includes('updated'))return'act';
+  if(s.includes('warning')||s.includes('stale')||s.includes('dead'))return'warn';
+  if(s.includes('error')||s.includes('fail'))return'err';
+  return'';
 }
 
-// ── UI helpers ─────────────────────────────────────────────────────────────────
-function setCard(id, state, val, meta) {
-  document.getElementById('c-'+id).dataset.s = state;
-  document.getElementById('l-'+id).dataset.s = state;
-  document.getElementById('v-'+id).textContent = val;
-  document.getElementById('m-'+id).textContent = meta;
-  const a = AGENTS.find(x => x.id === id);
-  if (a) a.state = state;
-}
-
-function age(s) {
-  if (s < 0)    return '—';
-  if (s < 60)   return s + 's ago';
-  if (s < 3600) return Math.floor(s/60) + 'm ago';
-  return Math.floor(s/3600) + 'h ago';
-}
-
-function logCls(line) {
-  const l = line.toLowerCase();
-  if (l.includes('=== watchdog done')) return 'done';
-  if (l.includes('=== watchdog'))      return 'start';
-  if (l.includes(' ok') || l.includes('unchanged') || l.includes('alive')) return 'ok';
-  if (l.includes('start') || l.includes('restart') || l.includes('push') || l.includes('updated')) return 'act';
-  if (l.includes('warning') || l.includes('stale') || l.includes('dead')) return 'warn';
-  if (l.includes('error') || l.includes('fail')) return 'err';
-  return '';
-}
-
-// ── Polling ────────────────────────────────────────────────────────────────────
-async function poll() {
+// ── API poll ───────────────────────────────────────────────────────────────────
+async function poll(){
   let d;
-  try {
-    const r = await fetch('/api/watchdog', { cache: 'no-store' });
-    if (!r.ok) throw new Error(r.status);
-    d = await r.json();
-  } catch (e) {
-    ['server','tunnel','deals'].forEach(id => setCard(id, 'err', 'NO DATA', 'API unreachable'));
-    return;
-  }
+  try{const r=await fetch('/api/watchdog',{cache:'no-store'});if(!r.ok)throw r;d=await r.json();}
+  catch(e){['server','tunnel','deals'].forEach(id=>setCard(id,'err','NO DATA','API unreachable'));return;}
 
-  const srv = d.server || {};
-  setCard('server',
-    srv.healthy ? 'ok' : 'err',
-    srv.healthy ? 'ONLINE' : 'OFFLINE',
-    srv.healthy ? 'PID ' + srv.pid : 'NOT RUNNING'
-  );
+  const srv=d.server||{};
+  setCard('server',srv.healthy?'ok':'err',srv.healthy?'ONLINE':'OFFLINE',srv.healthy?'PID '+srv.pid:'NOT RUNNING');
 
-  const tun = d.tunnel || {};
-  const shortUrl = (tun.url || '').replace('https://','').replace('.trycloudflare.com','').slice(0,22);
-  setCard('tunnel',
-    tun.cf_running ? 'ok' : 'err',
-    tun.cf_running ? 'ALIVE' : 'DOWN',
-    tun.cf_running ? (shortUrl || '—') : 'CF NOT RUNNING'
-  );
+  const tun=d.tunnel||{};
+  const su=(tun.url||'').replace('https://','').replace('.trycloudflare.com','').slice(0,22);
+  setCard('tunnel',tun.cf_running?'ok':'err',tun.cf_running?'ALIVE':'DOWN',tun.cf_running?(su||'—'):'CF NOT RUNNING');
 
-  const dl = d.deals || {};
-  const fresh = dl.count > 0 && !dl.stale;
-  const stale = dl.stale && dl.count > 0;
-  setCard('deals',
-    fresh ? 'ok' : stale ? 'warn' : 'err',
-    dl.count > 0 ? dl.count.toLocaleString() + ' DEALS' : 'NO DATA',
-    age(dl.age_s)
-  );
+  const dl=d.deals||{};
+  const fresh=dl.count>0&&!dl.stale, stale=dl.stale&&dl.count>0;
+  setCard('deals',fresh?'ok':stale?'warn':'err',dl.count>0?dl.count.toLocaleString()+' DEALS':'NO DATA',age(dl.age_s));
 
-  const lines = (d.watchdog || {}).log || [];
-  const logEl = document.getElementById('log');
-  if (lines.length) {
-    logEl.innerHTML = [...lines].reverse().slice(0, 40).map(line => {
-      const cls  = logCls(line);
-      const safe = line.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-      return `<div class="ll${cls ? ' ll-'+cls : ''}">${safe}</div>`;
-    }).join('');
-  } else {
-    logEl.innerHTML = '<div class="ll">No log entries yet.</div>';
-  }
+  const lines=(d.watchdog||{}).log||[];
+  document.getElementById('log').innerHTML=lines.length
+    ?[...lines].reverse().slice(0,40).map(l=>{
+        const c=logCls(l),s=l.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        return`<div class="ll${c?' ll-'+c:''}">${s}</div>`;
+      }).join('')
+    :'<div class="ll">No log entries yet.</div>';
 }
-
-poll();
-setInterval(poll, 5000);
+poll();setInterval(poll,5000);
 
 })();
 </script>

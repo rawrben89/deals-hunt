@@ -14,7 +14,7 @@ GIT_REMOTE="origin"
 exec 9>"$LOCK"
 flock -n 9 || { echo "watchdog already running, skipping"; exit 0; }
 
-log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$WATCHDOG_LOG"; }
+log() { echo "[$(TZ=America/Toronto date '+%Y-%m-%d %H:%M:%S EST')] $*" >> "$WATCHDOG_LOG"; }
 log "=== watchdog start ==="
 
 start_server() {
