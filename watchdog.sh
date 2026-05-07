@@ -8,7 +8,7 @@ CF_LOG="/tmp/cloudflared.log"
 INDEX_HTML="$DEALS_DIR/index.html"
 WATCHDOG_LOG="/tmp/watchdog.log"
 LOCK="/tmp/watchdog.lock"
-GIT_REMOTE="github-deals-hunt"
+GIT_REMOTE="origin"
 
 # Prevent concurrent runs
 exec 9>"$LOCK"
