@@ -96,7 +96,8 @@ header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
 #lastUpdated{font-size:.68rem;text-align:center;color:#bbb;padding:2px 14px}
 
 /* ── Grid ── */
-.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;padding:12px 14px 36px;max-width:1400px;margin:0 auto}
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;padding:12px 14px 36px;max-width:1400px;margin:0 auto;transition:opacity .2s ease}
+.deals-grid.bg-loading{opacity:.5;pointer-events:none}
 
 /* ── Card ── */
 .deal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s}
@@ -664,9 +665,10 @@ function storeColor(name){return STORE_COLORS[name.trim()]||'#546e7a'}
    Fetch
 ══════════════════════════════════════ */
 async function loadDeals(spinner=true) {
+  const bg = !spinner;
   if (spinner) showLoading();
   const btn=document.getElementById('refreshBtn');
-  btn.disabled=true; btn.textContent='⟳ Loading…';
+  if (!bg) { btn.disabled=true; btn.textContent='⟳ Loading…'; }
   try {
     const res = await fetch(API_BASE+'/api/deals');
     if (res.status === 503) {
@@ -679,7 +681,6 @@ async function loadDeals(spinner=true) {
     if (!data.deals?.length) throw new Error('No deals returned');
 
     allDeals = data.deals.map(d=>({...d, _cat:detectCat(d), _isNew:false}));
-    // On first load, mark all as seen (no "new" badge)
     if(seenTids.size===0) data.deals.forEach(d=>seenTids.add(d.tid));
     newTidSet.clear();
     updateNewBtn();
@@ -689,12 +690,12 @@ async function loadDeals(spinner=true) {
     document.getElementById('lastUpdated').textContent = '';
 
     mergeStoreCounts(data.storeCounts, data.deals);
-    buildStoreList(cumulativeStoreCounts);
+    buildStoreList(cumulativeStoreCounts, bg);
     buildAutocomplete();
-    applyFilters();
+    applyFilters([], bg);
   } catch(e) {
     console.error(e);
-    showError(e.message);
+    if (!bg) showError(e.message);
   } finally {
     btn.disabled=false; btn.textContent='⟳ Refresh';
   }
@@ -725,10 +726,10 @@ function connectSSE(){
             `${data.count} deals · updated ${fmtTime(data.fetched)}`;
           document.getElementById('lastUpdated').textContent='';
           mergeStoreCounts(data.storeCounts, data.deals);
-          buildStoreList(cumulativeStoreCounts);
+          buildStoreList(cumulativeStoreCounts, true);
           buildAutocomplete();
           updateNewBtn();
-          applyFilters(brandNew.map(d=>d.tid));
+          applyFilters(brandNew.map(d=>d.tid), true);
           if(brandNew.length)
             showToast(`${brandNew.length} new deal${brandNew.length>1?'s':''} found!`,
               'View new', ()=>{ activeCat='new'; setActiveCatBtn('new'); applyFilters(); });
@@ -1004,8 +1005,31 @@ function mergeStoreCounts(fresh, deals){
   }
 }
 
-function buildStoreList(counts){
+function buildStoreList(counts, inPlace=false){
   const list=document.getElementById('storeList');
+
+  if(inPlace && list.children.length){
+    const total=Object.values(counts).reduce((s,c)=>s+c,0);
+    const allSic=list.querySelector('.store-item-all .sic');
+    if(allSic) allSic.textContent=total;
+    const catTotals={};
+    list.querySelectorAll('.store-item[data-store]').forEach(el=>{
+      const store=el.dataset.store;
+      const cnt=counts[store]||0;
+      const sic=el.querySelector('.sic');
+      if(sic) sic.textContent=cnt;
+      const grp=el.closest('.cat-group');
+      if(grp){
+        const hdr=grp.querySelector('.cat-header');
+        if(hdr){ const c=hdr.dataset.cat; catTotals[c]=(catTotals[c]||0)+cnt; }
+      }
+    });
+    list.querySelectorAll('.cat-header').forEach(hdr=>{
+      const el=hdr.querySelector('.cat-total');
+      if(el) el.textContent=catTotals[hdr.dataset.cat]||0;
+    });
+    return;
+  }
 
   // Save which categories are currently open
   const openCats=new Set();
@@ -1091,7 +1115,7 @@ function parsePrice(s){
   return m?parseFloat(m[0]):null;
 }
 
-function applyFilters(newTids=[]){
+function applyFilters(newTids=[], smooth=false){
   const q=searchQ.toLowerCase();
   filtered=allDeals;
   if(activeStore!=='all') filtered=filtered.filter(d=>d.store.trim()===activeStore);
@@ -1126,34 +1150,42 @@ function applyFilters(newTids=[]){
   }
 
   shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
-  renderDeals(newTids);
+  renderDeals(newTids, smooth);
 }
 
-function renderDeals(newTids=[]){
+function renderDeals(newTids=[], smooth=false){
   const stats=document.getElementById('statsBar');
   stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — Quebec & Ontario`;
 
   const root=document.getElementById('root');
   const lmRow=document.getElementById('loadMoreRow');
 
-  if(!filtered.length){
-    root.innerHTML=`<div class="deals-grid"><div class="state-box">
-      <h2>No deals found</h2><p>Clear filters or try a different search.</p>
-    </div></div>`;
-    lmRow.style.display='none';
-    return;
+  function _commit(){
+    if(!filtered.length){
+      root.innerHTML=`<div class="deals-grid"><div class="state-box">
+        <h2>No deals found</h2><p>Clear filters or try a different search.</p>
+      </div></div>`;
+      lmRow.style.display='none';
+      return;
+    }
+    const visible=filtered.slice(0,shown);
+    root.innerHTML=`<div class="deals-grid">${visible.map(d=>cardHtml(d,newTids)).join('')}</div>`;
+    if(viewMode==='list') root.querySelector('.deals-grid')?.classList.add('list-view');
+    if(shown<filtered.length){
+      lmRow.style.display='block';
+      document.getElementById('loadMoreBtn').textContent=
+        `Load more (${shown} of ${filtered.length}) ↓`;
+    }else{
+      lmRow.style.display='none';
+    }
   }
 
-  const visible=filtered.slice(0,shown);
-  root.innerHTML=`<div class="deals-grid">${visible.map(d=>cardHtml(d,newTids)).join('')}</div>`;
-  if(viewMode==='list') root.querySelector('.deals-grid')?.classList.add('list-view');
-
-  if(shown<filtered.length){
-    lmRow.style.display='block';
-    document.getElementById('loadMoreBtn').textContent=
-      `Load more (${shown} of ${filtered.length}) ↓`;
-  }else{
-    lmRow.style.display='none';
+  if(smooth){
+    const grid=root.querySelector('.deals-grid');
+    if(grid){ grid.classList.add('bg-loading'); }
+    requestAnimationFrame(()=>{ _commit(); });
+  } else {
+    _commit();
   }
 }
 
