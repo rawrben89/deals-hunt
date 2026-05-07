@@ -50,12 +50,27 @@
     .footer { text-align:center; font-size:6px; color:var(--surf0); padding-top:8px; }
     .footer a { color:var(--overlay); text-decoration:none; }
     .footer a:hover { color:var(--blue); }
-    .rpt { font-size:6px; line-height:2.2; background:var(--mantle); padding:8px;
-           border:1px solid var(--surf0); margin-top:8px; }
-    .rpt-row { margin-bottom:3px; }
-    .rpt-ok   { color:var(--green); } .rpt-warn { color:var(--yellow); }
-    .rpt-err  { color:var(--red); }  .rpt-act  { color:var(--peach); }
-    .rpt-dim  { color:var(--overlay); }
+    .agents-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+    @media(max-width:480px){ .agents-grid{ grid-template-columns:1fr; } }
+    .agent-card { border:2px solid var(--surf0); background:var(--base); padding:10px 8px; transition:border-color .3s; }
+    .agent-card[data-s="ok"]  { border-color:var(--green); }
+    .agent-card[data-s="warn"]{ border-color:var(--yellow); }
+    .agent-card[data-s="err"] { border-color:var(--red); }
+    .agent-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .agent-title { font-size:6px; color:var(--blue); letter-spacing:1px; }
+    .agent-sched { font-size:5px; color:var(--overlay); background:var(--surf0); padding:2px 5px; }
+    .agent-status-row { display:flex; align-items:center; gap:5px; margin-bottom:4px; }
+    .agent-val { font-size:7px; }
+    .agent-ts { font-size:5px; color:var(--overlay); margin-bottom:6px; min-height:10px; }
+    .agent-body { font-size:5px; line-height:2.2; }
+    .sc-row { display:flex; align-items:center; gap:4px; margin-bottom:1px; overflow:hidden; }
+    .sc-dot { width:4px; height:4px; flex-shrink:0; }
+    .sc-dot.ok  { background:var(--green); }
+    .sc-dot.err { background:var(--red); animation:blink .5s steps(1) infinite; }
+    .sc-dot.new { background:var(--yellow); }
+    .sc-label { color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sc-val { color:var(--overlay); margin-left:auto; white-space:nowrap; padding-left:4px; }
+    .fresh-tag { color:var(--blue); animation:blink 1s steps(1) infinite; }
   </style>
 </head>
 <body>
@@ -92,22 +107,32 @@
     <div class="panel-title">WATCHDOG LOG</div>
     <div id="log"><div class="ll">Loading…</div></div>
   </div>
-  <!-- Health agent report -->
-  <div class="panel">
-    <div class="panel-hdr">
-      <span class="panel-title">HEALTH AGENT</span>
-      <span id="health-age" style="font-size:6px;color:var(--overlay)">HOURLY CCR</span>
+  <!-- CCR Agent cards -->
+  <div class="agents-grid">
+    <div class="agent-card" id="ac-health" data-s="">
+      <div class="agent-hdr">
+        <span class="agent-title">HEALTH AGENT</span>
+        <span class="agent-sched">HOURLY CCR</span>
+      </div>
+      <div class="agent-status-row">
+        <div class="led" id="al-health" data-s=""></div>
+        <div class="agent-val" id="av-health">PENDING</div>
+      </div>
+      <div class="agent-ts" id="at-health">AWAITING FIRST RUN</div>
+      <div class="agent-body" id="ab-health"><span style="color:var(--overlay)">Awaiting first report…</span></div>
     </div>
-    <div class="rpt" id="health-content"><div class="rpt-dim">Awaiting first report… (runs every hour)</div></div>
-  </div>
-
-  <!-- Scout agent report -->
-  <div class="panel">
-    <div class="panel-hdr">
-      <span class="panel-title">SCOUT AGENT</span>
-      <span id="scout-age" style="font-size:6px;color:var(--overlay)">WEEKLY CCR</span>
+    <div class="agent-card" id="ac-scout" data-s="">
+      <div class="agent-hdr">
+        <span class="agent-title">SCOUT AGENT</span>
+        <span class="agent-sched">WEEKLY CCR</span>
+      </div>
+      <div class="agent-status-row">
+        <div class="led" id="al-scout" data-s=""></div>
+        <div class="agent-val" id="av-scout">PENDING</div>
+      </div>
+      <div class="agent-ts" id="at-scout">NEXT: MON 10:00 UTC</div>
+      <div class="agent-body" id="ab-scout"><span style="color:var(--overlay)">Awaiting first scout…</span></div>
     </div>
-    <div class="rpt" id="scout-content"><div class="rpt-dim">Awaiting first scout… (runs every Monday 10:00 UTC)</div></div>
   </div>
 
   <div class="footer">
@@ -477,42 +502,66 @@ async function poll(){
 poll();setInterval(poll,5000);
 
 // ── Agent report polling ───────────────────────────────────────────────────────
+function relAgo(isoStr){
+  if(!isoStr)return'—';
+  const s=Math.floor((Date.now()-new Date(isoStr))/1000);
+  if(s<10)return'just now';
+  if(s<60)return s+'s ago';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  return Math.floor(s/3600)+'h ago';
+}
+
 function renderHealthReport(d){
-  const el=document.getElementById('health-content');
-  const ageEl=document.getElementById('health-age');
   if(!d||d.status==='no_report_yet'){
-    el.innerHTML='<div class="rpt-dim">Awaiting first report… (runs every hour)</div>'; return;
+    document.getElementById('ab-health').innerHTML='<span style="color:var(--overlay)">Awaiting first report…</span>';
+    return;
   }
-  const col=d.overall==='healthy'?'rpt-ok':d.overall==='degraded'?'rpt-warn':'rpt-err';
-  let html=`<div class="rpt-row ${col}">STATUS: ${(d.overall||'?').toUpperCase()}</div>`;
-  (d.issues||[]).forEach(i=>{ html+=`<div class="rpt-row rpt-warn">⚠ ${i}</div>`; });
-  if((d.dead_scrapers||[]).length)
-    html+=`<div class="rpt-row rpt-err">DEAD SCRAPERS: ${d.dead_scrapers.join(', ')}</div>`;
-  if((d.healthy_scrapers||[]).length)
-    html+=`<div class="rpt-row rpt-ok">ALIVE: ${d.healthy_scrapers.join(', ')}</div>`;
-  if(d.staleness_minutes!=null)
-    html+=`<div class="rpt-row rpt-dim">DATA AGE: ${d.staleness_minutes}m</div>`;
-  if(!(d.issues||[]).length&&!(d.dead_scrapers||[]).length)
-    html+='<div class="rpt-row rpt-ok">All systems nominal</div>';
-  ageEl.textContent=d.checked_at?'LAST: '+d.checked_at.slice(0,16)+'Z':'HOURLY CCR';
-  el.innerHTML=html;
+  const s=d.overall==='healthy'?'ok':d.overall==='degraded'?'warn':'err';
+  document.getElementById('ac-health').dataset.s=s;
+  document.getElementById('al-health').dataset.s=s;
+  document.getElementById('av-health').textContent=(d.overall||'?').toUpperCase();
+  const ago=relAgo(d.checked_at);
+  const fresh=d.checked_at&&(Date.now()-new Date(d.checked_at))<180000;
+  document.getElementById('at-health').innerHTML=
+    'LAST: '+(d.checked_at?d.checked_at.slice(11,16)+'Z':' —')+' ('+ago+')'
+    +(fresh?' <span class="fresh-tag">● FRESH</span>':'');
+  let html='';
+  (d.fixed_scrapers||[]).forEach(n=>{
+    html+=`<div class="sc-row"><div class="sc-dot new"></div><span class="sc-label">${n}</span><span class="sc-val">FIXED</span></div>`;
+  });
+  (d.healthy_scrapers||[]).forEach(n=>{
+    html+=`<div class="sc-row"><div class="sc-dot ok"></div><span class="sc-label">${n}</span></div>`;
+  });
+  (d.dead_scrapers||[]).forEach(n=>{
+    html+=`<div class="sc-row"><div class="sc-dot err"></div><span class="sc-label">${n}</span><span class="sc-val">DEAD</span></div>`;
+  });
+  if((d.issues||[]).length)
+    html+=`<div style="color:var(--yellow);margin-top:2px">${d.issues.slice(0,2).map(i=>'⚠ '+i).join('<br>')}</div>`;
+  if(!html)html='<span style="color:var(--green)">All scrapers healthy</span>';
+  document.getElementById('ab-health').innerHTML=html;
 }
 
 function renderScoutReport(d){
-  const el=document.getElementById('scout-content');
-  const ageEl=document.getElementById('scout-age');
   if(!d||d.status==='no_report_yet'){
-    el.innerHTML='<div class="rpt-dim">Awaiting first scout… (runs every Monday 10:00 UTC)</div>'; return;
+    document.getElementById('ab-scout').innerHTML='<span style="color:var(--overlay)">Awaiting first scout…</span>';
+    return;
   }
+  const s=d.committed?'ok':'warn';
+  document.getElementById('ac-scout').dataset.s=s;
+  document.getElementById('al-scout').dataset.s=s;
+  document.getElementById('av-scout').textContent=d.committed?'COMMITTED':'SCOUTED';
+  const ago=relAgo(d.scouted_at);
+  document.getElementById('at-scout').textContent=
+    'LAST: '+(d.scouted_at?d.scouted_at.slice(11,16)+'Z':' —')+' ('+ago+')';
   let html='';
-  if(d.summary) html+=`<div class="rpt-row rpt-act">${d.summary}</div>`;
-  if((d.top_picks||[]).length)
-    html+=`<div class="rpt-row rpt-warn">TOP PICKS: ${d.top_picks.join(' · ')}</div>`;
-  (d.new_sources||[]).slice(0,6).forEach(s=>{
-    html+=`<div class="rpt-row">+ ${s.name}${s.has_api?' <span class="rpt-ok">[API]</span>':''}: <span class="rpt-dim">${s.notes||''}</span></div>`;
+  if(d.summary) html+=`<div style="color:var(--peach);margin-bottom:3px;line-height:1.8">${d.summary}</div>`;
+  (d.top_picks||[]).forEach(n=>{
+    html+=`<div class="sc-row"><div class="sc-dot new"></div><span class="sc-label">${n}</span><span class="sc-val">ADDED</span></div>`;
   });
-  ageEl.textContent=d.scouted_at?'LAST: '+d.scouted_at.slice(0,16)+'Z':'WEEKLY CCR';
-  el.innerHTML=html;
+  (d.new_sources||[]).filter(s=>!(d.top_picks||[]).includes(s.name)).slice(0,4).forEach(s=>{
+    html+=`<div class="sc-row"><div class="sc-dot ok"></div><span class="sc-label">${s.name}</span>${s.has_api?'<span class="sc-val">[API]</span>':''}</div>`;
+  });
+  document.getElementById('ab-scout').innerHTML=html;
 }
 
 async function pollReports(){
