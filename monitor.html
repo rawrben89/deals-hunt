@@ -141,6 +141,17 @@
     </div>
   </div>
 
+  <!-- Team board -->
+  <div class="panel" style="padding:10px 14px 12px">
+    <div class="panel-hdr" style="margin-bottom:8px">
+      <span class="panel-title">TEAM BOARD</span>
+      <span style="font-size:5px;color:var(--overlay)">AGENT ↔ AGENT MESSAGES</span>
+    </div>
+    <div id="teamBoard" style="font-size:6px;line-height:2.4;min-height:18px">
+      <span style="color:var(--overlay)">No messages yet…</span>
+    </div>
+  </div>
+
   <div class="footer">
     CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log &nbsp;|&nbsp; <a id="deals-link" href="/deals-hunt/">← DEALS</a>
   </div>
@@ -731,6 +742,30 @@ async function pollReports(){
   try{const r=await fetch(API_BASE+'/api/scout-report',{cache:'no-store'});if(r.ok)renderScoutReport(await r.json());}catch(e){}
 }
 pollReports();setInterval(pollReports,30000);
+
+// ── Team board ─────────────────────────────────────────────────────────────────
+const BOARD_FROM_COLOR={'health':'#89b4fa','scout':'#a6e3a1'};
+const BOARD_TYPE_ICON={'replacement_needed':'🔴','verify_scraper':'🟡','verify_result':'🟢','info':'⚪'};
+function renderBoard(msgs){
+  const el=document.getElementById('teamBoard');
+  if(!msgs||!msgs.length){el.innerHTML='<span style="color:var(--overlay)">No messages yet…</span>';return;}
+  el.innerHTML=msgs.slice(-10).reverse().map(m=>{
+    const fc=BOARD_FROM_COLOR[m.from]||'#585b70';
+    const ic=BOARD_TYPE_ICON[m.type]||'💬';
+    const ago=relAgo(new Date(m.ts).toISOString());
+    return `<div style="margin-bottom:3px">
+      <span style="color:${fc};font-weight:700">${(m.from||'?').toUpperCase()}</span>
+      <span style="color:var(--overlay)"> → </span>
+      <span style="color:${BOARD_FROM_COLOR[m.to]||'#585b70'};font-weight:700">${(m.to||'?').toUpperCase()}</span>
+      <span style="color:var(--overlay)"> ${ic} ${m.text||''}</span>
+      <span style="color:var(--surf0);float:right">${ago}</span>
+    </div>`;
+  }).join('');
+}
+async function pollBoard(){
+  try{const r=await fetch(API_BASE+'/api/board',{cache:'no-store'});if(r.ok){const d=await r.json();renderBoard(d.messages||[]);}}catch(e){}
+}
+pollBoard();setInterval(pollBoard,30000);
 
 
 // Fix DEALS link: tunnel and localhost use /, GitHub Pages uses /deals-hunt/

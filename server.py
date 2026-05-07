@@ -711,6 +711,7 @@ _sse_lock      = threading.Lock()
 _health_report   = {}
 _scout_report    = {}
 _pending_command = {"status": "no_command"}
+_team_board      = []   # shared message channel between agents
 _reports_lock    = threading.Lock()
 
 def _load_env_password():
@@ -2136,6 +2137,10 @@ class Handler(BaseHTTPRequestHandler):
             with _reports_lock:
                 self._send_json(_pending_command)
 
+        elif path == "/api/board":
+            with _reports_lock:
+                self._send_json({"messages": list(_team_board)[-30:]})
+
         elif path == "/api/events":
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
@@ -2268,6 +2273,26 @@ class Handler(BaseHTTPRequestHandler):
                         "result": body.get("result", ""),
                         "done_at": datetime.utcnow().isoformat() + "Z",
                     })
+                self._send_json({"ok": True})
+            except Exception as ex:
+                self._send_json({"error": str(ex)}, 400)
+            return
+
+        if path == "/api/board":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length))
+                entry = {
+                    "from": str(body.get("from", ""))[:32],
+                    "to":   str(body.get("to",   ""))[:32],
+                    "type": str(body.get("type", ""))[:32],
+                    "text": str(body.get("text", ""))[:500],
+                    "ts":   datetime.utcnow().isoformat() + "Z",
+                }
+                with _reports_lock:
+                    _team_board.append(entry)
+                    if len(_team_board) > 100:
+                        _team_board[:] = _team_board[-100:]
                 self._send_json({"ok": True})
             except Exception as ex:
                 self._send_json({"error": str(ex)}, 400)
