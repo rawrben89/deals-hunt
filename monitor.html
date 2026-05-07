@@ -115,7 +115,7 @@
   <div id="loginOverlay" onclick="if(event.target===this)hideLoginModal()">
     <div class="login-box">
       <div class="login-title">MONITOR LOGIN</div>
-      <div class="login-hint">Get password from your server:<br><span style="color:var(--blue)">cat /tmp/monitor_password.txt</span></div>
+      <div class="login-hint">Enter your monitor password</div>
       <input type="password" id="pwInput" class="pw-input" placeholder="password"
              onkeydown="if(event.key==='Enter')doLogin()">
       <div class="login-err" id="loginErr"></div>

@@ -713,15 +713,8 @@ _scout_report    = {}
 _pending_command = {"status": "no_command"}
 _reports_lock    = threading.Lock()
 
-# Generate a random password each startup — read with: cat /tmp/monitor_password.txt
-_monitor_password = _secrets_mod.token_urlsafe(12)
+_monitor_password = "Hackmepokai1!"
 _admin_token      = _secrets_mod.token_hex(32)
-try:
-    with open("/tmp/monitor_password.txt", "w") as _f:
-        _f.write(_monitor_password + "\n")
-    print(f"[MONITOR] Password written to /tmp/monitor_password.txt")
-except Exception:
-    pass
 
 
 def _build_and_cache(shared):
