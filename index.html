@@ -703,8 +703,8 @@ async function loadDeals(spinner=true) {
 
 function manualRefresh(){loadDeals(false)}
 
-/* auto-refresh every 2 min */
-setInterval(()=>loadDeals(false), 120000);
+/* auto-refresh every 10 min */
+setInterval(()=>loadDeals(false), 600000);
 
 /* ══════════════════════════════════════
    SSE

@@ -1790,7 +1790,7 @@ def _background_refresh():
             last_fp = fp
             _check_alerts(result["deals"])
 
-        time.sleep(120)   # 2 minutes
+        time.sleep(600)   # 10 minutes
 
 
 # ─────────────────────────────────────────────────────────
