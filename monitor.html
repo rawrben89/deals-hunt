@@ -49,10 +49,12 @@
       box-shadow: 4px 4px 0 rgba(96,48,255,.25);
     }
 
-    .panel-title {
-      font-size: 7px; color: var(--blue);
-      letter-spacing: 2px; margin-bottom: 10px;
+    .panel-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
     }
+    .panel-title { font-size: 7px; color: var(--blue); letter-spacing: 2px; }
+    #clock { font-size: 6px; color: var(--mauve); letter-spacing: 1px; }
 
     #office {
       display: block; width: 100%;
@@ -60,7 +62,6 @@
       image-rendering: crisp-edges;
     }
 
-    /* Agent cards */
     .cards {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 10px; margin-bottom: 14px;
@@ -77,8 +78,7 @@
     .card[data-s="err"]  { border-color: var(--red); }
 
     .card-name { font-size: 7px; color: var(--mauve); margin-bottom: 7px; }
-
-    .card-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+    .card-row  { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
 
     .led { width: 6px; height: 6px; background: var(--surf0); flex-shrink: 0; }
     .led[data-s="ok"]   { background: var(--green); }
@@ -89,7 +89,6 @@
     .card-val  { font-size: 8px; }
     .card-meta { font-size: 6px; color: var(--overlay); margin-top: 4px; line-height: 2; }
 
-    /* Log */
     #log {
       font-size: 6px; line-height: 2.2;
       max-height: 240px; overflow-y: auto;
@@ -99,13 +98,13 @@
       scrollbar-color: var(--surf0) var(--mantle);
     }
 
-    .ll        { color: var(--overlay); }
-    .ll-start  { color: var(--blue); }
-    .ll-done   { color: var(--surf0); }
-    .ll-ok     { color: var(--green); }
-    .ll-act    { color: var(--yellow); }
-    .ll-warn   { color: var(--peach); }
-    .ll-err    { color: var(--red); }
+    .ll       { color: var(--overlay); }
+    .ll-start { color: var(--blue); }
+    .ll-done  { color: var(--surf0); }
+    .ll-ok    { color: var(--green); }
+    .ll-act   { color: var(--yellow); }
+    .ll-warn  { color: var(--peach); }
+    .ll-err   { color: var(--red); }
 
     .footer {
       text-align: center; font-size: 6px; color: var(--surf0); padding-top: 8px;
@@ -123,7 +122,10 @@
   </header>
 
   <div class="panel">
-    <div class="panel-title">OFFICE</div>
+    <div class="panel-hdr">
+      <span class="panel-title">OFFICE</span>
+      <span id="clock">—</span>
+    </div>
     <canvas id="office"></canvas>
   </div>
 
@@ -170,10 +172,26 @@
 (function () {
 'use strict';
 
-// ── Canvas setup ──────────────────────────────────────────────────────────────
+// ── Montreal clock ─────────────────────────────────────────────────────────────
+const MTL_FMT = new Intl.DateTimeFormat('en-CA', {
+  timeZone:    'America/Toronto',
+  weekday: 'short', day: '2-digit', month: 'short',
+  hour: '2-digit', minute: '2-digit', second: '2-digit',
+  hour12: false,
+});
+function updateClock() {
+  const p = Object.fromEntries(MTL_FMT.formatToParts(new Date()).map(x => [x.type, x.value]));
+  document.getElementById('clock').textContent =
+    (p.weekday||'').toUpperCase() + ' ' + (p.day||'') + ' ' + (p.month||'').toUpperCase() +
+    '  ' + (p.hour||'') + ':' + (p.minute||'') + ':' + (p.second||'') + ' MTL';
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Canvas ─────────────────────────────────────────────────────────────────────
 const cv  = document.getElementById('office');
 const DPR = Math.min(window.devicePixelRatio || 1, 2);
-const CW  = 600, CH = 168;
+const CW  = 600, CH = 320;
 cv.width  = CW * DPR;
 cv.height = CH * DPR;
 cv.style.height = CH + 'px';
@@ -181,59 +199,81 @@ const gx  = cv.getContext('2d');
 gx.scale(DPR, DPR);
 gx.imageSmoothingEnabled = false;
 
-// ── Pixel sprite engine ───────────────────────────────────────────────────────
-const SC = 3; // 1 sprite pixel = 3 canvas pixels
+const SC      = 3;        // 1 sprite pixel = SC canvas pixels
+const SPW     = 7  * SC;  // 21 px
+const SPH     = 11 * SC;  // 33 px
+const DY_FAR  = 65;       // far-back row  — deals search team
+const DY_MID  = 155;      // mid-back row  — dev / qa / pm / design team
+const DY_FRON = 245;      // front row     — watchdog agents
 
-// Sprite color indices: 0=transparent 1=skin 2=hair 3=dark/eyes 4=shirt 5=pants 6=shoes
+// ── Sprites ────────────────────────────────────────────────────────────────────
+// Palette indices: 0=transparent  1=skin  2=hair  3=eyes  4=shirt  5=pants  6=shoes
 const SP_IDLE = [
-  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
-    [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0] ],
-  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
-    [0,4,4,4,4,4,0],[0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0] ],
+  [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+   [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0]],
+  [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+   [0,4,4,4,4,4,0],[0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0]],
 ];
-
 const SP_TYPE = [
-  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
-    [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[4,4,0,4,0,4,4],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0] ],
-  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
-    [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[0,4,4,0,4,4,0],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0] ],
+  [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+   [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[4,4,0,4,0,4,4],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]],
+  [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+   [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[0,4,4,0,4,4,0],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]],
 ];
-
 const SP_ERR = [
-  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,3,1,3,1],[1,1,3,1,3,1,1],
-    [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0] ],
+  [[0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,3,1,3,1],[1,1,3,1,3,1,1],
+   [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0]],
 ];
 
 function drawSprite(sp, px, py, pal) {
-  sp.forEach((row, ry) => {
-    row.forEach((ci, rx) => {
-      if (!ci || !pal[ci]) return;
-      gx.fillStyle = pal[ci];
-      gx.fillRect(px + rx * SC, py + ry * SC, SC, SC);
-    });
-  });
+  sp.forEach((row, ry) => row.forEach((ci, rx) => {
+    if (!ci || !pal[ci]) return;
+    gx.fillStyle = pal[ci];
+    gx.fillRect(px + rx * SC, py + ry * SC, SC, SC);
+  }));
 }
 
-// ── Agent definitions ─────────────────────────────────────────────────────────
-const DESK_Y = 108; // top of desk surface
-const SPW = 7 * SC, SPH = 11 * SC; // sprite px dimensions = 21 × 33
-
+// ── Watchdog agents (front row) ────────────────────────────────────────────────
 const AGENTS = [
-  { id: 'server', label: 'SRVR', ax: 100, state: 'idle',
+  { id:'server', label:'SRVR', ax:100, state:'idle',
     pal:    [null,'#d4a574','#818cf8','#1f2937','#4f46e5','#334155','#e2e8f0'],
     errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
-  { id: 'tunnel', label: 'TUNL', ax: 300, state: 'idle',
+  { id:'tunnel', label:'TUNL', ax:300, state:'idle',
     pal:    [null,'#d4a574','#34d399','#1f2937','#059669','#334155','#e2e8f0'],
     errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
-  { id: 'deals',  label: 'DEAL', ax: 500, state: 'idle',
+  { id:'deals',  label:'DEAL', ax:500, state:'idle',
     pal:    [null,'#d4a574','#fbbf24','#1f2937','#d97706','#334155','#e2e8f0'],
     errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
 ];
 
-// Pre-defined screen content lines [width, color]
-const SCREEN_LINES = [[14,'#89b4fa'],[10,'#a6e3a1'],[12,'#89b4fa'],[7,'#f9e2af']];
+// ── Mid-row team: dev / qa / pm / backend / design ─────────────────────────────
+const TEAM_MID = [
+  { label:'DEV',  ax: 60,  offset:  0,  typeRatio:0.82,
+    pal:[null,'#d4a574','#22d3ee','#1f2937','#0891b2','#334155','#e2e8f0'] },
+  { label:'QA',   ax:175,  offset:110,  typeRatio:0.58,
+    pal:[null,'#d4a574','#c084fc','#1f2937','#9333ea','#334155','#e2e8f0'] },
+  { label:'PM',   ax:300,  offset:200,  typeRatio:0.38,
+    pal:[null,'#d4a574','#f472b6','#1f2937','#db2777','#334155','#e2e8f0'] },
+  { label:'BEND', ax:425,  offset: 55,  typeRatio:0.88,
+    pal:[null,'#d4a574','#fb923c','#1f2937','#ea580c','#334155','#e2e8f0'] },
+  { label:'DES',  ax:540,  offset:160,  typeRatio:0.65,
+    pal:[null,'#d4a574','#a3e635','#1f2937','#65a30d','#334155','#e2e8f0'] },
+];
 
-// ── Draw helpers ──────────────────────────────────────────────────────────────
+// ── Far-back row: deals search team ────────────────────────────────────────────
+const TEAM_FAR = [
+  { label:'SCOT', ax:120,  offset: 30,  typeRatio:0.90,
+    pal:[null,'#d4a574','#2dd4bf','#1f2937','#0d9488','#334155','#e2e8f0'] },
+  { label:'SRAP', ax:300,  offset:180,  typeRatio:0.95,
+    pal:[null,'#d4a574','#e879f9','#1f2937','#a21caf','#334155','#e2e8f0'] },
+  { label:'CMPR', ax:480,  offset: 90,  typeRatio:0.88,
+    pal:[null,'#d4a574','#38bdf8','#1f2937','#0284c7','#334155','#e2e8f0'] },
+];
+
+// Screen content lines [width, base-color]
+const SCR = [[14,'#89b4fa'],[10,'#a6e3a1'],[12,'#89b4fa'],[7,'#f9e2af']];
+
+// ── Draw helpers ───────────────────────────────────────────────────────────────
 function drawFloor() {
   gx.fillStyle = '#11111b';
   gx.fillRect(0, 0, CW, CH);
@@ -244,8 +284,7 @@ function drawFloor() {
         gx.fillStyle = '#181825';
         gx.fillRect(tx, ty, T, T);
       }
-  gx.strokeStyle = '#1e1e2e';
-  gx.lineWidth = 1;
+  gx.strokeStyle = '#1e1e2e'; gx.lineWidth = 1;
   for (let tx = 0; tx <= CW; tx += T) {
     gx.beginPath(); gx.moveTo(tx+.5,0); gx.lineTo(tx+.5,CH); gx.stroke();
   }
@@ -254,60 +293,64 @@ function drawFloor() {
   }
 }
 
-function drawDeskBack(ax, agentState, tick) {
-  const dx = ax - 40;
-  const mx = ax - 28;
-  const isErr = agentState === 'err';
+function drawWall(wy, doorX) {
+  gx.fillStyle = '#2d2b55';
+  gx.fillRect(0, wy, CW, 4);
+  gx.fillStyle = '#4040a0';
+  gx.fillRect(0, wy, CW, 1);
+  // Doorway gap
+  gx.fillStyle = '#11111b';
+  gx.fillRect(doorX - 20, wy, 40, 4);
+  // Door frame pillars
+  gx.fillStyle = '#6030ff';
+  gx.fillRect(doorX - 22, wy - 2, 2, 8);
+  gx.fillRect(doorX + 20, wy - 2, 2, 8);
+}
 
-  // Monitor frame
+function drawDeskBack(ax, state, tick, deskY) {
+  const mx  = ax - 28;
+  const isE = state === 'err';
+
   gx.fillStyle = '#0d0d1a';
-  gx.fillRect(mx, 82, 22, 22);
-  gx.fillStyle = isErr ? '#3a1020' : '#1a2f4e';
-  gx.fillRect(mx+2, 84, 18, 18);
+  gx.fillRect(mx, deskY - 22, 22, 22);
+  gx.fillStyle = isE ? '#3a1020' : '#1a2f4e';
+  gx.fillRect(mx+2, deskY - 20, 18, 18);
 
-  // Animated screen content
-  const activeLine = Math.floor(tick / 28) % SCREEN_LINES.length;
-  SCREEN_LINES.forEach(([w, c], i) => {
-    gx.fillStyle = isErr ? '#f38ba822' : (i === activeLine ? c : c + '44');
-    gx.fillRect(mx+3, 85+i*4, w, 2);
+  const al = Math.floor(tick / 28) % SCR.length;
+  SCR.forEach(([w, c], i) => {
+    gx.fillStyle = isE ? '#f38ba822' : (i === al ? c : c + '44');
+    gx.fillRect(mx+3, deskY - 19 + i*4, w, 2);
   });
 
-  // Monitor stand
   gx.fillStyle = '#1e1e30';
-  gx.fillRect(mx+6, 104, 10, 4);
+  gx.fillRect(mx+6, deskY, 10, 4);
 
-  // Desk surface
   gx.fillStyle = '#2d2b55';
-  gx.fillRect(dx, 104, 80, 4);
+  gx.fillRect(ax-40, deskY, 80, 4);
   gx.fillStyle = '#4040a0';
-  gx.fillRect(dx, 104, 80, 1); // highlight edge
+  gx.fillRect(ax-40, deskY, 80, 1);
 }
 
-function drawDeskFront(ax) {
-  const dx = ax - 40;
-
-  // Keyboard
+function drawDeskFront(ax, deskY) {
   gx.fillStyle = '#2a2a3e';
-  gx.fillRect(ax-12, 105, 24, 4);
+  gx.fillRect(ax-12, deskY+1, 24, 4);
   gx.fillStyle = '#45475a';
-  for (let i = 0; i < 5; i++) gx.fillRect(ax-10+i*4, 106, 3, 2);
+  for (let i = 0; i < 5; i++) gx.fillRect(ax-10+i*4, deskY+2, 3, 2);
 
-  // Desk front face
   gx.fillStyle = '#1e1c3e';
-  gx.fillRect(dx, 108, 80, 14);
+  gx.fillRect(ax-40, deskY+4, 80, 14);
   gx.fillStyle = '#2d2b55';
-  gx.fillRect(dx, 108, 80, 2); // top edge
+  gx.fillRect(ax-40, deskY+4, 80, 2);
 }
 
-function drawChar(agent, tick) {
-  const { ax, state, pal, errPal, label } = agent;
+function drawChar(ax, label, state, pal, errPal, tick, deskY, ledColor) {
   const isErr  = state === 'err';
   const isType = state === 'ok';
 
   let sp, palette;
   if (isErr) {
     sp = SP_ERR[Math.floor(tick / 30) % SP_ERR.length];
-    palette = errPal;
+    palette = errPal || pal;
   } else if (isType) {
     sp = SP_TYPE[Math.floor(tick / 18) % SP_TYPE.length];
     palette = pal;
@@ -317,35 +360,70 @@ function drawChar(agent, tick) {
   }
 
   const bob = (!isType && !isErr && Math.floor(tick / 60) % 2 === 1) ? 1 : 0;
-  const py = isType ? DESK_Y - SPH + 12 : DESK_Y - SPH - 4 + bob;
-  const px = ax - Math.floor(SPW / 2);
+  const py  = isType ? deskY - SPH + 12 : deskY - SPH - 4 + bob;
+  const px  = ax - Math.floor(SPW / 2);
 
   drawSprite(sp, px, py, palette);
 
-  // Status LED above head
-  const ledOn = isErr ? Math.floor(tick / 15) % 2 === 0 : true;
-  if (ledOn) {
-    gx.fillStyle = isType ? '#a6e3a1' : isErr ? '#f38ba8'
-                 : state === 'warn' ? '#f9e2af' : '#89b4fa';
+  // Status LED
+  const on = isErr ? Math.floor(tick / 15) % 2 === 0 : true;
+  if (on) {
+    gx.fillStyle = ledColor || (isType ? '#a6e3a1' : isErr ? '#f38ba8'
+                   : state === 'warn' ? '#f9e2af' : '#89b4fa');
     gx.fillRect(ax-2, py-8, 4, 4);
   }
 
-  // Name label
   gx.fillStyle = '#585b70';
   gx.font = `${SC*2}px "Press Start 2P", monospace`;
   gx.textAlign = 'center';
   gx.fillText(label, ax, py - 12);
 }
 
-// ── Render loop ───────────────────────────────────────────────────────────────
+function ambientState(worker, tick) {
+  const t = (tick + worker.offset) % 320;
+  return t < worker.typeRatio * 320 ? 'ok' : 'idle';
+}
+
+// ── Render loop ────────────────────────────────────────────────────────────────
 let tick = 0;
 function render() {
   drawFloor();
-  AGENTS.forEach(a => {
-    drawDeskBack(a.ax, a.state, tick);
-    drawChar(a, tick);
-    drawDeskFront(a.ax);
+
+  // Walls (two horizontal dividers with doorways)
+  drawWall(108, CW * 0.67);   // between far-back and mid
+  drawWall(200, CW * 0.33);   // between mid and front
+
+  // Row labels
+  gx.fillStyle = '#313244';
+  gx.font = `5px "Press Start 2P", monospace`;
+  gx.textAlign = 'left';
+  gx.fillText('DEALS SEARCH', 4, 14);
+  gx.fillText('DEV TEAM', 4, 118);
+  gx.fillText('WATCHDOG', 4, 210);
+
+  // Far-back row — deals search team
+  TEAM_FAR.forEach(w => {
+    const s = ambientState(w, tick);
+    drawDeskBack(w.ax, s, tick, DY_FAR);
+    drawChar(w.ax, w.label, s, w.pal, w.pal, tick, DY_FAR, w.pal[2]);
+    drawDeskFront(w.ax, DY_FAR);
   });
+
+  // Mid-back row — dev / qa / pm / backend / design
+  TEAM_MID.forEach(w => {
+    const s = ambientState(w, tick);
+    drawDeskBack(w.ax, s, tick, DY_MID);
+    drawChar(w.ax, w.label, s, w.pal, w.pal, tick, DY_MID, w.pal[2]);
+    drawDeskFront(w.ax, DY_MID);
+  });
+
+  // Front row — watchdog agents
+  AGENTS.forEach(a => {
+    drawDeskBack(a.ax, a.state, tick, DY_FRON);
+    drawChar(a.ax, a.label, a.state, a.pal, a.errPal, tick, DY_FRON, null);
+    drawDeskFront(a.ax, DY_FRON);
+  });
+
   tick++;
   requestAnimationFrame(render);
 }
@@ -356,7 +434,7 @@ if (document.fonts && document.fonts.ready) {
   setTimeout(render, 400);
 }
 
-// ── UI helpers ────────────────────────────────────────────────────────────────
+// ── UI helpers ─────────────────────────────────────────────────────────────────
 function setCard(id, state, val, meta) {
   document.getElementById('c-'+id).dataset.s = state;
   document.getElementById('l-'+id).dataset.s = state;
@@ -384,7 +462,7 @@ function logCls(line) {
   return '';
 }
 
-// ── API polling ───────────────────────────────────────────────────────────────
+// ── Polling ────────────────────────────────────────────────────────────────────
 async function poll() {
   let d;
   try {
@@ -424,7 +502,7 @@ async function poll() {
   const logEl = document.getElementById('log');
   if (lines.length) {
     logEl.innerHTML = [...lines].reverse().slice(0, 40).map(line => {
-      const cls = logCls(line);
+      const cls  = logCls(line);
       const safe = line.replace(/&/g,'&amp;').replace(/</g,'&lt;');
       return `<div class="ll${cls ? ' ll-'+cls : ''}">${safe}</div>`;
     }).join('');
