@@ -312,9 +312,8 @@ def _save_pct(cur, was):
 # ─────────────────────────────────────────────────────────
 # (shelf_id, label, max pages to fetch)
 WALMART_FEEDS = [
-    ("1984137688763", "Flash Deals",        "special_offers%3AReduced+Price", 6),
-    ("6000205319047", "Rollbacks",          "",                               5),
-    ("6000197551406", "Clearance",          "",                               4),
+    ("1984137688763", "Flash Deals", "special_offers%3AReduced+Price", 6),
+    ("6000205319047", "Rollbacks",   "",                               5),
 ]
 
 
@@ -507,68 +506,69 @@ def get_stocktrack_deals():
 
 
 # ─────────────────────────────────────────────────────────
-# SOURCE 3: RedFlagDeals.com  (hot deals RSS)
+# SOURCE 3: RedFlagDeals.com  (hot deals forum — HTML scrape)
 # ─────────────────────────────────────────────────────────
-_RFD_STORES = [
-    "Amazon", "Walmart", "Costco", "Best Buy", "Canadian Tire",
-    "Staples", "Home Depot", "IKEA", "Sport Chek", "Lowe's", "Lowes",
-    "Rona", "Winners", "H&M", "Old Navy", "Gap", "The Source",
-    "Shoppers Drug Mart", "Shoppers", "London Drugs", "Sobeys",
-    "Metro", "Princess Auto", "Decathlon", "Atmosphere", "Reitmans",
-    "La Maison Simons", "Simons", "Bureau en Gros", "SportiumCOUNT",
-]
+_RFD_BASE = "https://forums.redflagdeals.com"
 
 
-def _rfd_store(title):
-    tl = title.lower()
-    for s in _RFD_STORES:
-        if s.lower() in tl:
-            return s
-    return "RedFlagDeals"
+def _rfd_clean_store(raw):
+    """Normalize dealer name to a known store or 'RedFlagDeals'."""
+    known = [
+        "Amazon", "Walmart", "Costco", "Best Buy", "Canadian Tire",
+        "Staples", "Home Depot", "IKEA", "Sport Chek", "Lowe's",
+        "Rona", "Winners", "H&M", "Old Navy", "Gap", "The Source",
+        "Shoppers Drug Mart", "London Drugs", "Sobeys", "Metro",
+        "Princess Auto", "Decathlon", "Atmosphere", "Reitmans",
+        "La Maison Simons", "Simons", "Bureau en Gros",
+    ]
+    s = raw.strip().lower()
+    for k in known:
+        if k.lower() in s or s in k.lower():
+            return k
+    title = raw.strip().title()
+    return title if title else "RedFlagDeals"
 
 
 def get_redflagdeals():
     deals, errors = [], []
     try:
-        text = _get("https://forums.redflagdeals.com/feed/forum/9/")
-        root = ET.fromstring(text)
-        channel = root.find("channel")
-        items = (channel.findall("item") if channel is not None
-                 else root.findall(".//item"))
-
-        for item in items[:80]:
-            title = _clean(item.findtext("title", ""))
-            link  = (item.findtext("link", "") or "").strip()
-            desc  = _clean(item.findtext("description", ""))
-            pub   = (item.findtext("pubDate", "") or "").strip()
-
+        text = _get(f"{_RFD_BASE}/hot-deals-f9/")
+        # Each deal card: <a class="topic-card-info thread_info ..." href="/SLUG/" ...>...</a>
+        cards = re.findall(
+            r'<a class="topic-card-info thread_info[^"]*"\s+href="(/[^"]+/)"\s+[^>]*'
+            r'data-dealer-name=([^\s>]+)[^>]*>(.*?)</a>',
+            text, re.S
+        )
+        for href, dealer_raw, content in cards:
+            title_m = re.search(r'<h3[^>]*class=thread_title[^>]*>(.*?)</h3>', content, re.S)
+            if not title_m:
+                continue
+            title = _clean(title_m.group(1))
             if not title:
                 continue
 
-            # Extract price from title or description
-            pm = re.search(r'\$\s*(\d[\d,]*(?:\.\d{1,2})?)', title + " " + desc)
+            dealer_m = re.search(r'<div[^>]*class="dealer_name[^"]*"[^>]*>\s*(.*?)\s*</div>', content, re.S)
+            dealer_txt = re.sub(r'<[^>]+>', '', dealer_m.group(1)).strip() if dealer_m else dealer_raw
+            store = _rfd_clean_store(dealer_txt or dealer_raw)
+
+            img_m = re.search(r'<img[^>]+src="([^"]+)"', content)
+            img = img_m.group(1) if img_m else ""
+
+            votes_m = re.search(r'class="votes[^"]*"[^>]*>.*?</svg>\s*(-?\d+)', content, re.S)
+            votes = int(votes_m.group(1)) if votes_m else 0
+
+            dt_m = re.search(r'<time[^>]+datetime="([^"]+)"', content)
+            drop_date = (dt_m.group(1) or "")[:10] if dt_m else ""
+
+            link = _RFD_BASE + href
+
+            pm = re.search(r'\$\s*(\d[\d,]*(?:\.\d{1,2})?)', title)
             price = f"${pm.group(1)}" if pm else ""
-
-            # Detect discount %
-            pct_m = re.search(r'(\d+)\s*%\s*off', title + " " + desc, re.I)
+            pct_m = re.search(r'(\d+)\s*%\s*off', title, re.I)
             save_pct = f"{pct_m.group(1)}%" if pct_m else ""
+            is_clearance = bool(re.search(r'\bclearance\b', title, re.I))
 
-            store = _rfd_store(title)
-            tid   = "rfd-" + hashlib.md5(link.encode()).hexdigest()[:10]
-
-            # Parse RFC-2822 pubDate → YYYY-MM-DD
-            drop_date = ""
-            if pub:
-                try:
-                    from email.utils import parsedate
-                    t = parsedate(pub)
-                    if t:
-                        drop_date = f"{t[0]:04d}-{t[1]:02d}-{t[2]:02d}"
-                except Exception:
-                    pass
-
-            is_clearance = bool(re.search(r'\bclearance\b', title + " " + desc, re.I))
-
+            tid = "rfd-" + hashlib.md5(href.encode()).hexdigest()[:10]
             deals.append({
                 "source":        "RedFlagDeals",
                 "tid":           tid,
@@ -580,10 +580,10 @@ def get_redflagdeals():
                 "originalPrice": "",
                 "savings":       "",
                 "savePct":       save_pct,
-                "pubDate":       pub,
+                "pubDate":       drop_date,
                 "relTime":       "Hot Deal",
-                "votes":         0,
-                "img":           "",
+                "votes":         votes,
+                "img":           img,
                 "category":      "",
                 "clearance":     is_clearance,
                 "dropDate":      drop_date,
@@ -1039,7 +1039,7 @@ def get_flipp_deals():
         targets = []
         fetched_ids = set()
         for f in flyer_data.get("flyers", []):
-            merchant = f.get("merchant", "")
+            merchant = f.get("merchant") or ""
             fid      = f.get("id")
             if not fid or fid in fetched_ids:
                 continue
