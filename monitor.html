@@ -111,7 +111,7 @@
   </div>
 
   <div class="footer">
-    CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log &nbsp;|&nbsp; <a href="..">← DEALS</a>
+    CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log &nbsp;|&nbsp; <a id="deals-link" href="/deals-hunt/">← DEALS</a>
   </div>
 </div>
 
@@ -520,6 +520,11 @@ async function pollReports(){
   try{const r=await fetch(API_BASE+'/api/scout-report',{cache:'no-store'});if(r.ok)renderScoutReport(await r.json());}catch(e){}
 }
 pollReports();setInterval(pollReports,30000);
+
+// Fix DEALS link: tunnel and localhost use /, GitHub Pages uses /deals-hunt/
+const _h=window.location.hostname;
+document.getElementById('deals-link').href=
+  (_h==='rawrben89.github.io')?'/deals-hunt/':'/';
 
 })();
 </script>
