@@ -34,8 +34,11 @@ header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
 .page-layout{display:flex;align-items:flex-start}
 
 /* ── Sidebar ── */
-.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#fff;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;z-index:90}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:#fff;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;z-index:90;min-width:140px;max-width:420px}
 .sidebar-hd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:12px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff}
+/* Resize handle */
+.sidebar-resize{width:5px;flex-shrink:0;cursor:col-resize;background:transparent;position:sticky;top:0;height:100vh;z-index:91;transition:background .15s}
+.sidebar-resize:hover,.sidebar-resize.dragging{background:var(--qc)}
 
 /* All-stores row */
 .store-item-all{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:.84rem;font-weight:600;color:var(--text);transition:background .12s;border-left:3px solid transparent;border-bottom:1px solid var(--border)}
@@ -188,6 +191,7 @@ footer a{color:var(--qc)}
 /* ── Dark mode ── */
 [data-theme="dark"]{--bg:#111827;--card:#1e2a40;--border:#2a3a5c;--text:#dde4f5;--muted:#7986b0;--green:#4caf50}
 [data-theme="dark"] .sidebar,[data-theme="dark"] .sidebar-hd{background:#16213e;border-color:var(--border)}
+[data-theme="dark"] .sidebar-resize:hover,[data-theme="dark"] .sidebar-resize.dragging{background:#5c8aff}
 [data-theme="dark"] .controls{background:#16213e;border-color:var(--border)}
 [data-theme="dark"] .bottom-bar{background:#111827}
 [data-theme="dark"] .cat-header{background:#1a2740;color:var(--muted)}
@@ -245,8 +249,9 @@ footer a{color:var(--qc)}
 /* ── Mobile ── */
 @media(max-width:768px){
   .page-layout{flex-direction:column}
-  .sidebar{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
+  .sidebar{width:100%!important;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
   .sidebar-hd{position:static;padding:6px 12px 4px}
+  .sidebar-resize{display:none}
   #storeList{display:flex;overflow-x:auto;padding:4px 10px 8px;gap:5px;scrollbar-width:none;align-items:center}
   #storeList::-webkit-scrollbar{display:none}
   /* flatten accordion on mobile */
@@ -273,6 +278,41 @@ footer a{color:var(--qc)}
 @media(max-width:400px){
   .deals-grid{grid-template-columns:1fr}
 }
+
+/* ── Card content wrapper ── */
+.card-content{display:flex;flex-direction:column;flex:1}
+
+/* ── Image placeholder ── */
+.img-ph{display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;letter-spacing:-1px}
+
+/* ── Share button ── */
+.share-btn{background:none;border:none;cursor:pointer;font-size:.85rem;padding:3px 5px;opacity:.3;transition:opacity .15s;line-height:1;flex-shrink:0}
+.share-btn:hover{opacity:1}
+
+/* ── Price range filter ── */
+.price-inp{width:62px;padding:3px 7px;border:1.5px solid var(--border);border-radius:8px;font-size:.72rem;background:#fff;color:var(--text);-moz-appearance:textfield}
+.price-inp::-webkit-outer-spin-button,.price-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.price-inp:focus{outline:none;border-color:var(--qc)}
+[data-theme="dark"] .price-inp{background:var(--card);border-color:var(--border);color:var(--text)}
+
+/* ── View toggle ── */
+.view-toggle{display:flex;gap:3px;flex-shrink:0}
+.vtbtn{padding:3px 8px;border:1.5px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;font-size:.85rem;color:var(--muted);transition:all .15s}
+.vtbtn:hover{border-color:var(--qc);color:var(--qc)}
+.vtbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
+[data-theme="dark"] .vtbtn{background:var(--card);border-color:var(--border);color:var(--muted)}
+
+/* ── List view ── */
+.deals-grid.list-view{grid-template-columns:1fr;gap:8px}
+.list-view .deal-card{flex-direction:row;align-items:stretch}
+.list-view .card-content{flex:1;display:flex;flex-direction:column;min-width:0}
+.list-view .deal-img,.list-view .img-ph{width:110px;min-width:110px;height:unset;max-height:unset;border-bottom:none;border-right:1px solid var(--border);padding:8px;flex-shrink:0}
+.list-view .card-body{padding:4px 10px}
+.list-view .deal-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list-view .sparkline-wrap{display:none}
+.list-view .card-foot{padding:5px 10px}
+@media(max-width:768px){.list-view .deal-img,.list-view .img-ph{width:80px;min-width:80px}}
+@media(max-width:400px){.list-view .deal-img,.list-view .img-ph{display:none}}
 </style>
 </head>
 <body>
@@ -291,10 +331,11 @@ footer a{color:var(--qc)}
 <div class="page-layout">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-hd">Stores</div>
     <div id="storeList"></div>
   </aside>
+  <div class="sidebar-resize" id="sidebarResize" title="Drag to resize"></div>
 
   <!-- MAIN -->
   <div class="main-content">
@@ -320,7 +361,7 @@ footer a{color:var(--qc)}
         <button class="fbtn" data-cat="office">Office</button>
         <button class="fbtn" data-cat="auto">Auto</button>
         <button class="fbtn" data-cat="health">Health &amp; Beauty</button>
-        <button class="fbtn" data-cat="food">Food</button>
+        <button class="fbtn" data-cat="food">Grocery</button>
       </div>
     </div>
 
@@ -343,6 +384,16 @@ footer a{color:var(--qc)}
         <button class="pgbtn" data-pg="80">80</button>
         <button class="pgbtn" data-pg="100">100</button>
         <button class="pgbtn" data-pg="0">All</button>
+      </div>
+      <div class="pgsize-row">
+        <span class="pgsize-label">Price $:</span>
+        <input type="number" id="priceMin" class="price-inp" placeholder="Min" min="0" step="1">
+        <span style="color:var(--muted);font-size:.7rem">–</span>
+        <input type="number" id="priceMax" class="price-inp" placeholder="Max" min="0" step="1">
+      </div>
+      <div class="view-toggle">
+        <button class="vtbtn active" id="gridBtn" title="Grid view">⊞</button>
+        <button class="vtbtn" id="listBtn" title="List view">☰</button>
       </div>
     </div>
     <div id="lastUpdated"></div>
@@ -383,7 +434,13 @@ footer a{color:var(--qc)}
 </div>
 
 <script>
-const API_BASE="https://herbal-hunter-motivated-lang.trycloudflare.com";
+const API_BASE=(()=>{
+  // Auto-detect: use same origin when served from the backend or tunnel
+  if(window.location.port==='8080'||window.location.hostname.endsWith('trycloudflare.com'))
+    return window.location.origin;
+  // Static host fallback — update this URL when the tunnel changes
+  return "https://herbal-hunter-motivated-lang.trycloudflare.com";
+})();
 /* ══════════════════════════════════════
    State
 ══════════════════════════════════════ */
@@ -408,6 +465,59 @@ let darkMode   = localStorage.getItem('darkMode') === '1';
 
 // Alert modal state
 let _alertTid='', _alertDealData=null;
+
+// View mode + price range
+let viewMode = localStorage.getItem('viewMode') || 'grid';
+let priceMin = 0, priceMax = Infinity;
+
+/* ── Sidebar resize ── */
+(function(){
+  const sidebar = document.getElementById('sidebar');
+  const handle  = document.getElementById('sidebarResize');
+  if (!sidebar || !handle) return;
+
+  const MIN_W = 140, MAX_W = 420;
+  const saved = parseInt(localStorage.getItem('sidebarW') || '210', 10);
+  if (saved >= MIN_W && saved <= MAX_W) {
+    sidebar.style.width = saved + 'px';
+    document.documentElement.style.setProperty('--sidebar-w', saved + 'px');
+  }
+
+  let startX, startW;
+
+  handle.addEventListener('mousedown', e => {
+    if (window.innerWidth <= 768) return;
+    startX = e.clientX;
+    startW = sidebar.getBoundingClientRect().width;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    function onMove(e) {
+      const w = Math.min(MAX_W, Math.max(MIN_W, startW + e.clientX - startX));
+      sidebar.style.width = w + 'px';
+      document.documentElement.style.setProperty('--sidebar-w', w + 'px');
+    }
+    function onUp() {
+      handle.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      localStorage.setItem('sidebarW', Math.round(sidebar.getBoundingClientRect().width));
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+
+  // Double-click to reset to default
+  handle.addEventListener('dblclick', () => {
+    sidebar.style.width = '210px';
+    document.documentElement.style.setProperty('--sidebar-w', '210px');
+    localStorage.setItem('sidebarW', '210');
+  });
+})();
 
 /* ══════════════════════════════════════
    Category detection
@@ -540,6 +650,10 @@ const STORE_COLORS = {
   'Sephora':'#212121','Chatters Salon':'#880e4f','Holt Renfrew':'#1a1a1a',
   'Reitmans':'#8b0000','Penningtons':'#4a148c','Laura':'#ad1457',
   'Melanie Lyne':'#c2185b','Thyme Maternity':'#2e7d32',
+  'Ardene':'#e91e63','Frank and Oak':'#2e7d32','Addition Elle':'#7b1fa2',
+  'Bootlegger':'#37474f','Cleo':'#880e4f',
+  // Sporting & Outdoor (new)
+  'Altitude Sports':'#1565C0','MEC':'#2e7d32',
   // Specialty
   'Staples':'#cc0000','Toys R Us':'#bf360c',
   'SAQ':'#7b1fa2','LCBO':'#c62828','The Beer Store':'#d32f2f',
@@ -588,8 +702,8 @@ async function loadDeals(spinner=true) {
 
 function manualRefresh(){loadDeals(false)}
 
-/* auto-refresh every 5 min */
-setInterval(()=>loadDeals(false), 300000);
+/* auto-refresh every 2 min */
+setInterval(()=>loadDeals(false), 120000);
 
 /* ══════════════════════════════════════
    SSE
@@ -683,6 +797,8 @@ const STORE_CAT = {
   'Newegg':'Electronics','2001 Audio Video':'Electronics',
   // Home & Garden
   'Home Depot':'Home & Garden','RONA & RONA +':'Home & Garden',
+  'Rona':'Home & Garden','RONA':'Home & Garden','Rona +':'Home & Garden',
+  "Lowe's":'Home & Garden','Lowes':'Home & Garden',
   'Home Hardware':'Home & Garden','Canac':'Home & Garden',
   'Patrick Morin':'Home & Garden','BMR':'Home & Garden',
   'Bath Depot':'Home & Garden','Club Piscine':'Home & Garden',
@@ -716,6 +832,10 @@ const STORE_CAT = {
   'Sephora':'Clothing','Holt Renfrew':'Clothing',
   'Reitmans':'Clothing','Penningtons':'Clothing','Laura':'Clothing',
   'Melanie Lyne':'Clothing','Thyme Maternity':'Clothing',
+  'Ardene':'Clothing','Frank and Oak':'Clothing','Addition Elle':'Clothing',
+  'Bootlegger':'Clothing','Cleo':'Clothing',
+  // Sporting & Outdoor (new)
+  'Altitude Sports':'Sporting & Outdoor','MEC':'Sporting & Outdoor',
   // Specialty
   'SAQ':'Specialty','LCBO':'Specialty','The Beer Store':'Specialty',
   'Party City':'Specialty','Showcase':'Specialty',
@@ -843,6 +963,14 @@ function flippSearchUrl(store, title){
     'Laura':                         `https://www.laura.ca/search?q=${q}`,
     'Melanie Lyne':                  `https://www.melanielyne.com/search?q=${q}`,
     'Thyme Maternity':               `https://thymematernity.com/search?q=${q}`,
+    'Ardene':                        `https://www.ardene.com/en/search?q=${q}`,
+    'Frank and Oak':                 `https://www.frankandoak.com/search?q=${q}`,
+    'Addition Elle':                 `https://www.additionelle.com/search?q=${q}`,
+    'Bootlegger':                    `https://www.bootlegger.com/search?q=${q}`,
+    'Cleo':                          `https://www.cleo.ca/search?q=${q}`,
+    // Outdoor
+    'Altitude Sports':               `https://www.altitude-sports.com/en/search?q=${q}`,
+    'MEC':                           `https://www.mec.ca/en/search?q=${q}`,
     // Bumper to Bumper / auto parts
     'Bumper to Bumper':              `https://www.bumpertobumper.ca/en/search?q=${q}`,
     // Home & kitchen
@@ -976,6 +1104,13 @@ function applyFilters(newTids=[]){
     (d.brand||'').toLowerCase().includes(q)
   );
 
+  if(priceMin>0 || priceMax<Infinity){
+    filtered=filtered.filter(d=>{
+      const p=parsePrice(d.currentPrice);
+      return p!==null && p>=priceMin && p<=priceMax;
+    });
+  }
+
   if(sortBy==='price-asc'){
     filtered=[...filtered].sort((a,b)=>(parsePrice(a.currentPrice)??Infinity)-(parsePrice(b.currentPrice)??Infinity));
   } else if(sortBy==='price-desc'){
@@ -996,7 +1131,7 @@ function applyFilters(newTids=[]){
 
 function renderDeals(newTids=[]){
   const stats=document.getElementById('statsBar');
-  stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — Quebec &amp; Ontario`;
+  stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — Quebec & Ontario`;
 
   const root=document.getElementById('root');
   const lmRow=document.getElementById('loadMoreRow');
@@ -1011,6 +1146,7 @@ function renderDeals(newTids=[]){
 
   const visible=filtered.slice(0,shown);
   root.innerHTML=`<div class="deals-grid">${visible.map(d=>cardHtml(d,newTids)).join('')}</div>`;
+  if(viewMode==='list') root.querySelector('.deals-grid')?.classList.add('list-view');
 
   if(shown<filtered.length){
     lmRow.style.display='block';
@@ -1037,14 +1173,16 @@ function cardHtml(d, newTids=[]){
     :d.source==='RedFlagDeals'
     ?'<span class="src-badge rfd">RFD</span>'
     :d.source==='Flipp'
-    ?'<span class="src-badge flipp"></span>'
+    ?'<span class="src-badge flipp">Flipp</span>'
     :'';
 
   const clearanceBadge=d.clearance?'<span class="clearance-tag">Clearance</span>':'';
 
-  const img=d.img
-    ?`<img class="deal-img" src="${esc(d.img)}" alt="" loading="lazy" onerror="this.style.display='none'">`
-    :'';
+  const scolor=storeColor(d.store);
+  const initials=storeInitials(d.store);
+  const imgHtml=d.img
+    ?`<img class="deal-img" src="${esc(d.img)}" alt="" loading="lazy" data-color="${scolor}" data-initials="${initials}" onerror="imgError(this)">`
+    :`<div class="deal-img img-ph" style="background:${scolor}18;color:${scolor}">${initials}</div>`;
 
   let priceHtml='';
   if(d.currentPrice){
@@ -1084,26 +1222,29 @@ function cardHtml(d, newTids=[]){
   const tid_esc=esc(d.tid);
   const heartBtn=`<button class="heart-btn${savedTids.has(d.tid)?' saved':''}" data-tid="${tid_esc}" title="${savedTids.has(d.tid)?'Remove from saved':'Save deal'}">♥</button>`;
   const alertBtn=`<button class="alert-btn" data-tid="${tid_esc}" title="Set price alert">🔔</button>`;
+  const shareBtn=`<button class="share-btn" data-tid="${tid_esc}" title="Share deal">↗</button>`;
 
   return `
 <div class="deal-card${isNew?' is-new':''}">
-  <div class="card-top">
-    <span class="store-label" style="background:${storeColor(d.store)}">${esc(d.store)}</span>
-    <div class="card-meta">${clearanceBadge}${lowBadge}${srcBadge}${relTag}</div>
-  </div>
-  ${img}
-  <div class="card-body">
-    <div class="deal-title">${esc(d.title)}</div>
-    ${priceHtml}
-    ${expiryTag?`<div class="date-tag">${expiryTag}</div>`:''}
-    <div class="sparkline-wrap" data-tid="${tid_esc}"></div>
-  </div>
-  <div class="card-foot">
-    <div class="province-tags">
-      ${(d.provinces||['QC','ON']).includes('QC')?'<span class="ptag qc">QC</span>':''}
-      ${(d.provinces||['QC','ON']).includes('ON')?'<span class="ptag on">ON</span>':''}
+  ${imgHtml}
+  <div class="card-content">
+    <div class="card-top">
+      <span class="store-label" style="background:${scolor}">${esc(d.store)}</span>
+      <div class="card-meta">${clearanceBadge}${lowBadge}${srcBadge}${relTag}</div>
     </div>
-    <div class="card-actions">${heartBtn}${alertBtn}${viewBtn}</div>
+    <div class="card-body">
+      <div class="deal-title">${esc(d.title)}</div>
+      ${priceHtml}
+      ${expiryTag?`<div class="date-tag">${expiryTag}</div>`:''}
+      <div class="sparkline-wrap" data-tid="${tid_esc}"></div>
+    </div>
+    <div class="card-foot">
+      <div class="province-tags">
+        ${(d.provinces||['QC','ON']).includes('QC')?'<span class="ptag qc">QC</span>':''}
+        ${(d.provinces||['QC','ON']).includes('ON')?'<span class="ptag on">ON</span>':''}
+      </div>
+      <div class="card-actions">${heartBtn}${alertBtn}${shareBtn}${viewBtn}</div>
+    </div>
   </div>
 </div>`;
 }
@@ -1159,6 +1300,41 @@ function fmtDate(s){
     const d=new Date(s+'T12:00:00');
     return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
   }catch(_){return s}
+}
+
+/* ══════════════════════════════════════
+   Image / Share / View mode helpers
+══════════════════════════════════════ */
+function storeInitials(name){
+  return (name||'').split(/[\s&]+/).filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+}
+function imgError(img){
+  const color=img.dataset.color||'#546e7a';
+  const ph=document.createElement('div');
+  ph.className='deal-img img-ph';
+  ph.style.cssText=`background:${color}18;color:${color}`;
+  ph.textContent=img.dataset.initials||'?';
+  img.replaceWith(ph);
+}
+function shareDeal(tid){
+  const deal=allDeals.find(d=>d.tid===tid);
+  if(!deal) return;
+  const text=`${deal.title}${deal.currentPrice?' — '+deal.currentPrice:''} at ${deal.store}`;
+  const url=deal.link||window.location.href;
+  if(navigator.share){
+    navigator.share({title:deal.title,text,url}).catch(()=>{});
+  }else{
+    navigator.clipboard.writeText(text+'\n'+url)
+      .then(()=>showToast('Deal copied to clipboard!'))
+      .catch(()=>showToast('Could not copy — try long-pressing the link.'));
+  }
+}
+function setViewMode(mode){
+  viewMode=mode;
+  localStorage.setItem('viewMode',mode);
+  document.querySelector('.deals-grid')?.classList.toggle('list-view',mode==='list');
+  document.getElementById('gridBtn')?.classList.toggle('active',mode==='grid');
+  document.getElementById('listBtn')?.classList.toggle('active',mode==='list');
 }
 
 /* ══════════════════════════════════════
@@ -1392,7 +1568,7 @@ document.querySelectorAll('[data-pg]').forEach(b=>{
   });
 });
 
-// Event delegation for heart/alert/sparkline on deal cards
+// Event delegation for heart/alert/share/sparkline on deal cards
 document.getElementById('root').addEventListener('click',e=>{
   const hb=e.target.closest('.heart-btn');
   if(hb){ e.stopPropagation(); toggleSave(hb.dataset.tid); return; }
@@ -1403,6 +1579,22 @@ document.getElementById('root').addEventListener('click',e=>{
     if(deal) openAlertModal(ab.dataset.tid, deal);
     return;
   }
+  const sb=e.target.closest('.share-btn');
+  if(sb){ e.stopPropagation(); shareDeal(sb.dataset.tid); return; }
+});
+
+document.getElementById('gridBtn')?.addEventListener('click',()=>setViewMode('grid'));
+document.getElementById('listBtn')?.addEventListener('click',()=>setViewMode('list'));
+
+let _priceDebounce;
+['priceMin','priceMax'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input',e=>{
+    const v=parseFloat(e.target.value);
+    if(id==='priceMin') priceMin=isNaN(v)?0:v;
+    else priceMax=isNaN(v)||v<=0?Infinity:v;
+    clearTimeout(_priceDebounce);
+    _priceDebounce=setTimeout(()=>applyFilters(),350);
+  });
 });
 document.getElementById('root').addEventListener('mouseover',e=>{
   const wrap=e.target.closest('.sparkline-wrap');
@@ -1435,6 +1627,9 @@ setActiveCatBtn(activeCat);
 
 // Show initial saved count
 updateSavedCount();
+
+// Restore view mode toggle buttons
+setViewMode(viewMode);
 
 // Register PWA service worker
 if('serviceWorker' in navigator){

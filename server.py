@@ -164,12 +164,20 @@ def _normalize_title(title):
 
 
 def _deduplicate(deals):
-    seen, out = set(), []
+    seen: dict = {}  # key → index in out
+    out = []
     for d in deals:
         key = f"{d['store'].strip().lower()}::{_normalize_title(d['title'])}"
         if key not in seen:
-            seen.add(key)
+            seen[key] = len(out)
             out.append(d)
+        else:
+            # Keep the deal with the lower current price
+            idx = seen[key]
+            existing_p = _parse_price_float(out[idx].get("currentPrice", ""))
+            new_p = _parse_price_float(d.get("currentPrice", ""))
+            if new_p is not None and (existing_p is None or new_p < existing_p):
+                out[idx] = d
     return out
 
 
@@ -580,83 +588,102 @@ def get_redflagdeals():
 
 
 # ─────────────────────────────────────────────────────────
-# SOURCE 5: Shopify clothing retailers (sale collections)
+# SOURCE 5: Shopify retailers (sale collections)
+# (store_name, domain, store_category)
 # ─────────────────────────────────────────────────────────
-_SHOPIFY_CLOTHING_STORES = [
-    ("Reitmans",        "www.reitmans.com"),
-    ("Penningtons",     "penningtons.com"),
-    ("Laura",           "www.laura.ca"),
-    ("Melanie Lyne",    "www.melanielyne.com"),
-    ("Thyme Maternity", "thymematernity.com"),
+_SHOPIFY_STORES = [
+    # Clothing — existing
+    ("Reitmans",        "www.reitmans.com",        "Clothing"),
+    ("Penningtons",     "penningtons.com",          "Clothing"),
+    ("Laura",           "www.laura.ca",             "Clothing"),
+    ("Melanie Lyne",    "www.melanielyne.com",      "Clothing"),
+    ("Thyme Maternity", "thymematernity.com",       "Clothing"),
+    # Clothing — new
+    ("Ardene",          "www.ardene.com",           "Clothing"),
+    ("Frank and Oak",   "www.frankandoak.com",      "Clothing"),
+    ("Addition Elle",   "www.additionelle.com",     "Clothing"),
+    ("Bootlegger",      "www.bootlegger.com",       "Clothing"),
+    ("Cleo",            "www.cleo.ca",              "Clothing"),
+    # Sporting & Outdoor
+    ("Altitude Sports", "www.altitude-sports.com",  "Sporting & Outdoor"),
+    ("MEC",             "www.mec.ca",               "Sporting & Outdoor"),
 ]
 
+# Try these collection slugs in order until one returns products
+_SHOPIFY_SALE_SLUGS = ("sale", "clearance", "on-sale", "promotions")
 
-def get_shopify_clothing():
+
+def get_shopify_deals():
     deals, errors = [], []
     seen = set()
 
-    for store_name, domain in _SHOPIFY_CLOTHING_STORES:
-        for page in range(1, 4):
-            url = (f"https://{domain}/collections/sale/products.json"
-                   f"?limit=250&page={page}")
-            try:
-                data = _get_json(url, referer=f"https://{domain}/")
-                products = data.get("products", [])
-                if not products:
-                    break
-                for p in products:
-                    handle = p.get("handle", "").strip()
-                    title  = _clean(p.get("title", ""))
-                    brand  = _clean(p.get("vendor", ""))
-                    if not title or not handle:
-                        continue
-
-                    imgs = p.get("images", [])
-                    img  = imgs[0].get("src", "") if imgs else ""
-
-                    for v in p.get("variants", []):
-                        try:
-                            cur = float(v.get("price") or 0)
-                            old = float(v.get("compare_at_price") or 0)
-                        except (TypeError, ValueError):
-                            continue
-                        if cur <= 0 or old <= cur:
-                            continue
-
-                        tid = f"shopcloth-{domain}-{handle}-{v.get('id','')}"
-                        if tid in seen:
-                            continue
-                        seen.add(tid)
-
-                        save_amt = round(old - cur, 2)
-                        save_pct = str(round((old - cur) / old * 100)) + "%"
-                        link     = f"https://{domain}/products/{handle}"
-
-                        deals.append({
-                            "source":        "Shopify",
-                            "tid":           tid,
-                            "title":         title,
-                            "brand":         brand,
-                            "store":         store_name,
-                            "link":          link,
-                            "currentPrice":  f"${cur:.2f}",
-                            "originalPrice": f"${old:.2f}",
-                            "savings":       f"Save ${save_amt:.2f}",
-                            "savePct":       save_pct,
-                            "pubDate":       "",
-                            "relTime":       "Sale",
-                            "votes":         0,
-                            "img":           img,
-                            "category":      "Clothing",
-                            "clearance":     False,
-                            "dropDate":      "",
-                            "validUntil":    "",
-                            "provinces":     _deal_provinces(store_name),
-                        })
-                        break  # one variant per product is enough
-            except Exception as e:
-                errors.append(f"Shopify {store_name} p{page}: {e}")
+    for store_name, domain, category in _SHOPIFY_STORES:
+        got_products = False
+        for slug in _SHOPIFY_SALE_SLUGS:
+            if got_products:
                 break
+            for page in range(1, 4):
+                url = (f"https://{domain}/collections/{slug}/products.json"
+                       f"?limit=250&page={page}")
+                try:
+                    data = _get_json(url, referer=f"https://{domain}/")
+                    products = data.get("products", [])
+                    if not products:
+                        break
+                    got_products = True
+                    for p in products:
+                        handle = p.get("handle", "").strip()
+                        title  = _clean(p.get("title", ""))
+                        brand  = _clean(p.get("vendor", ""))
+                        if not title or not handle:
+                            continue
+
+                        imgs = p.get("images", [])
+                        img  = imgs[0].get("src", "") if imgs else ""
+
+                        for v in p.get("variants", []):
+                            try:
+                                cur = float(v.get("price") or 0)
+                                old = float(v.get("compare_at_price") or 0)
+                            except (TypeError, ValueError):
+                                continue
+                            if cur <= 0 or old <= cur:
+                                continue
+
+                            tid = f"shopify-{domain}-{handle}-{v.get('id','')}"
+                            if tid in seen:
+                                continue
+                            seen.add(tid)
+
+                            save_amt = round(old - cur, 2)
+                            save_pct = str(round((old - cur) / old * 100)) + "%"
+                            link     = f"https://{domain}/products/{handle}"
+
+                            deals.append({
+                                "source":        "Shopify",
+                                "tid":           tid,
+                                "title":         title,
+                                "brand":         brand,
+                                "store":         store_name,
+                                "link":          link,
+                                "currentPrice":  f"${cur:.2f}",
+                                "originalPrice": f"${old:.2f}",
+                                "savings":       f"Save ${save_amt:.2f}",
+                                "savePct":       save_pct,
+                                "pubDate":       "",
+                                "relTime":       "Sale",
+                                "votes":         0,
+                                "img":           img,
+                                "category":      category,
+                                "clearance":     False,
+                                "dropDate":      "",
+                                "validUntil":    "",
+                                "provinces":     _deal_provinces(store_name),
+                            })
+                            break  # one variant per product
+                except Exception as e:
+                    errors.append(f"Shopify {store_name}/{slug} p{page}: {e}")
+                    break  # try next slug
 
     return deals, errors
 
@@ -708,6 +735,8 @@ def _build_and_cache(shared):
         "stocktrack":   counts.get("stocktrack", 0),
         "redflagdeals": counts.get("redflagdeals", 0),
         "flipp":        counts.get("flipp", 0),
+        "homedepot":    counts.get("homedepot", 0),
+        "rona":         counts.get("rona", 0),
         "storeCounts":  store_counts,
         "errors":       all_errs,
         "fetched":      datetime.utcnow().isoformat() + "Z",
@@ -822,13 +851,15 @@ _STORE_CATEGORY = {
     "Centre Hi-Fi": "Electronics", "Tanguay": "Electronics",
     "Newegg": "Electronics", "2001 Audio Video": "Electronics",
     "The Source": "Electronics",
-    # Home & Garden
+    # Home & Garden — all Rona/Lowe's brand variants
     "Home Depot": "Home & Garden", "RONA & RONA +": "Home & Garden",
+    "Rona": "Home & Garden", "RONA": "Home & Garden", "Rona +": "Home & Garden",
+    "Lowe's": "Home & Garden", "Lowes": "Home & Garden",
     "Home Hardware": "Home & Garden", "Canac": "Home & Garden",
     "Patrick Morin": "Home & Garden", "BMR": "Home & Garden",
     "Bath Depot": "Home & Garden", "Club Piscine": "Home & Garden",
     # Furniture
-    "Canadian Tire": "Furniture", "IKEA": "Furniture", "JYSK": "Furniture",
+    "Canadian Tire": "General", "IKEA": "Furniture", "JYSK": "Furniture",
     "Leon's": "Furniture", "The Brick": "Furniture", "Linen Chest": "Furniture",
     "Stokes": "Furniture", "Dormez-Vous": "Furniture",
     "Wayfair": "Furniture", "Sleep Country Canada": "Furniture",
@@ -846,6 +877,10 @@ _STORE_CATEGORY = {
     "Sephora": "Clothing", "Holt Renfrew": "Clothing",
     "Reitmans": "Clothing", "Penningtons": "Clothing", "Laura": "Clothing",
     "Melanie Lyne": "Clothing", "Thyme Maternity": "Clothing",
+    "Ardene": "Clothing", "Frank and Oak": "Clothing",
+    "Addition Elle": "Clothing", "Bootlegger": "Clothing", "Cleo": "Clothing",
+    # Sporting & Outdoor (new)
+    "Altitude Sports": "Sporting & Outdoor", "MEC": "Sporting & Outdoor",
     # Pets
     "PetSmart": "Pets", "Mondou": "Pets", "Pet Valu": "Pets",
     "Ren's Pets": "Pets", "Animo Etc.": "Pets", "Chico": "Pets",
@@ -893,7 +928,8 @@ _FLIPP_TARGET_MERCHANTS = {
     "Best Buy", "EB Games Canada", "Staples", "Bureau en gros",
     "Centre Hi-Fi", "Tanguay", "Newegg", "2001 Audio Video",
     # Home & Garden
-    "Home Depot", "RONA & RONA +", "Home Hardware", "Canac",
+    "Home Depot", "RONA & RONA +", "Rona", "RONA", "Rona +",
+    "Lowe's", "Lowes", "Home Hardware", "Canac",
     "Patrick Morin", "BMR", "Bath Depot", "Club Piscine",
     # Furniture
     "Canadian Tire", "IKEA", "JYSK", "Leon's", "The Brick",
@@ -908,7 +944,10 @@ _FLIPP_TARGET_MERCHANTS = {
     "Michaels Canada", "Long & McQuade Musical Instruments", "Fabricland",
     # Clothing & Beauty
     "Old Navy", "H&M", "Chatters Salon", "Len's Mill Store", "Sephora",
-    "Holt Renfrew",
+    "Holt Renfrew", "Ardene", "Frank and Oak", "Addition Elle",
+    "Bootlegger", "Cleo",
+    # Sporting & Outdoor (new)
+    "Altitude Sports", "MEC",
     # Specialty
     "SAQ", "LCBO", "The Beer Store",
 }
@@ -988,8 +1027,13 @@ def get_flipp_deals():
             fid      = f.get("id")
             if not fid or fid in fetched_ids:
                 continue
-            if not any(t.lower() in merchant.lower()
-                       for t in _FLIPP_TARGET_MERCHANTS):
+            m_lower = merchant.lower()
+            # Bidirectional match: "Rona" matches "RONA & RONA +" and vice versa
+            if not any(
+                t.lower() in m_lower or
+                (len(m_lower) >= 4 and m_lower in t.lower())
+                for t in _FLIPP_TARGET_MERCHANTS
+            ):
                 continue
             fetched_ids.add(fid)
             url = (f"https://backflipp.wishabi.com/flipp/items/search"
@@ -1028,12 +1072,339 @@ def get_flipp_deals():
     return deals, errors
 
 
+# ─────────────────────────────────────────────────────────
+# SOURCE 6: Home Depot Canada (clearance + special buy)
+# ─────────────────────────────────────────────────────────
+def _hd_extract_product(item, out, seen, label):
+    title = _clean(
+        item.get("name") or item.get("title") or item.get("displayName") or
+        item.get("productName") or ""
+    )
+    if not title:
+        return
+
+    pricing = item.get("pricing") or item.get("price") or {}
+    if isinstance(pricing, dict):
+        cur_val = (pricing.get("value") or pricing.get("current") or
+                   pricing.get("sale") or pricing.get("salePrice") or 0)
+        old_val = (pricing.get("original") or pricing.get("regular") or
+                   pricing.get("regularPrice") or pricing.get("was") or 0)
+    else:
+        cur_val = item.get("salePrice") or item.get("currentPrice") or item.get("price") or 0
+        old_val = item.get("originalPrice") or item.get("regularPrice") or 0
+
+    try:
+        cur = float(cur_val)
+        old = float(old_val)
+    except (TypeError, ValueError):
+        cur, old = 0.0, 0.0
+
+    if cur <= 0:
+        return
+
+    prod_id = str(
+        item.get("id") or item.get("productId") or item.get("itemId") or
+        item.get("sku") or item.get("omniPartNumber") or ""
+    )
+    if not prod_id:
+        prod_id = hashlib.md5(title.encode()).hexdigest()[:10]
+
+    tid = f"hd-direct-{prod_id}"
+    if tid in seen:
+        return
+    seen.add(tid)
+
+    url_path = (item.get("url") or item.get("link") or item.get("canonicalUrl") or
+                item.get("productUrl") or "")
+    if url_path and not url_path.startswith("http"):
+        link = "https://www.homedepot.ca" + url_path
+    else:
+        link = url_path
+
+    img = ""
+    for k in ("images", "media", "mediaSet", "imageSet"):
+        imgs = item.get(k)
+        if isinstance(imgs, list) and imgs:
+            first = imgs[0] if isinstance(imgs[0], dict) else {}
+            img = first.get("src") or first.get("url") or first.get("thumbnailUrl") or ""
+            if img:
+                break
+    if not img:
+        for k in ("primaryImage", "image", "thumbnail", "imageUrl"):
+            v = item.get(k)
+            if isinstance(v, str) and v:
+                img = v
+                break
+
+    save_pct = ""
+    if old > cur > 0:
+        save_pct = str(round((old - cur) / old * 100)) + "%"
+
+    out.append({
+        "source":        "HomeDepot",
+        "tid":           tid,
+        "title":         title,
+        "brand":         _clean(item.get("brand") or item.get("brandName") or ""),
+        "store":         "Home Depot",
+        "link":          link,
+        "currentPrice":  f"${cur:.2f}",
+        "originalPrice": f"${old:.2f}" if old > cur else "",
+        "savings":       f"Save ${old - cur:.2f}" if old > cur else "",
+        "savePct":       save_pct,
+        "pubDate":       "",
+        "relTime":       label,
+        "votes":         0,
+        "img":           img,
+        "category":      "",
+        "clearance":     label == "Clearance",
+        "dropDate":      "",
+        "validUntil":    "",
+        "provinces":     ["QC", "ON"],
+    })
+
+
+def _hd_walk(obj, out, seen, label, depth=0):
+    """Walk parsed JSON looking for product lists, max depth 5."""
+    if depth > 5 or len(out) >= 300:
+        return
+    if isinstance(obj, list):
+        if obj and isinstance(obj[0], dict) and any(
+            k in obj[0] for k in ("name", "title", "productId", "id", "omniPartNumber")
+        ):
+            for item in obj:
+                if isinstance(item, dict):
+                    _hd_extract_product(item, out, seen, label)
+        else:
+            for v in obj[:5]:
+                _hd_walk(v, out, seen, label, depth + 1)
+    elif isinstance(obj, dict):
+        for k in ("products", "items", "results", "productList", "hits", "data"):
+            v = obj.get(k)
+            if isinstance(v, list) and v:
+                before = len(out)
+                for item in v:
+                    if isinstance(item, dict):
+                        _hd_extract_product(item, out, seen, label)
+                if len(out) > before:
+                    return
+        for k, v in obj.items():
+            if isinstance(v, (dict, list)):
+                _hd_walk(v, out, seen, label, depth + 1)
+
+
+def get_homedepot_deals():
+    deals, errors = [], []
+    seen = set()
+
+    feeds = [
+        ("Clearance",   "clearance"),
+        ("Special Buy", "special+buy"),
+    ]
+
+    for label, q in feeds:
+        for page in range(1, 5):
+            sep = "&" if page > 1 else "?"
+            url = (f"https://www.homedepot.ca/en/home/search.html?q={q}&pageSize=48"
+                   + (f"&page={page}" if page > 1 else ""))
+            try:
+                text = _get(url)
+                nd = re.search(
+                    r'id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>',
+                    text, re.S
+                )
+                if not nd:
+                    errors.append(f"Home Depot {label}: no __NEXT_DATA__")
+                    break
+                data = json.loads(nd.group(1))
+                before = len(deals)
+                page_props = data.get("props", {}).get("pageProps", {})
+                _hd_walk(page_props, deals, seen, label)
+                if len(deals) == before:
+                    break
+                time.sleep(0.5)
+            except Exception as e:
+                errors.append(f"Home Depot {label} p{page}: {e}")
+                break
+
+    return deals, errors
+
+
+# ─────────────────────────────────────────────────────────
+# SOURCE 7: Rona Canada (clearance / promotions)
+# ─────────────────────────────────────────────────────────
+def _rona_extract_product(item, out, seen, label):
+    title = _clean(
+        item.get("name") or item.get("title") or item.get("displayName") or
+        item.get("label") or ""
+    )
+    if not title:
+        return
+
+    # Rona uses "regularPrice" / "sellingPrice" or "price" sub-object
+    pricing = item.get("price") or item.get("pricing") or {}
+    if isinstance(pricing, dict):
+        cur_val = (pricing.get("selling") or pricing.get("sale") or
+                   pricing.get("current") or pricing.get("value") or 0)
+        old_val = (pricing.get("regular") or pricing.get("original") or
+                   pricing.get("was") or 0)
+    else:
+        cur_val = (item.get("sellingPrice") or item.get("salePrice") or
+                   item.get("currentPrice") or item.get("price") or 0)
+        old_val = item.get("regularPrice") or item.get("originalPrice") or 0
+
+    try:
+        cur = float(cur_val)
+        old = float(old_val)
+    except (TypeError, ValueError):
+        cur, old = 0.0, 0.0
+
+    if cur <= 0:
+        return
+
+    prod_id = str(
+        item.get("id") or item.get("productId") or item.get("code") or
+        item.get("sku") or item.get("articleNumber") or ""
+    )
+    if not prod_id:
+        prod_id = hashlib.md5(title.encode()).hexdigest()[:10]
+
+    tid = f"rona-direct-{prod_id}"
+    if tid in seen:
+        return
+    seen.add(tid)
+
+    url_path = (item.get("url") or item.get("link") or item.get("productUrl") or
+                item.get("canonicalUrl") or "")
+    if url_path and not url_path.startswith("http"):
+        link = "https://www.rona.ca" + url_path
+    else:
+        link = url_path
+
+    img = ""
+    for k in ("images", "media", "pictures"):
+        imgs = item.get(k)
+        if isinstance(imgs, list) and imgs:
+            first = imgs[0] if isinstance(imgs[0], dict) else {}
+            img = first.get("url") or first.get("src") or ""
+            if img:
+                break
+    if not img:
+        for k in ("primaryImage", "image", "imageUrl", "thumbnail"):
+            v = item.get(k)
+            if isinstance(v, str) and v:
+                img = v
+                break
+            elif isinstance(v, dict):
+                img = v.get("url") or v.get("src") or ""
+                if img:
+                    break
+
+    save_pct = ""
+    if old > cur > 0:
+        save_pct = str(round((old - cur) / old * 100)) + "%"
+
+    out.append({
+        "source":        "Rona",
+        "tid":           tid,
+        "title":         title,
+        "brand":         _clean(item.get("brand") or item.get("brandName") or ""),
+        "store":         "Rona",
+        "link":          link,
+        "currentPrice":  f"${cur:.2f}",
+        "originalPrice": f"${old:.2f}" if old > cur else "",
+        "savings":       f"Save ${old - cur:.2f}" if old > cur else "",
+        "savePct":       save_pct,
+        "pubDate":       "",
+        "relTime":       label,
+        "votes":         0,
+        "img":           img,
+        "category":      "",
+        "clearance":     "clearance" in label.lower(),
+        "dropDate":      "",
+        "validUntil":    "",
+        "provinces":     ["QC", "ON"],
+    })
+
+
+def _rona_walk(obj, out, seen, label, depth=0):
+    if depth > 5 or len(out) >= 300:
+        return
+    if isinstance(obj, list):
+        if obj and isinstance(obj[0], dict) and any(
+            k in obj[0] for k in ("name", "title", "id", "productId", "code", "sku")
+        ):
+            for item in obj:
+                if isinstance(item, dict):
+                    _rona_extract_product(item, out, seen, label)
+        else:
+            for v in obj[:5]:
+                _rona_walk(v, out, seen, label, depth + 1)
+    elif isinstance(obj, dict):
+        for k in ("products", "items", "results", "productList", "hits", "data", "articles"):
+            v = obj.get(k)
+            if isinstance(v, list) and v:
+                before = len(out)
+                for item in v:
+                    if isinstance(item, dict):
+                        _rona_extract_product(item, out, seen, label)
+                if len(out) > before:
+                    return
+        for k, v in obj.items():
+            if isinstance(v, (dict, list)):
+                _rona_walk(v, out, seen, label, depth + 1)
+
+
+def get_rona_deals():
+    deals, errors = [], []
+    seen = set()
+
+    feeds = [
+        ("Clearance",    "https://www.rona.ca/en/sale-clearance"),
+        ("Promotions",   "https://www.rona.ca/en/promotions"),
+        ("Special Buys", "https://www.rona.ca/en/special-buys"),
+    ]
+
+    for label, url in feeds:
+        try:
+            text = _get(url)
+            nd = re.search(
+                r'id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>',
+                text, re.S
+            )
+            if not nd:
+                # Try window.__PRELOADED_STATE__ fallback
+                m = re.search(
+                    r'window\.__(?:PRELOADED|INITIAL)_STATE__\s*=\s*(\{.*?\})\s*;',
+                    text, re.S
+                )
+                if not m:
+                    errors.append(f"Rona {label}: no JSON data found")
+                    continue
+                raw_json = m.group(1)
+            else:
+                raw_json = nd.group(1)
+
+            data = json.loads(raw_json)
+            before = len(deals)
+            page_props = data.get("props", {}).get("pageProps", data)
+            _rona_walk(page_props, deals, seen, label)
+            if len(deals) == before:
+                errors.append(f"Rona {label}: 0 products extracted")
+            time.sleep(0.4)
+        except Exception as e:
+            errors.append(f"Rona {label}: {e}")
+
+    return deals, errors
+
+
 _SOURCES = [
     ("walmart",      get_walmart_deals,      "Walmart"),
     ("stocktrack",   get_stocktrack_deals,   "StockTrack"),
     ("redflagdeals", get_redflagdeals,       "RedFlagDeals"),
     ("flipp",        get_flipp_deals,        "Flipp"),
-    ("shopcloth",    get_shopify_clothing,   "ShopCloth"),
+    ("shopify",      get_shopify_deals,      "Shopify"),
+    ("homedepot",    get_homedepot_deals,    "HomeDepot"),
+    ("rona",         get_rona_deals,         "Rona"),
 ]
 
 
@@ -1050,10 +1421,10 @@ def _background_refresh():
                 deals, errs = [], [str(ex)]
             with shared_lock:
                 shared[key] = (deals, errs)
-                snap = dict(shared)
-            result = _build_and_cache(snap)
-            print(f"[{datetime.now():%H:%M:%S}] {label} loaded: "
-                  f"{len(deals)} deals (total cached: {result['count']})")
+            # Log immediately but do NOT update the public cache yet —
+            # we only commit once all sources are done so the API never
+            # returns a partial result (which caused stores to flicker away).
+            print(f"[{datetime.now():%H:%M:%S}] {label} loaded: {len(deals)} deals")
 
         threads = [
             threading.Thread(target=_worker, args=(k, fn, lbl), daemon=True)
@@ -1064,8 +1435,8 @@ def _background_refresh():
         for t in threads:
             t.join()
 
-        with _cache_lock:
-            result = _cached_result
+        # All sources done — build and publish the complete result atomically
+        result = _build_and_cache(dict(shared))
 
         if result:
             fp = _fingerprint(result)
@@ -1087,7 +1458,7 @@ def _background_refresh():
             last_fp = fp
             _check_alerts(result["deals"])
 
-        time.sleep(300)   # 5 minutes
+        time.sleep(120)   # 2 minutes
 
 
 # ─────────────────────────────────────────────────────────
@@ -1099,11 +1470,21 @@ class Handler(BaseHTTPRequestHandler):
 
     def _send_json(self, data, status=200):
         body = json.dumps(data, ensure_ascii=False).encode()
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
+        ae = self.headers.get("Accept-Encoding", "")
+        if "gzip" in ae:
+            body = gzip.compress(body, compresslevel=6)
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+        else:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
         self.wfile.write(body)
 
     def _serve_file(self, fpath, ctype):
