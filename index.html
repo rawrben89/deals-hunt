@@ -314,6 +314,15 @@ footer a{color:var(--qc)}
 .list-view .card-foot{padding:5px 10px}
 @media(max-width:768px){.list-view .deal-img,.list-view .img-ph{width:80px;min-width:80px}}
 @media(max-width:400px){.list-view .deal-img,.list-view .img-ph{display:none}}
+.pct-badge{display:inline-block;font-size:.65rem;font-weight:700;padding:1px 6px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.pct-hot{background:#ef4444;color:#fff}
+.pct-good{background:#f97316;color:#fff}
+.pct-ok{background:#6b7280;color:#fff}
+.hot-strip{background:linear-gradient(135deg,#1a0a0a,#2d0f0f);border:1px solid #7f1d1d;border-radius:8px;padding:10px 14px;margin-bottom:14px}
+.hot-strip-title{font-size:.6rem;font-weight:700;color:#ef4444;letter-spacing:2px;margin-bottom:8px}
+.expiry-badge{font-size:.6rem;color:#f97316;font-weight:600;margin-top:3px}
+.expiry-urgent{color:#ef4444;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 </style>
 </head>
 <body>
@@ -378,6 +387,7 @@ footer a{color:var(--qc)}
         <button class="pgbtn" data-sort="price-desc">$ High→Low</button>
         <button class="pgbtn" data-sort="savings-desc">Most Savings</button>
         <button class="pgbtn" data-sort="pct-desc">Best % Off</button>
+        <button class="pgbtn" data-sort="trending">Trending</button>
       </div>
       <div class="pgsize-row">
         <span class="pgsize-label">Show:</span>
@@ -449,6 +459,7 @@ const API_BASE=(()=>{
 ══════════════════════════════════════ */
 let allDeals   = [];
 let filtered   = [];
+let clickCounts = {};
 let pageSize   = parseInt(localStorage.getItem('pageSize') || '60');
 let shown      = 0;
 let activeCat  = (() => { const c=localStorage.getItem('activeCat')||'all'; return (c==='new'||c==='saved')?'all':c; })();
@@ -1187,6 +1198,12 @@ function applyFilters(newTids=[], smooth=false){
     });
   }
 
+  const now = Date.now();
+  filtered = filtered.filter(d => {
+    if (!d.validUntil) return true;
+    try { return new Date(d.validUntil) > now; } catch(e) { return true; }
+  });
+
   if(sortBy==='price-asc'){
     filtered=[...filtered].sort((a,b)=>(parsePrice(a.currentPrice)??Infinity)-(parsePrice(b.currentPrice)??Infinity));
   } else if(sortBy==='price-desc'){
@@ -1199,6 +1216,17 @@ function applyFilters(newTids=[], smooth=false){
     });
   } else if(sortBy==='pct-desc'){
     filtered=[...filtered].sort((a,b)=>(parseFloat(b.savePct)||0)-(parseFloat(a.savePct)||0));
+  } else if(sortBy==='trending'){
+    fetch(API_BASE+'/api/clicks').then(r=>r.json()).then(data=>{
+      clickCounts=data;
+      filtered=[...filtered].sort((a,b)=>(clickCounts[b.tid]||0)-(clickCounts[a.tid]||0));
+      shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
+      renderDeals(newTids, smooth);
+    }).catch(()=>{
+      shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
+      renderDeals(newTids, smooth);
+    });
+    return;
   }
 
   shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
@@ -1220,8 +1248,17 @@ function renderDeals(newTids=[], smooth=false){
       lmRow.style.display='none';
       return;
     }
+    const hotDeals=filtered.filter(d=>{
+      const p=d.price, op=d.originalPrice;
+      return op && p < op && Math.round((1 - p/op)*100)>=40;
+    }).slice(0,6);
+    const hotStripHtml=hotDeals.length?`<div class="hot-strip">
+      <div class="hot-strip-title">🔥 HOT DEALS</div>
+      <div class="deals-grid">${hotDeals.map(d=>cardHtml(d,newTids)).join('')}</div>
+    </div>`:'';
+
     const visible=filtered.slice(0,shown);
-    root.innerHTML=`<div class="deals-grid">${visible.map(d=>cardHtml(d,newTids)).join('')}</div>`;
+    root.innerHTML=hotStripHtml+`<div class="deals-grid">${visible.map(d=>cardHtml(d,newTids)).join('')}</div>`;
     if(viewMode==='list') root.querySelector('.deals-grid')?.classList.add('list-view');
     if(shown<filtered.length){
       lmRow.style.display='block';
@@ -1268,10 +1305,16 @@ function cardHtml(d, newTids=[]){
     ?`<img class="deal-img" src="${esc(d.img)}" alt="" loading="lazy" data-color="${scolor}" data-initials="${initials}" onerror="imgError(this)">`
     :`<div class="deal-img img-ph" style="background:${scolor}18;color:${scolor}">${initials}</div>`;
 
+  const pct = d.originalPrice && d.price < d.originalPrice
+    ? Math.round((1 - d.price / d.originalPrice) * 100) : 0;
+  const pctHtml = pct >= 5
+    ? `<span class="pct-badge ${pct>=40?'pct-hot':pct>=20?'pct-good':'pct-ok'}">-${pct}%</span>`
+    : '';
+
   let priceHtml='';
   if(d.currentPrice){
     priceHtml=`<div class="price-row">
-      <span class="price-now">${esc(d.currentPrice)}</span>
+      <span class="price-now">${esc(d.currentPrice)}</span>${pctHtml}
       ${d.originalPrice?`<span class="price-was">${esc(d.originalPrice)}</span>`:''}
       ${d.savePct?`<span class="save-badge">-${esc(d.savePct)}</span>`:''}
     </div>
@@ -1297,10 +1340,10 @@ function cardHtml(d, newTids=[]){
 
   let viewBtn='';
   if(d.source!=='Flipp' && d.link){
-    viewBtn=`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer">View →</a>`;
+    viewBtn=`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" onclick="fetch(API_BASE+'/api/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tid:'${esc(d.tid)}'})}).catch(()=>{})">View →</a>`;
   } else if(d.source==='Flipp'){
     const searchUrl=flippSearchUrl(d.store, d.title);
-    if(searchUrl) viewBtn=`<a class="view-btn search-btn" href="${esc(searchUrl)}" target="_blank" rel="noopener noreferrer">Search →</a>`;
+    if(searchUrl) viewBtn=`<a class="view-btn search-btn" href="${esc(searchUrl)}" target="_blank" rel="noopener noreferrer" onclick="fetch(API_BASE+'/api/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tid:'${esc(d.tid)}'})}).catch(()=>{})">Search →</a>`;
   }
 
   const tid_esc=esc(d.tid);
@@ -1319,6 +1362,7 @@ function cardHtml(d, newTids=[]){
     <div class="card-body">
       <div class="deal-title">${esc(d.title)}</div>
       ${priceHtml}
+      ${expiryBadge(d.validUntil)}
       ${expiryTag?`<div class="date-tag">${expiryTag}</div>`:''}
       <div class="sparkline-wrap" data-tid="${tid_esc}"></div>
     </div>
@@ -1369,6 +1413,21 @@ function showToast(msg,actLabel,actFn){
 /* ══════════════════════════════════════
    Helpers
 ══════════════════════════════════════ */
+function expiryBadge(validUntil) {
+  if (!validUntil) return '';
+  try {
+    const exp = new Date(validUntil);
+    const now = new Date();
+    const diffMs = exp - now;
+    if (diffMs <= 0) return '<span class="expiry-badge expiry-urgent">⏰ EXPIRED</span>';
+    const diffH = Math.floor(diffMs / 3600000);
+    if (diffH < 1) return '<span class="expiry-badge expiry-urgent">⏰ &lt;1h left</span>';
+    if (diffH < 24) return `<span class="expiry-badge expiry-urgent">⏰ ${diffH}h left</span>`;
+    const diffD = Math.floor(diffH / 24);
+    if (diffD <= 3) return `<span class="expiry-badge">⏰ ${diffD}d left</span>`;
+  } catch(e) {}
+  return '';
+}
 function esc(s){
   if(!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1722,6 +1781,7 @@ if('serviceWorker' in navigator){
 
 loadDeals();
 connectSSE();
+setInterval(() => { if(document.visibilityState === 'visible') applyFilters(); }, 60000);
 </script>
 </body>
 </html>

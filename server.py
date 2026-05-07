@@ -713,6 +713,8 @@ _scout_report    = {}
 _pending_command = {"status": "no_command"}
 _team_board      = []   # shared message channel between agents
 _reports_lock    = threading.Lock()
+_click_counts   = {}
+_click_lock     = threading.Lock()
 
 def _load_env_password():
     env_file = os.path.join(os.path.dirname(__file__), ".env")
@@ -2141,6 +2143,10 @@ class Handler(BaseHTTPRequestHandler):
             with _reports_lock:
                 self._send_json({"messages": list(_team_board)[-30:]})
 
+        elif path == "/api/clicks":
+            with _click_lock:
+                self._send_json(dict(_click_counts))
+
         elif path == "/api/events":
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
@@ -2273,6 +2279,19 @@ class Handler(BaseHTTPRequestHandler):
                         "result": body.get("result", ""),
                         "done_at": datetime.utcnow().isoformat() + "Z",
                     })
+                self._send_json({"ok": True})
+            except Exception as ex:
+                self._send_json({"error": str(ex)}, 400)
+            return
+
+        if path == "/api/click":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length))
+                tid = str(body.get("tid", ""))[:128]
+                if tid:
+                    with _click_lock:
+                        _click_counts[tid] = _click_counts.get(tid, 0) + 1
                 self._send_json({"ok": True})
             except Exception as ex:
                 self._send_json({"error": str(ex)}, 400)
