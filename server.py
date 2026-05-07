@@ -16,6 +16,7 @@ import urllib.request
 import urllib.parse
 import gzip
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import html as html_mod
 import threading
 import time
@@ -261,7 +262,7 @@ def _get(url, extra=None):
     if extra:
         h.update(extra)
     req = urllib.request.Request(url, headers=h)
-    with urllib.request.urlopen(req, timeout=20) as r:
+    with urllib.request.urlopen(req, timeout=10) as r:
         raw = r.read()
     try:
         return gzip.decompress(raw).decode("utf-8", errors="replace")
@@ -273,7 +274,7 @@ def _get_json(url, referer="https://stocktrack.ca/"):
     h = dict(_JSON_H)
     h["Referer"] = referer
     req = urllib.request.Request(url, headers=h)
-    with urllib.request.urlopen(req, timeout=15) as r:
+    with urllib.request.urlopen(req, timeout=10) as r:
         raw = r.read()
     try:
         raw = gzip.decompress(raw)
@@ -398,33 +399,32 @@ def _parse_walmart_page(url):
 
 
 def get_walmart_deals():
-    all_deals, errors, seen = [], [], set()
+    all_deals, errors = [], []
+    seen = set()
 
     for shelf_id, label, facet, max_pages in WALMART_FEEDS:
         base = f"https://www.walmart.ca/en/shop/{shelf_id.lower()}/{shelf_id}"
         if facet:
             base += f"?facet={facet}"
 
-        for page in range(1, max_pages + 1):
-            sep = "&" if facet else "?"
-            url = base + (f"{sep}page={page}" if page > 1 else "")
+        def _fetch(page, _base=base, _facet=facet):
+            sep = "&" if _facet else "?"
+            url = _base + (f"{sep}page={page}" if page > 1 else "")
             try:
-                page_deals = _parse_walmart_page(url)
-                added = 0
-                for d in page_deals:
-                    key = d["tid"]
-                    if key and key not in seen:
-                        seen.add(key)
-                        d["relTime"] = label
-                        d["clearance"] = (label == "Clearance")
-                        all_deals.append(d)
-                        added += 1
-                if not page_deals or added == 0:
-                    break           # no new items on this page
-                time.sleep(0.4)    # be polite
+                return _parse_walmart_page(url)
             except Exception as e:
-                errors.append(f"Walmart {label} p{page}: {e}")
-                break
+                return []
+
+        with ThreadPoolExecutor(max_workers=5) as ex:
+            pages = list(ex.map(_fetch, range(1, max_pages + 1)))
+
+        for page_deals in pages:
+            for d in page_deals:
+                if d["tid"] and d["tid"] not in seen:
+                    seen.add(d["tid"])
+                    d["relTime"] = label
+                    d["clearance"] = label == "Clearance"
+                    all_deals.append(d)
 
     return all_deals, errors
 
@@ -452,10 +452,11 @@ ST_STORES = {
 
 
 def get_stocktrack_deals():
-    all_deals, errors = [], []
-    for sid, (sname, url_tmpl) in ST_STORES.items():
+    def _fetch_store(entry):
+        sid, (sname, url_tmpl) = entry
         url = (f"{ST_BASE}/{sid}/drops_data.php"
                "?t=all&sort=date&dir=desc&oos=false")
+        store_deals, err = [], None
         try:
             data = _get_json(url, referer=f"{ST_BASE}/{sid}/index.php")
             for item in data.get("data", []):
@@ -471,8 +472,7 @@ def get_stocktrack_deals():
                 href  = (item.get("url") or item.get("Href") or item.get("href") or "")
                 cat   = (item.get("category") or item.get("Category") or "")
                 link  = url_tmpl.format(href=href) if href else ""
-
-                all_deals.append({
+                store_deals.append({
                     "source":        "StockTrack",
                     "tid":           f"st-{sid}-{item.get('id', '')}",
                     "title":         title,
@@ -494,7 +494,15 @@ def get_stocktrack_deals():
                     "provinces":     _deal_provinces(sname),
                 })
         except Exception as e:
-            errors.append(f"StockTrack {sid}: {e}")
+            err = f"StockTrack {sid}: {e}"
+        return store_deals, err
+
+    all_deals, errors = [], []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        for store_deals, err in ex.map(_fetch_store, ST_STORES.items()):
+            all_deals.extend(store_deals)
+            if err:
+                errors.append(err)
     return all_deals, errors
 
 
@@ -614,10 +622,10 @@ _SHOPIFY_SALE_SLUGS = ("sale", "clearance", "on-sale", "promotions")
 
 
 def get_shopify_deals():
-    deals, errors = [], []
-    seen = set()
-
-    for store_name, domain, category in _SHOPIFY_STORES:
+    def _fetch_store(store_info):
+        store_name, domain, category = store_info
+        store_deals, store_errs = [], []
+        local_seen = set()
         got_products = False
         for slug in _SHOPIFY_SALE_SLUGS:
             if got_products:
@@ -637,10 +645,8 @@ def get_shopify_deals():
                         brand  = _clean(p.get("vendor", ""))
                         if not title or not handle:
                             continue
-
                         imgs = p.get("images", [])
                         img  = imgs[0].get("src", "") if imgs else ""
-
                         for v in p.get("variants", []):
                             try:
                                 cur = float(v.get("price") or 0)
@@ -649,23 +655,19 @@ def get_shopify_deals():
                                 continue
                             if cur <= 0 or old <= cur:
                                 continue
-
                             tid = f"shopify-{domain}-{handle}-{v.get('id','')}"
-                            if tid in seen:
+                            if tid in local_seen:
                                 continue
-                            seen.add(tid)
-
+                            local_seen.add(tid)
                             save_amt = round(old - cur, 2)
                             save_pct = str(round((old - cur) / old * 100)) + "%"
-                            link     = f"https://{domain}/products/{handle}"
-
-                            deals.append({
+                            store_deals.append({
                                 "source":        "Shopify",
                                 "tid":           tid,
                                 "title":         title,
                                 "brand":         brand,
                                 "store":         store_name,
-                                "link":          link,
+                                "link":          f"https://{domain}/products/{handle}",
                                 "currentPrice":  f"${cur:.2f}",
                                 "originalPrice": f"${old:.2f}",
                                 "savings":       f"Save ${save_amt:.2f}",
@@ -680,11 +682,21 @@ def get_shopify_deals():
                                 "validUntil":    "",
                                 "provinces":     _deal_provinces(store_name),
                             })
-                            break  # one variant per product
+                            break
                 except Exception as e:
-                    errors.append(f"Shopify {store_name}/{slug} p{page}: {e}")
-                    break  # try next slug
+                    store_errs.append(f"Shopify {store_name}/{slug} p{page}: {e}")
+                    break
+        return store_deals, store_errs
 
+    deals, errors = [], []
+    seen = set()
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        for store_deals, store_errs in ex.map(_fetch_store, _SHOPIFY_STORES):
+            for d in store_deals:
+                if d["tid"] not in seen:
+                    seen.add(d["tid"])
+                    deals.append(d)
+            errors.extend(store_errs)
     return deals, errors
 
 
@@ -1015,14 +1027,16 @@ def _flipp_parse_item(item, seen):
 def get_flipp_deals():
     deals, errors = [], []
     seen = set()
+    seen_lock = threading.Lock()
 
-    # ── Step 1: fetch full flyers for target merchants ──
+    # ── Step 1: fetch full flyers for target merchants (parallel) ──
     try:
         flyer_data = _get_json(
             f"https://backflipp.wishabi.com/flipp/flyers"
             f"?locale=en-ca&postal_code={_FLIPP_POSTAL_QC}&q=",
             referer="https://flipp.com/",
         )
+        targets = []
         fetched_ids = set()
         for f in flyer_data.get("flyers", []):
             merchant = f.get("merchant", "")
@@ -1030,7 +1044,6 @@ def get_flipp_deals():
             if not fid or fid in fetched_ids:
                 continue
             m_lower = merchant.lower()
-            # Bidirectional match: "Rona" matches "RONA & RONA +" and vice versa
             if not any(
                 t.lower() in m_lower or
                 (len(m_lower) >= 4 and m_lower in t.lower())
@@ -1038,18 +1051,29 @@ def get_flipp_deals():
             ):
                 continue
             fetched_ids.add(fid)
+            targets.append((fid, merchant))
+
+        def _fetch_flyer(fid_merchant):
+            fid, merchant = fid_merchant
             url = (f"https://backflipp.wishabi.com/flipp/items/search"
                    f"?locale=en-ca&postal_code={_FLIPP_POSTAL_QC}"
                    f"&q=&flyer_ids={fid}")
             try:
-                data  = _get_json(url, referer="https://flipp.com/")
-                for item in data.get("items", []):
-                    d = _flipp_parse_item(item, seen)
-                    if d:
-                        deals.append(d)
-                time.sleep(0.25)
+                data = _get_json(url, referer="https://flipp.com/")
+                return data.get("items", []), None
             except Exception as e:
-                errors.append(f"Flipp {merchant}: {e}")
+                return [], f"Flipp {merchant}: {e}"
+
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for items, err in ex.map(_fetch_flyer, targets):
+                if err:
+                    errors.append(err)
+                    continue
+                with seen_lock:
+                    for item in items:
+                        d = _flipp_parse_item(item, seen)
+                        if d:
+                            deals.append(d)
     except Exception as e:
         errors.append(f"Flipp flyer list: {e}")
 
@@ -1223,7 +1247,6 @@ def get_homedepot_deals():
                 _hd_walk(page_props, deals, seen, label)
                 if len(deals) == before:
                     break
-                time.sleep(0.5)
             except Exception as e:
                 errors.append(f"Home Depot {label} p{page}: {e}")
                 break
@@ -1392,7 +1415,6 @@ def get_rona_deals():
             _rona_walk(page_props, deals, seen, label)
             if len(deals) == before:
                 errors.append(f"Rona {label}: 0 products extracted")
-            time.sleep(0.4)
         except Exception as e:
             errors.append(f"Rona {label}: {e}")
 
@@ -1541,7 +1563,6 @@ def get_lcbo_deals():
             else:
                 errors.append(f"LCBO {label}: no __NEXT_DATA__")
                 break
-            time.sleep(0.5)
         except Exception as e:
             errors.append(f"LCBO {label}: {e}")
             break
@@ -1699,7 +1720,6 @@ def get_saq_deals():
             _walk(page_props, label)
             if len(deals) == before:
                 errors.append(f"SAQ {label}: 0 products extracted")
-            time.sleep(0.4)
         except Exception as e:
             errors.append(f"SAQ {label}: {e}")
 
