@@ -19,6 +19,7 @@ log "=== watchdog start ==="
 
 start_server() {
     pkill -f "server\.py" 2>/dev/null; sleep 2
+    cd "$DEALS_DIR" && git pull origin main >>/tmp/server.log 2>&1 && log "git pull done"
     cd "$DEALS_DIR" && nohup python3 server.py >>/tmp/server.log 2>&1 &
     log "server.py started (PID $!)"
     sleep 8
