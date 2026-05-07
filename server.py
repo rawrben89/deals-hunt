@@ -737,6 +737,8 @@ def _build_and_cache(shared):
         "flipp":        counts.get("flipp", 0),
         "homedepot":    counts.get("homedepot", 0),
         "rona":         counts.get("rona", 0),
+        "lcbo":         counts.get("lcbo", 0),
+        "saq":          counts.get("saq", 0),
         "storeCounts":  store_counts,
         "errors":       all_errs,
         "fetched":      datetime.utcnow().isoformat() + "Z",
@@ -1397,6 +1399,313 @@ def get_rona_deals():
     return deals, errors
 
 
+# ─────────────────────────────────────────────────────────
+# SOURCE 8: LCBO (Ontario liquor board — sale items)
+# ─────────────────────────────────────────────────────────
+def get_lcbo_deals():
+    deals, errors = [], []
+    seen = set()
+
+    feeds = [
+        ("Sale",      "https://www.lcbo.com/en/sale?sz=120&start=0"),
+        ("Sale p2",   "https://www.lcbo.com/en/sale?sz=120&start=120"),
+        ("Sale p3",   "https://www.lcbo.com/en/sale?sz=120&start=240"),
+    ]
+
+    def _extract(item, label):
+        title = _clean(
+            item.get("name") or item.get("title") or item.get("productName") or ""
+        )
+        if not title:
+            return
+
+        # LCBO uses nested price object: {"sales":{"value":X},"list":{"value":Y}}
+        price_obj = item.get("price") or item.get("pricing") or {}
+        if isinstance(price_obj, dict):
+            sales = price_obj.get("sales") or price_obj.get("sale") or {}
+            lst   = price_obj.get("list")  or price_obj.get("regular") or {}
+            cur_val = (sales.get("value") if isinstance(sales, dict) else sales) or \
+                      price_obj.get("salePrice") or price_obj.get("currentPrice") or 0
+            old_val = (lst.get("value") if isinstance(lst, dict) else lst) or \
+                      price_obj.get("listPrice") or price_obj.get("regularPrice") or 0
+        else:
+            cur_val = item.get("salePrice") or item.get("price") or 0
+            old_val = item.get("listPrice") or item.get("regularPrice") or 0
+
+        try:
+            cur = float(cur_val)
+            old = float(old_val)
+        except (TypeError, ValueError):
+            cur, old = 0.0, 0.0
+        if cur <= 0:
+            return
+
+        prod_id = str(item.get("id") or item.get("productId") or
+                      item.get("sku") or item.get("code") or "")
+        if not prod_id:
+            prod_id = hashlib.md5(title.encode()).hexdigest()[:10]
+        tid = f"lcbo-{prod_id}"
+        if tid in seen:
+            return
+        seen.add(tid)
+
+        url_path = item.get("url") or item.get("link") or item.get("canonicalUrl") or ""
+        if url_path and not url_path.startswith("http"):
+            link = "https://www.lcbo.com" + url_path
+        else:
+            link = url_path
+
+        img = ""
+        imgs = item.get("images") or []
+        if isinstance(imgs, dict):
+            imgs = list(imgs.values())
+        if isinstance(imgs, list) and imgs:
+            first = imgs[0] if isinstance(imgs[0], dict) else {}
+            img = (first.get("href") or first.get("url") or first.get("src") or
+                   first.get("link") or "")
+        if not img:
+            for k in ("image", "thumbnail", "imageUrl", "primaryImage"):
+                v = item.get(k)
+                if isinstance(v, str) and v:
+                    img = v
+                    break
+                elif isinstance(v, dict):
+                    img = v.get("href") or v.get("url") or v.get("src") or ""
+                    if img:
+                        break
+
+        save_pct = ""
+        if old > cur > 0:
+            save_pct = str(round((old - cur) / old * 100)) + "%"
+
+        deals.append({
+            "source":        "LCBO",
+            "tid":           tid,
+            "title":         title,
+            "brand":         _clean(item.get("brand") or item.get("brandName") or ""),
+            "store":         "LCBO",
+            "link":          link,
+            "currentPrice":  f"${cur:.2f}",
+            "originalPrice": f"${old:.2f}" if old > cur else "",
+            "savings":       f"Save ${old - cur:.2f}" if old > cur else "",
+            "savePct":       save_pct,
+            "pubDate":       "",
+            "relTime":       "Sale",
+            "votes":         0,
+            "img":           img,
+            "category":      "",
+            "clearance":     False,
+            "dropDate":      "",
+            "validUntil":    "",
+            "provinces":     ["ON"],
+        })
+
+    def _walk(obj, label, depth=0):
+        if depth > 5 or len(deals) >= 400:
+            return
+        if isinstance(obj, list):
+            if obj and isinstance(obj[0], dict) and any(
+                k in obj[0] for k in ("name", "title", "id", "productId", "sku")
+            ):
+                for item in obj:
+                    if isinstance(item, dict):
+                        _extract(item, label)
+            else:
+                for v in obj[:5]:
+                    _walk(v, label, depth + 1)
+        elif isinstance(obj, dict):
+            for k in ("hits", "products", "items", "results", "productList"):
+                v = obj.get(k)
+                if isinstance(v, list) and v:
+                    before = len(deals)
+                    for item in v:
+                        if isinstance(item, dict):
+                            _extract(item, label)
+                    if len(deals) > before:
+                        return
+            for k, v in obj.items():
+                if isinstance(v, (dict, list)):
+                    _walk(v, label, depth + 1)
+
+    for label, url in feeds:
+        try:
+            text = _get(url)
+            nd = re.search(r'id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>', text, re.S)
+            if nd:
+                data = json.loads(nd.group(1))
+                before = len(deals)
+                _walk(data.get("props", {}).get("pageProps", data), label)
+                if len(deals) == before:
+                    errors.append(f"LCBO {label}: 0 products extracted")
+                    break
+            else:
+                errors.append(f"LCBO {label}: no __NEXT_DATA__")
+                break
+            time.sleep(0.5)
+        except Exception as e:
+            errors.append(f"LCBO {label}: {e}")
+            break
+
+    return deals, errors
+
+
+# ─────────────────────────────────────────────────────────
+# SOURCE 9: SAQ (Quebec liquor board — promotions)
+# ─────────────────────────────────────────────────────────
+def get_saq_deals():
+    deals, errors = [], []
+    seen = set()
+
+    feeds = [
+        ("Promotions", "https://www.saq.com/en/promotions"),
+        ("Sale",       "https://www.saq.com/en/products/wine?features=on-sale&pageSize=96"),
+        ("Clearance",  "https://www.saq.com/en/products?features=clearance&pageSize=96"),
+    ]
+
+    def _extract(item, label):
+        title = _clean(
+            item.get("name") or item.get("title") or item.get("displayName") or
+            item.get("productName") or ""
+        )
+        if not title:
+            return
+
+        # SAQ uses priceBeforePromotion / price or price.value / compareAtPrice
+        price_obj = item.get("price") or {}
+        if isinstance(price_obj, dict):
+            cur_val = price_obj.get("value") or price_obj.get("sale") or price_obj.get("current") or 0
+            old_val = price_obj.get("original") or price_obj.get("regular") or 0
+        else:
+            cur_val = (item.get("currentPrice") or item.get("salePrice") or
+                       price_obj or item.get("price") or 0)
+            old_val = (item.get("priceBeforePromotion") or item.get("regularPrice") or
+                       item.get("compareAtPrice") or 0)
+
+        try:
+            cur = float(cur_val)
+            old = float(old_val)
+        except (TypeError, ValueError):
+            cur, old = 0.0, 0.0
+        if cur <= 0:
+            return
+
+        prod_id = str(item.get("id") or item.get("code") or item.get("productId") or
+                      item.get("sku") or "")
+        if not prod_id:
+            prod_id = hashlib.md5(title.encode()).hexdigest()[:10]
+        tid = f"saq-{prod_id}"
+        if tid in seen:
+            return
+        seen.add(tid)
+
+        url_path = item.get("url") or item.get("link") or item.get("canonicalUrl") or ""
+        if url_path and not url_path.startswith("http"):
+            link = "https://www.saq.com" + url_path
+        else:
+            link = url_path
+
+        img = ""
+        for k in ("images", "media", "pictures"):
+            imgs = item.get(k)
+            if isinstance(imgs, list) and imgs:
+                first = imgs[0] if isinstance(imgs[0], dict) else {}
+                img = first.get("url") or first.get("src") or first.get("href") or ""
+                if img:
+                    break
+        if not img:
+            for k in ("image", "thumbnail", "imageUrl", "primaryImage"):
+                v = item.get(k)
+                if isinstance(v, str) and v:
+                    img = v
+                    break
+                elif isinstance(v, dict):
+                    img = v.get("url") or v.get("src") or ""
+                    if img:
+                        break
+
+        save_pct = ""
+        if old > cur > 0:
+            save_pct = str(round((old - cur) / old * 100)) + "%"
+
+        deals.append({
+            "source":        "SAQ",
+            "tid":           tid,
+            "title":         title,
+            "brand":         _clean(item.get("brand") or item.get("brandName") or ""),
+            "store":         "SAQ",
+            "link":          link,
+            "currentPrice":  f"${cur:.2f}",
+            "originalPrice": f"${old:.2f}" if old > cur else "",
+            "savings":       f"Save ${old - cur:.2f}" if old > cur else "",
+            "savePct":       save_pct,
+            "pubDate":       "",
+            "relTime":       "Promotion",
+            "votes":         0,
+            "img":           img,
+            "category":      "",
+            "clearance":     "clearance" in label.lower(),
+            "dropDate":      "",
+            "validUntil":    "",
+            "provinces":     ["QC"],
+        })
+
+    def _walk(obj, label, depth=0):
+        if depth > 5 or len(deals) >= 400:
+            return
+        if isinstance(obj, list):
+            if obj and isinstance(obj[0], dict) and any(
+                k in obj[0] for k in ("name", "title", "id", "code", "productId", "sku")
+            ):
+                for item in obj:
+                    if isinstance(item, dict):
+                        _extract(item, label)
+            else:
+                for v in obj[:5]:
+                    _walk(v, label, depth + 1)
+        elif isinstance(obj, dict):
+            for k in ("products", "items", "hits", "results", "productList", "entries"):
+                v = obj.get(k)
+                if isinstance(v, list) and v:
+                    before = len(deals)
+                    for item in v:
+                        if isinstance(item, dict):
+                            _extract(item, label)
+                    if len(deals) > before:
+                        return
+            for k, v in obj.items():
+                if isinstance(v, (dict, list)):
+                    _walk(v, label, depth + 1)
+
+    for label, url in feeds:
+        try:
+            text = _get(url)
+            nd = re.search(r'id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>', text, re.S)
+            if not nd:
+                # SAQ may use window.__PRELOADED_STATE__
+                m = re.search(
+                    r'window\.__(?:PRELOADED|INITIAL)_STATE__\s*=\s*(\{.*?\})\s*;',
+                    text, re.S
+                )
+                if not m:
+                    errors.append(f"SAQ {label}: no JSON data found")
+                    continue
+                raw = m.group(1)
+            else:
+                raw = nd.group(1)
+
+            data = json.loads(raw)
+            before = len(deals)
+            page_props = data.get("props", {}).get("pageProps", data)
+            _walk(page_props, label)
+            if len(deals) == before:
+                errors.append(f"SAQ {label}: 0 products extracted")
+            time.sleep(0.4)
+        except Exception as e:
+            errors.append(f"SAQ {label}: {e}")
+
+    return deals, errors
+
+
 _SOURCES = [
     ("walmart",      get_walmart_deals,      "Walmart"),
     ("stocktrack",   get_stocktrack_deals,   "StockTrack"),
@@ -1405,6 +1714,8 @@ _SOURCES = [
     ("shopify",      get_shopify_deals,      "Shopify"),
     ("homedepot",    get_homedepot_deals,    "HomeDepot"),
     ("rona",         get_rona_deals,         "Rona"),
+    ("lcbo",         get_lcbo_deals,         "LCBO"),
+    ("saq",          get_saq_deals,          "SAQ"),
 ]
 
 
@@ -1432,10 +1743,11 @@ def _background_refresh():
         ]
         for t in threads:
             t.start()
+        # Wait up to 90 s per thread — a hung source can't block the full cycle
         for t in threads:
-            t.join()
+            t.join(timeout=90)
 
-        # All sources done — build and publish the complete result atomically
+        # All sources done (or timed out) — build and publish atomically
         result = _build_and_cache(dict(shared))
 
         if result:
