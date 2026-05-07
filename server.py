@@ -905,7 +905,8 @@ _STORE_CATEGORY = {
     "Michaels Canada": "Arts & Crafts",
     "Long & McQuade Musical Instruments": "Arts & Crafts",
     # Specialty
-    "SAQ": "Specialty", "LCBO": "Specialty", "The Beer Store": "Specialty",
+    "SAQ": "Specialty", "LCBO": "Specialty", "BC Liquor Stores": "Specialty",
+    "The Beer Store": "Specialty",
     "Party City": "Specialty", "Showcase": "Specialty",
 }
 
@@ -1729,6 +1730,182 @@ def get_saq_deals():
     return deals, errors
 
 
+# ─────────────────────────────────────────────────────────
+# SOURCE 10: BCLDB (BC liquor board — on-sale items)
+# ─────────────────────────────────────────────────────────
+def get_bcldb_deals():
+    deals, errors = [], []
+    seen = set()
+
+    feeds = [
+        ("Sale p1", "https://www.bcliquorstores.com/product-catalogue?promotion=on-sale&page=1"),
+        ("Sale p2", "https://www.bcliquorstores.com/product-catalogue?promotion=on-sale&page=2"),
+        ("Sale p3", "https://www.bcliquorstores.com/product-catalogue?promotion=on-sale&page=3"),
+    ]
+
+    def _extract(item, label):
+        title = _clean(
+            item.get("name") or item.get("title") or item.get("productName") or
+            item.get("displayName") or ""
+        )
+        if not title:
+            return
+
+        price_obj = item.get("price") or item.get("pricing") or {}
+        if isinstance(price_obj, dict):
+            cur_val = (price_obj.get("current") or price_obj.get("sale") or
+                       price_obj.get("promo") or price_obj.get("value") or 0)
+            old_val = (price_obj.get("regular") or price_obj.get("list") or
+                       price_obj.get("original") or 0)
+        else:
+            cur_val = (item.get("currentPrice") or item.get("salePrice") or
+                       item.get("promotionPrice") or price_obj or 0)
+            old_val = (item.get("regularPrice") or item.get("listPrice") or
+                       item.get("originalPrice") or 0)
+
+        try:
+            cur = float(str(cur_val).replace("$", "").replace(",", "").strip())
+            old = float(str(old_val).replace("$", "").replace(",", "").strip())
+        except (TypeError, ValueError):
+            cur, old = 0.0, 0.0
+        if cur <= 0:
+            return
+
+        prod_id = str(item.get("id") or item.get("sku") or item.get("productId") or
+                      item.get("code") or "")
+        if not prod_id:
+            prod_id = hashlib.md5(title.encode()).hexdigest()[:10]
+        tid = f"bcldb-{prod_id}"
+        if tid in seen:
+            return
+        seen.add(tid)
+
+        url_path = item.get("url") or item.get("link") or item.get("canonicalUrl") or ""
+        if url_path and not url_path.startswith("http"):
+            link = "https://www.bcliquorstores.com" + url_path
+        else:
+            link = url_path or "https://www.bcliquorstores.com/product-catalogue?promotion=on-sale"
+
+        img = ""
+        for k in ("images", "media", "pictures", "galleryImages"):
+            imgs = item.get(k)
+            if isinstance(imgs, list) and imgs:
+                first = imgs[0] if isinstance(imgs[0], dict) else {}
+                img = first.get("url") or first.get("src") or first.get("href") or ""
+                if img:
+                    break
+        if not img:
+            for k in ("image", "thumbnail", "imageUrl", "primaryImage", "thumbnailImage"):
+                v = item.get(k)
+                if isinstance(v, str) and v:
+                    img = v
+                    break
+                elif isinstance(v, dict):
+                    img = v.get("url") or v.get("src") or ""
+                    if img:
+                        break
+
+        save_pct = ""
+        if old > cur > 0:
+            save_pct = str(round((old - cur) / old * 100)) + "%"
+
+        deals.append({
+            "source":        "BCLDB",
+            "tid":           tid,
+            "title":         title,
+            "brand":         _clean(item.get("brand") or item.get("brandName") or
+                                    item.get("producer") or ""),
+            "store":         "BC Liquor Stores",
+            "link":          link,
+            "currentPrice":  f"${cur:.2f}",
+            "originalPrice": f"${old:.2f}" if old > cur else "",
+            "savings":       f"Save ${old - cur:.2f}" if old > cur else "",
+            "savePct":       save_pct,
+            "pubDate":       "",
+            "relTime":       "Sale",
+            "votes":         0,
+            "img":           img,
+            "category":      _clean(item.get("category") or item.get("type") or
+                                    item.get("productType") or ""),
+            "clearance":     False,
+            "dropDate":      "",
+            "validUntil":    "",
+            "provinces":     ["BC"],
+        })
+
+    def _walk(obj, label, depth=0):
+        if depth > 5 or len(deals) >= 400:
+            return
+        if isinstance(obj, list):
+            if obj and isinstance(obj[0], dict) and any(
+                k in obj[0] for k in ("name", "title", "id", "productId", "sku", "code")
+            ):
+                for item in obj:
+                    if isinstance(item, dict):
+                        _extract(item, label)
+            else:
+                for v in obj[:5]:
+                    _walk(v, label, depth + 1)
+        elif isinstance(obj, dict):
+            for k in ("products", "items", "hits", "results", "productList",
+                      "entries", "catalogItems", "promotionItems"):
+                v = obj.get(k)
+                if isinstance(v, list) and v:
+                    before = len(deals)
+                    for item in v:
+                        if isinstance(item, dict):
+                            _extract(item, label)
+                    if len(deals) > before:
+                        return
+            for k, v in obj.items():
+                if isinstance(v, (dict, list)):
+                    _walk(v, label, depth + 1)
+
+    for label, url in feeds:
+        try:
+            text = _get(url)
+            nd = re.search(r'id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>', text, re.S)
+            if nd:
+                data = json.loads(nd.group(1))
+                before = len(deals)
+                _walk(data.get("props", {}).get("pageProps", data), label)
+                if len(deals) == before:
+                    errors.append(f"BCLDB {label}: 0 products from __NEXT_DATA__")
+                    break
+                continue
+            m = re.search(
+                r'window\.__(?:PRELOADED|INITIAL)_STATE__\s*=\s*(\{.*?\})\s*;',
+                text, re.S
+            )
+            if m:
+                data = json.loads(m.group(1))
+                before = len(deals)
+                _walk(data, label)
+                if len(deals) == before:
+                    errors.append(f"BCLDB {label}: 0 products from __PRELOADED_STATE__")
+                    break
+                continue
+            for block in re.findall(
+                r'<script[^>]+type=["\']application/json["\'][^>]*>(.*?)</script>',
+                text, re.S
+            ):
+                try:
+                    before = len(deals)
+                    _walk(json.loads(block), label)
+                    if len(deals) > before:
+                        break
+                except Exception:
+                    continue
+            else:
+                errors.append(f"BCLDB {label}: no JSON data found in page")
+                break
+        except Exception as e:
+            errors.append(f"BCLDB {label}: {e}")
+            break
+
+    return deals, errors
+
+
 _SOURCES = [
     ("walmart",      get_walmart_deals,      "Walmart"),
     ("stocktrack",   get_stocktrack_deals,   "StockTrack"),
@@ -1739,6 +1916,7 @@ _SOURCES = [
     ("rona",         get_rona_deals,         "Rona"),
     ("lcbo",         get_lcbo_deals,         "LCBO"),
     ("saq",          get_saq_deals,          "SAQ"),
+    ("bcldb",        get_bcldb_deals,        "BC Liquor Stores"),
 ]
 
 
