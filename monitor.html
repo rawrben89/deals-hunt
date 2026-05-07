@@ -71,66 +71,13 @@
     .sc-label { color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .sc-val { color:var(--overlay); margin-left:auto; white-space:nowrap; padding-left:6px; font-size:6px; }
     .fresh-tag { color:var(--blue); animation:blink 1s steps(1) infinite; }
-    /* Login */
-    #loginOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.88);
-      z-index:100; align-items:center; justify-content:center; }
-    .login-box { background:var(--base); border:2px solid var(--accent); padding:24px 20px;
-      max-width:300px; width:90%; box-shadow:6px 6px 0 rgba(96,48,255,.5); }
-    .login-title { font-size:10px; color:var(--mauve); margin-bottom:12px; }
-    .login-hint { font-size:6px; color:var(--overlay); margin-bottom:14px; line-height:2.2; }
-    .pw-input { width:100%; background:var(--mantle); border:1px solid var(--surf0);
-      color:var(--text); font-family:inherit; font-size:8px; padding:8px 6px; outline:none;
-      margin-bottom:8px; }
-    .pw-input:focus { border-color:var(--accent); }
-    .login-err { font-size:6px; color:var(--red); min-height:12px; margin-bottom:8px; }
-    .login-btn { width:100%; font-family:inherit; font-size:7px; background:var(--accent);
-      color:#fff; border:none; padding:8px; cursor:pointer; }
-    .login-btn:hover { background:var(--mauve); }
-    /* Command terminal */
-    #cmdTerminal { display:none; margin-bottom:14px; }
-    #cmdTerminal.visible { display:block; }
-    .term-box { background:var(--mantle); border:2px solid var(--accent); padding:14px;
-      box-shadow:4px 4px 0 rgba(96,48,255,.3); }
-    .term-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-    .term-title { font-size:8px; color:var(--blue); letter-spacing:1px; }
-    .term-logout { font-size:6px; color:var(--overlay); cursor:pointer; background:none;
-      border:1px solid var(--surf0); font-family:inherit; padding:2px 6px; }
-    .term-logout:hover { color:var(--red); border-color:var(--red); }
-    .cmd-history { font-size:6px; line-height:2.4; min-height:28px; max-height:140px;
-      overflow-y:auto; margin-bottom:10px; }
-    .cmd-row { display:flex; align-items:center; gap:6px; }
-    .cmd-prompt { font-size:9px; color:var(--green); flex-shrink:0; }
-    .cmd-input { flex:1; background:transparent; border:none; border-bottom:1px solid var(--surf0);
-      color:var(--text); font-family:inherit; font-size:7px; padding:3px 4px; outline:none; }
-    .cmd-input:focus { border-color:var(--accent); }
-    .cmd-send { font-family:inherit; font-size:6px; background:var(--accent); color:#fff;
-      border:none; padding:5px 10px; cursor:pointer; flex-shrink:0; }
-    .cmd-send:hover { background:var(--mauve); }
-    .cmd-hint { font-size:5px; color:var(--surf0); margin-top:6px; }
   </style>
 </head>
 <body>
 <div class="wrap">
-  <!-- Login overlay -->
-  <div id="loginOverlay" onclick="if(event.target===this)hideLoginModal()">
-    <div class="login-box">
-      <div class="login-title">MONITOR LOGIN</div>
-      <div class="login-hint">Enter your monitor password</div>
-      <input type="password" id="pwInput" class="pw-input" placeholder="password"
-             onkeydown="if(event.key==='Enter')doLogin()">
-      <div class="login-err" id="loginErr"></div>
-      <button class="login-btn" onclick="doLogin()">LOGIN</button>
-    </div>
-  </div>
-
   <header>
     <h1>WATCHDOG</h1>
     <p>DEALS-HUNT INFRASTRUCTURE MONITOR &nbsp;·&nbsp; AUTO-REFRESH 5s</p>
-    <button id="headerLoginBtn" onclick="showLoginModal()"
-      style="margin-top:8px;font-family:inherit;font-size:6px;background:var(--surf0);
-             color:var(--overlay);border:1px solid var(--surf0);padding:4px 10px;cursor:pointer">
-      🔒 LOGIN
-    </button>
   </header>
   <div class="panel">
     <div class="panel-hdr">
@@ -191,25 +138,6 @@
       </div>
       <div class="agent-ts" id="at-scout">NEXT: MON 10:00 UTC</div>
       <div class="agent-body" id="ab-scout"><span style="color:var(--overlay)">Awaiting first scout…</span></div>
-    </div>
-  </div>
-
-  <!-- Command terminal (visible after login) -->
-  <div id="cmdTerminal">
-    <div class="term-box">
-      <div class="term-hdr">
-        <span class="term-title">AGENT COMMAND TERMINAL</span>
-        <button class="term-logout" onclick="doLogout()">LOGOUT</button>
-      </div>
-      <div class="cmd-history" id="cmdHistory"></div>
-      <div class="cmd-row">
-        <span class="cmd-prompt">▶</span>
-        <input type="text" id="cmdInput" class="cmd-input"
-               placeholder="type a command for the agents…"
-               onkeydown="if(event.key==='Enter')sendCommand()">
-        <button class="cmd-send" onclick="sendCommand()">SEND</button>
-      </div>
-      <div class="cmd-hint">Agents pick up commands on next run &nbsp;·&nbsp; Health: hourly &nbsp;·&nbsp; Scout: weekly</div>
     </div>
   </div>
 
@@ -804,85 +732,6 @@ async function pollReports(){
 }
 pollReports();setInterval(pollReports,30000);
 
-// ── Login / Command terminal ───────────────────────────────────────────────────
-function showLoginModal(){
-  const o=document.getElementById('loginOverlay');
-  o.style.display='flex';
-  setTimeout(()=>document.getElementById('pwInput').focus(),60);
-}
-function hideLoginModal(){
-  document.getElementById('loginOverlay').style.display='none';
-  document.getElementById('loginErr').textContent='';
-  document.getElementById('pwInput').value='';
-}
-async function doLogin(){
-  const pw=document.getElementById('pwInput').value;
-  document.getElementById('loginErr').textContent='';
-  try{
-    const r=await fetch(API_BASE+'/api/login',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-    const d=await r.json();
-    if(d.ok){
-      localStorage.setItem('monitor_token',d.token);
-      hideLoginModal();
-      _showAuthUI();
-    }else{
-      document.getElementById('loginErr').textContent='Wrong password';
-    }
-  }catch(e){ document.getElementById('loginErr').textContent='Cannot reach server'; }
-}
-function doLogout(){
-  localStorage.removeItem('monitor_token');
-  document.getElementById('cmdTerminal').classList.remove('visible');
-  const btn=document.getElementById('headerLoginBtn');
-  btn.textContent='🔒 LOGIN'; btn.style.color=''; btn.style.background='var(--surf0)';
-  btn.onclick=showLoginModal;
-}
-function _showAuthUI(){
-  document.getElementById('cmdTerminal').classList.add('visible');
-  const btn=document.getElementById('headerLoginBtn');
-  btn.textContent='● ADMIN'; btn.style.color='var(--green)';
-  btn.style.background='var(--mantle)'; btn.onclick=doLogout;
-  _loadCommandHistory();
-}
-async function _loadCommandHistory(){
-  try{
-    const r=await fetch(API_BASE+'/api/command',{cache:'no-store'});
-    if(!r.ok)return;
-    const d=await r.json();
-    if(d.status!=='no_command'){
-      const hist=document.getElementById('cmdHistory');
-      hist.innerHTML=`<div style="color:var(--overlay)">Last: ▶ ${d.text||''}</div>`
-        +(d.status==='done'?`<div style="color:var(--blue)">⟳ ${d.result||'Done'}</div>`
-          :`<div style="color:var(--yellow)">⏳ Pending — agents pick up on next run</div>`);
-    }
-  }catch(e){}
-}
-async function sendCommand(){
-  const token=localStorage.getItem('monitor_token');
-  const input=document.getElementById('cmdInput');
-  const text=input.value.trim(); if(!text)return;
-  const hist=document.getElementById('cmdHistory');
-  input.value='';
-  try{
-    const r=await fetch(API_BASE+'/api/command',{method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify({text})});
-    const d=await r.json();
-    if(d.ok){
-      hist.innerHTML=`<div style="color:var(--text)">▶ ${text}</div>`
-        +`<div style="color:var(--green)">✓ Queued — agents will execute on next run</div>`;
-    }else if(d.error==='Unauthorized'){
-      hist.innerHTML+='<div style="color:var(--red)">Session expired — log in again</div>';
-      doLogout();
-    }
-  }catch(e){
-    hist.innerHTML+='<div style="color:var(--red)">Error: cannot reach server</div>';
-  }
-  hist.scrollTop=hist.scrollHeight;
-}
-// Restore session on page load
-if(localStorage.getItem('monitor_token')) _showAuthUI();
 
 // Fix DEALS link: tunnel and localhost use /, GitHub Pages uses /deals-hunt/
 const _h=window.location.hostname;
