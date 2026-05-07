@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WATCHDOG MONITOR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #1e1e2e;
+      --base:    #181825;
+      --mantle:  #11111b;
+      --surf0:   #313244;
+      --overlay: #6c7086;
+      --text:    #cdd6f4;
+      --mauve:   #cba6f7;
+      --blue:    #89b4fa;
+      --green:   #a6e3a1;
+      --yellow:  #f9e2af;
+      --peach:   #fab387;
+      --red:     #f38ba8;
+      --accent:  #6030ff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 20px 16px 32px;
+      min-height: 100vh;
+    }
+
+    .wrap { max-width: 640px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 20px; }
+    header h1 { font-size: 14px; color: var(--mauve); letter-spacing: 3px; }
+    header p  { font-size: 6px; color: var(--overlay); margin-top: 8px; letter-spacing: 1px; }
+
+    .panel {
+      border: 2px solid var(--accent);
+      background: var(--base);
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 4px 4px 0 rgba(96,48,255,.25);
+    }
+
+    .panel-title {
+      font-size: 7px; color: var(--blue);
+      letter-spacing: 2px; margin-bottom: 10px;
+    }
+
+    #office {
+      display: block; width: 100%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* Agent cards */
+    .cards {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; margin-bottom: 14px;
+    }
+
+    .card {
+      border: 2px solid var(--surf0);
+      background: var(--base);
+      padding: 10px 8px 8px;
+      transition: border-color .3s;
+    }
+    .card[data-s="ok"]   { border-color: var(--green); }
+    .card[data-s="warn"] { border-color: var(--yellow); }
+    .card[data-s="err"]  { border-color: var(--red); }
+
+    .card-name { font-size: 7px; color: var(--mauve); margin-bottom: 7px; }
+
+    .card-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+
+    .led { width: 6px; height: 6px; background: var(--surf0); flex-shrink: 0; }
+    .led[data-s="ok"]   { background: var(--green); }
+    .led[data-s="warn"] { background: var(--yellow); animation: blink 1s steps(1) infinite; }
+    .led[data-s="err"]  { background: var(--red);   animation: blink .5s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .card-val  { font-size: 8px; }
+    .card-meta { font-size: 6px; color: var(--overlay); margin-top: 4px; line-height: 2; }
+
+    /* Log */
+    #log {
+      font-size: 6px; line-height: 2.2;
+      max-height: 240px; overflow-y: auto;
+      background: var(--mantle); padding: 8px;
+      border: 1px solid var(--surf0);
+      scrollbar-width: thin;
+      scrollbar-color: var(--surf0) var(--mantle);
+    }
+
+    .ll        { color: var(--overlay); }
+    .ll-start  { color: var(--blue); }
+    .ll-done   { color: var(--surf0); }
+    .ll-ok     { color: var(--green); }
+    .ll-act    { color: var(--yellow); }
+    .ll-warn   { color: var(--peach); }
+    .ll-err    { color: var(--red); }
+
+    .footer {
+      text-align: center; font-size: 6px; color: var(--surf0); padding-top: 8px;
+    }
+    .footer a { color: var(--overlay); text-decoration: none; }
+    .footer a:hover { color: var(--blue); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>WATCHDOG</h1>
+    <p>DEALS-HUNT INFRASTRUCTURE MONITOR &nbsp;·&nbsp; AUTO-REFRESH 5s</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-title">OFFICE</div>
+    <canvas id="office"></canvas>
+  </div>
+
+  <div class="cards">
+    <div class="card" id="c-server" data-s="">
+      <div class="card-name">SERVER</div>
+      <div class="card-row">
+        <div class="led" id="l-server" data-s=""></div>
+        <div class="card-val" id="v-server">—</div>
+      </div>
+      <div class="card-meta" id="m-server">—</div>
+    </div>
+    <div class="card" id="c-tunnel" data-s="">
+      <div class="card-name">TUNNEL</div>
+      <div class="card-row">
+        <div class="led" id="l-tunnel" data-s=""></div>
+        <div class="card-val" id="v-tunnel">—</div>
+      </div>
+      <div class="card-meta" id="m-tunnel">—</div>
+    </div>
+    <div class="card" id="c-deals" data-s="">
+      <div class="card-name">DEALS</div>
+      <div class="card-row">
+        <div class="led" id="l-deals" data-s=""></div>
+        <div class="card-val" id="v-deals">—</div>
+      </div>
+      <div class="card-meta" id="m-deals">—</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">WATCHDOG LOG</div>
+    <div id="log"><div class="ll">Loading…</div></div>
+  </div>
+
+  <div class="footer">
+    CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log
+    &nbsp;&nbsp;|&nbsp;&nbsp; <a href="/">← DEALS</a>
+  </div>
+
+</div>
+
+<script>
+(function () {
+'use strict';
+
+// ── Canvas setup ──────────────────────────────────────────────────────────────
+const cv  = document.getElementById('office');
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+const CW  = 600, CH = 168;
+cv.width  = CW * DPR;
+cv.height = CH * DPR;
+cv.style.height = CH + 'px';
+const gx  = cv.getContext('2d');
+gx.scale(DPR, DPR);
+gx.imageSmoothingEnabled = false;
+
+// ── Pixel sprite engine ───────────────────────────────────────────────────────
+const SC = 3; // 1 sprite pixel = 3 canvas pixels
+
+// Sprite color indices: 0=transparent 1=skin 2=hair 3=dark/eyes 4=shirt 5=pants 6=shoes
+const SP_IDLE = [
+  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+    [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0] ],
+  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+    [0,4,4,4,4,4,0],[0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0] ],
+];
+
+const SP_TYPE = [
+  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+    [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[4,4,0,4,0,4,4],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0] ],
+  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,1,1,3,1],[1,1,1,1,1,1,1],
+    [0,4,4,4,4,4,0],[4,0,4,4,4,0,4],[0,4,4,0,4,4,0],[0,0,5,5,5,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0] ],
+];
+
+const SP_ERR = [
+  [ [0,2,2,2,2,2,0],[2,2,2,2,2,2,2],[1,1,2,2,2,1,1],[1,3,1,3,1,3,1],[1,1,3,1,3,1,1],
+    [0,4,4,4,4,4,0],[4,4,4,4,4,4,4],[0,4,4,4,4,4,0],[0,0,5,5,5,0,0],[0,5,5,0,5,5,0],[0,6,6,0,6,6,0] ],
+];
+
+function drawSprite(sp, px, py, pal) {
+  sp.forEach((row, ry) => {
+    row.forEach((ci, rx) => {
+      if (!ci || !pal[ci]) return;
+      gx.fillStyle = pal[ci];
+      gx.fillRect(px + rx * SC, py + ry * SC, SC, SC);
+    });
+  });
+}
+
+// ── Agent definitions ─────────────────────────────────────────────────────────
+const DESK_Y = 108; // top of desk surface
+const SPW = 7 * SC, SPH = 11 * SC; // sprite px dimensions = 21 × 33
+
+const AGENTS = [
+  { id: 'server', label: 'SRVR', ax: 100, state: 'idle',
+    pal:    [null,'#d4a574','#818cf8','#1f2937','#4f46e5','#334155','#e2e8f0'],
+    errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
+  { id: 'tunnel', label: 'TUNL', ax: 300, state: 'idle',
+    pal:    [null,'#d4a574','#34d399','#1f2937','#059669','#334155','#e2e8f0'],
+    errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
+  { id: 'deals',  label: 'DEAL', ax: 500, state: 'idle',
+    pal:    [null,'#d4a574','#fbbf24','#1f2937','#d97706','#334155','#e2e8f0'],
+    errPal: [null,'#d4a574','#f38ba8','#1f2937','#be123c','#334155','#e2e8f0'] },
+];
+
+// Pre-defined screen content lines [width, color]
+const SCREEN_LINES = [[14,'#89b4fa'],[10,'#a6e3a1'],[12,'#89b4fa'],[7,'#f9e2af']];
+
+// ── Draw helpers ──────────────────────────────────────────────────────────────
+function drawFloor() {
+  gx.fillStyle = '#11111b';
+  gx.fillRect(0, 0, CW, CH);
+  const T = 16;
+  for (let tx = 0; tx < CW; tx += T)
+    for (let ty = 0; ty < CH; ty += T)
+      if ((Math.floor(tx/T) + Math.floor(ty/T)) % 2 === 0) {
+        gx.fillStyle = '#181825';
+        gx.fillRect(tx, ty, T, T);
+      }
+  gx.strokeStyle = '#1e1e2e';
+  gx.lineWidth = 1;
+  for (let tx = 0; tx <= CW; tx += T) {
+    gx.beginPath(); gx.moveTo(tx+.5,0); gx.lineTo(tx+.5,CH); gx.stroke();
+  }
+  for (let ty = 0; ty <= CH; ty += T) {
+    gx.beginPath(); gx.moveTo(0,ty+.5); gx.lineTo(CW,ty+.5); gx.stroke();
+  }
+}
+
+function drawDeskBack(ax, agentState, tick) {
+  const dx = ax - 40;
+  const mx = ax - 28;
+  const isErr = agentState === 'err';
+
+  // Monitor frame
+  gx.fillStyle = '#0d0d1a';
+  gx.fillRect(mx, 82, 22, 22);
+  gx.fillStyle = isErr ? '#3a1020' : '#1a2f4e';
+  gx.fillRect(mx+2, 84, 18, 18);
+
+  // Animated screen content
+  const activeLine = Math.floor(tick / 28) % SCREEN_LINES.length;
+  SCREEN_LINES.forEach(([w, c], i) => {
+    gx.fillStyle = isErr ? '#f38ba822' : (i === activeLine ? c : c + '44');
+    gx.fillRect(mx+3, 85+i*4, w, 2);
+  });
+
+  // Monitor stand
+  gx.fillStyle = '#1e1e30';
+  gx.fillRect(mx+6, 104, 10, 4);
+
+  // Desk surface
+  gx.fillStyle = '#2d2b55';
+  gx.fillRect(dx, 104, 80, 4);
+  gx.fillStyle = '#4040a0';
+  gx.fillRect(dx, 104, 80, 1); // highlight edge
+}
+
+function drawDeskFront(ax) {
+  const dx = ax - 40;
+
+  // Keyboard
+  gx.fillStyle = '#2a2a3e';
+  gx.fillRect(ax-12, 105, 24, 4);
+  gx.fillStyle = '#45475a';
+  for (let i = 0; i < 5; i++) gx.fillRect(ax-10+i*4, 106, 3, 2);
+
+  // Desk front face
+  gx.fillStyle = '#1e1c3e';
+  gx.fillRect(dx, 108, 80, 14);
+  gx.fillStyle = '#2d2b55';
+  gx.fillRect(dx, 108, 80, 2); // top edge
+}
+
+function drawChar(agent, tick) {
+  const { ax, state, pal, errPal, label } = agent;
+  const isErr  = state === 'err';
+  const isType = state === 'ok';
+
+  let sp, palette;
+  if (isErr) {
+    sp = SP_ERR[Math.floor(tick / 30) % SP_ERR.length];
+    palette = errPal;
+  } else if (isType) {
+    sp = SP_TYPE[Math.floor(tick / 18) % SP_TYPE.length];
+    palette = pal;
+  } else {
+    sp = SP_IDLE[Math.floor(tick / 60) % SP_IDLE.length];
+    palette = pal;
+  }
+
+  const bob = (!isType && !isErr && Math.floor(tick / 60) % 2 === 1) ? 1 : 0;
+  const py = isType ? DESK_Y - SPH + 12 : DESK_Y - SPH - 4 + bob;
+  const px = ax - Math.floor(SPW / 2);
+
+  drawSprite(sp, px, py, palette);
+
+  // Status LED above head
+  const ledOn = isErr ? Math.floor(tick / 15) % 2 === 0 : true;
+  if (ledOn) {
+    gx.fillStyle = isType ? '#a6e3a1' : isErr ? '#f38ba8'
+                 : state === 'warn' ? '#f9e2af' : '#89b4fa';
+    gx.fillRect(ax-2, py-8, 4, 4);
+  }
+
+  // Name label
+  gx.fillStyle = '#585b70';
+  gx.font = `${SC*2}px "Press Start 2P", monospace`;
+  gx.textAlign = 'center';
+  gx.fillText(label, ax, py - 12);
+}
+
+// ── Render loop ───────────────────────────────────────────────────────────────
+let tick = 0;
+function render() {
+  drawFloor();
+  AGENTS.forEach(a => {
+    drawDeskBack(a.ax, a.state, tick);
+    drawChar(a, tick);
+    drawDeskFront(a.ax);
+  });
+  tick++;
+  requestAnimationFrame(render);
+}
+
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(render);
+} else {
+  setTimeout(render, 400);
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function setCard(id, state, val, meta) {
+  document.getElementById('c-'+id).dataset.s = state;
+  document.getElementById('l-'+id).dataset.s = state;
+  document.getElementById('v-'+id).textContent = val;
+  document.getElementById('m-'+id).textContent = meta;
+  const a = AGENTS.find(x => x.id === id);
+  if (a) a.state = state;
+}
+
+function age(s) {
+  if (s < 0)    return '—';
+  if (s < 60)   return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  return Math.floor(s/3600) + 'h ago';
+}
+
+function logCls(line) {
+  const l = line.toLowerCase();
+  if (l.includes('=== watchdog done')) return 'done';
+  if (l.includes('=== watchdog'))      return 'start';
+  if (l.includes(' ok') || l.includes('unchanged') || l.includes('alive')) return 'ok';
+  if (l.includes('start') || l.includes('restart') || l.includes('push') || l.includes('updated')) return 'act';
+  if (l.includes('warning') || l.includes('stale') || l.includes('dead')) return 'warn';
+  if (l.includes('error') || l.includes('fail')) return 'err';
+  return '';
+}
+
+// ── API polling ───────────────────────────────────────────────────────────────
+async function poll() {
+  let d;
+  try {
+    const r = await fetch('/api/watchdog', { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    d = await r.json();
+  } catch (e) {
+    ['server','tunnel','deals'].forEach(id => setCard(id, 'err', 'NO DATA', 'API unreachable'));
+    return;
+  }
+
+  const srv = d.server || {};
+  setCard('server',
+    srv.healthy ? 'ok' : 'err',
+    srv.healthy ? 'ONLINE' : 'OFFLINE',
+    srv.healthy ? 'PID ' + srv.pid : 'NOT RUNNING'
+  );
+
+  const tun = d.tunnel || {};
+  const shortUrl = (tun.url || '').replace('https://','').replace('.trycloudflare.com','').slice(0,22);
+  setCard('tunnel',
+    tun.cf_running ? 'ok' : 'err',
+    tun.cf_running ? 'ALIVE' : 'DOWN',
+    tun.cf_running ? (shortUrl || '—') : 'CF NOT RUNNING'
+  );
+
+  const dl = d.deals || {};
+  const fresh = dl.count > 0 && !dl.stale;
+  const stale = dl.stale && dl.count > 0;
+  setCard('deals',
+    fresh ? 'ok' : stale ? 'warn' : 'err',
+    dl.count > 0 ? dl.count.toLocaleString() + ' DEALS' : 'NO DATA',
+    age(dl.age_s)
+  );
+
+  const lines = (d.watchdog || {}).log || [];
+  const logEl = document.getElementById('log');
+  if (lines.length) {
+    logEl.innerHTML = [...lines].reverse().slice(0, 40).map(line => {
+      const cls = logCls(line);
+      const safe = line.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      return `<div class="ll${cls ? ' ll-'+cls : ''}">${safe}</div>`;
+    }).join('');
+  } else {
+    logEl.innerHTML = '<div class="ll">No log entries yet.</div>';
+  }
+}
+
+poll();
+setInterval(poll, 5000);
+
+})();
+</script>
+</body>
+</html>

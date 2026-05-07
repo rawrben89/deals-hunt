@@ -1859,6 +1859,70 @@ class Handler(BaseHTTPRequestHandler):
                     "fetched":     result["fetched"],
                 })
 
+        elif path == "/api/watchdog":
+            import subprocess as _sp
+            _pid = os.getpid()
+            _uptime_s = -1
+            try:
+                with open(f"/proc/{_pid}/stat") as _f:
+                    _start_ticks = int(_f.read().split()[21])
+                with open("/proc/uptime") as _f:
+                    _sys_up = float(_f.read().split()[0])
+                _uptime_s = int(_sys_up - _start_ticks / os.sysconf(os.sysconf_names["SC_CLK_TCK"]))
+            except Exception:
+                pass
+
+            with _cache_lock:
+                _res = _cached_result
+            if _res:
+                _fetched = _res.get("fetched", "")
+                try:
+                    _ts = datetime.fromisoformat(_fetched.replace("Z", "+00:00")).timestamp()
+                    _age = int(time.time() - _ts)
+                except Exception:
+                    _age = -1
+                _deals = {"count": _res.get("count", 0), "fetched": _fetched,
+                          "age_s": _age, "stale": _age > 900}
+            else:
+                _deals = {"count": 0, "fetched": None, "age_s": -1, "stale": True}
+
+            _tunnel_url = ""
+            try:
+                _idx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
+                with open(_idx_path) as _f:
+                    _m = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", _f.read())
+                if _m:
+                    _tunnel_url = _m.group(0)
+            except Exception:
+                pass
+
+            _cf_running, _cf_pid = False, None
+            try:
+                _pr = _sp.run(["pgrep", "-f", "cloudflared.*tunnel"],
+                              capture_output=True, text=True, timeout=3)
+                _cf_pids = [int(p) for p in _pr.stdout.split() if p.strip()]
+                _cf_running = bool(_cf_pids)
+                _cf_pid = _cf_pids[0] if _cf_pids else None
+            except Exception:
+                pass
+
+            _log_lines, _log_mtime = [], None
+            try:
+                _lp = "/tmp/watchdog.log"
+                if os.path.exists(_lp):
+                    _log_mtime = os.path.getmtime(_lp)
+                    with open(_lp) as _f:
+                        _log_lines = [l.rstrip() for l in _f.readlines()[-50:]]
+            except Exception:
+                pass
+
+            self._send_json({
+                "server":   {"healthy": True, "pid": _pid, "uptime_s": _uptime_s},
+                "deals":    _deals,
+                "tunnel":   {"url": _tunnel_url, "cf_running": _cf_running, "cf_pid": _cf_pid},
+                "watchdog": {"last_run_ts": _log_mtime, "log": _log_lines},
+            })
+
         elif path == "/api/events":
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
@@ -1919,6 +1983,9 @@ class Handler(BaseHTTPRequestHandler):
                     self._send_json({"points": [{"price": r[0], "at": r[1]} for r in rows]})
                 except Exception as ex:
                     self._send_json({"error": str(ex)}, 500)
+
+        elif path in ("/monitor", "/monitor.html"):
+            self._serve_file("monitor.html", "text/html; charset=utf-8")
 
         elif path in ("/", "/index.html", "/quebec_ontario_deals.html"):
             self._serve_file("quebec_ontario_deals.html", "text/html; charset=utf-8")
