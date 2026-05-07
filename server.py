@@ -12,6 +12,7 @@ Features:
 """
 
 import json
+import secrets as _secrets_mod
 import urllib.request
 import urllib.parse
 import gzip
@@ -707,9 +708,20 @@ _cache_lock    = threading.Lock()
 _cached_result = None
 _sse_clients   = []
 _sse_lock      = threading.Lock()
-_health_report = {}
-_scout_report  = {}
-_reports_lock  = threading.Lock()
+_health_report   = {}
+_scout_report    = {}
+_pending_command = {"status": "no_command"}
+_reports_lock    = threading.Lock()
+
+# Generate a random password each startup — read with: cat /tmp/monitor_password.txt
+_monitor_password = _secrets_mod.token_urlsafe(12)
+_admin_token      = _secrets_mod.token_hex(32)
+try:
+    with open("/tmp/monitor_password.txt", "w") as _f:
+        _f.write(_monitor_password + "\n")
+    print(f"[MONITOR] Password written to /tmp/monitor_password.txt")
+except Exception:
+    pass
 
 
 def _build_and_cache(shared):
@@ -2116,6 +2128,10 @@ class Handler(BaseHTTPRequestHandler):
             with _reports_lock:
                 self._send_json(_scout_report or {"status": "no_report_yet"})
 
+        elif path == "/api/command":
+            with _reports_lock:
+                self._send_json(_pending_command)
+
         elif path == "/api/events":
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
@@ -2205,6 +2221,53 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split("?")[0]
+
+        if path == "/api/login":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length))
+                if body.get("password") == _monitor_password:
+                    self._send_json({"ok": True, "token": _admin_token})
+                else:
+                    self._send_json({"ok": False, "error": "Wrong password"}, 401)
+            except Exception as ex:
+                self._send_json({"error": str(ex)}, 400)
+            return
+
+        if path == "/api/command":
+            auth = self.headers.get("Authorization", "")
+            if auth != f"Bearer {_admin_token}":
+                self._send_json({"error": "Unauthorized"}, 401)
+                return
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length))
+                with _reports_lock:
+                    _pending_command.clear()
+                    _pending_command.update({
+                        "status": "pending",
+                        "text": body.get("text", ""),
+                        "issued_at": datetime.utcnow().isoformat() + "Z",
+                    })
+                self._send_json({"ok": True})
+            except Exception as ex:
+                self._send_json({"error": str(ex)}, 400)
+            return
+
+        if path == "/api/command/done":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length))
+                with _reports_lock:
+                    _pending_command.update({
+                        "status": "done",
+                        "result": body.get("result", ""),
+                        "done_at": datetime.utcnow().isoformat() + "Z",
+                    })
+                self._send_json({"ok": True})
+            except Exception as ex:
+                self._send_json({"error": str(ex)}, 400)
+            return
 
         if path in ("/api/health-report", "/api/scout-report"):
             try:
