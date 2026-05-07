@@ -119,6 +119,13 @@
 (function(){
 'use strict';
 
+// API base: same origin when on the tunnel/backend; GitHub Pages fallback
+const API_BASE=(()=>{
+  if(window.location.port==='8080'||window.location.hostname.endsWith('trycloudflare.com'))
+    return window.location.origin;
+  return "https://facilitate-flashers-possibly-nails.trycloudflare.com";
+})();
+
 // ── Montreal clock ─────────────────────────────────────────────────────────────
 const CLK_FMT = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',
   weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
@@ -445,7 +452,7 @@ function logCls(l){
 // ── API poll ───────────────────────────────────────────────────────────────────
 async function poll(){
   let d;
-  try{const r=await fetch('/api/watchdog',{cache:'no-store'});if(!r.ok)throw r;d=await r.json();}
+  try{const r=await fetch(API_BASE+'/api/watchdog',{cache:'no-store'});if(!r.ok)throw r;d=await r.json();}
   catch(e){['server','tunnel','deals'].forEach(id=>setCard(id,'err','NO DATA','API unreachable'));return;}
 
   const srv=d.server||{};
@@ -509,8 +516,8 @@ function renderScoutReport(d){
 }
 
 async function pollReports(){
-  try{const r=await fetch('/api/health-report',{cache:'no-store'});if(r.ok)renderHealthReport(await r.json());}catch(e){}
-  try{const r=await fetch('/api/scout-report',{cache:'no-store'});if(r.ok)renderScoutReport(await r.json());}catch(e){}
+  try{const r=await fetch(API_BASE+'/api/health-report',{cache:'no-store'});if(r.ok)renderHealthReport(await r.json());}catch(e){}
+  try{const r=await fetch(API_BASE+'/api/scout-report',{cache:'no-store'});if(r.ok)renderScoutReport(await r.json());}catch(e){}
 }
 pollReports();setInterval(pollReports,30000);
 
