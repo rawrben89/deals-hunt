@@ -816,7 +816,12 @@ async function loadDeals(spinner=true) {
   } catch(e) {
     clearTimeout(_to);
     console.error(e);
-    if (!bg) showError(e.name==='AbortError' ? 'Request timed out — check your connection.' : e.message);
+    if(allDeals.length>0){
+      // Deals already showing — use reconnecting banner, keep page usable
+      showReconnecting();
+    } else if(!bg){
+      showError(e.name==='AbortError' ? 'Request timed out — check your connection.' : e.message);
+    }
   } finally {
     btn.disabled=false; btn.textContent='⟳ Refresh';
   }
@@ -865,12 +870,13 @@ function connectSSE(){
   const es=new EventSource(API_BASE+'/api/events');
   es.onmessage=e=>{
     try{
+      _rcOk();
       const msg=JSON.parse(e.data);
       if(msg.type==='update')
         fetch(API_BASE+'/api/deals').then(r=>r.json()).then(_applyDealsUpdate).catch(()=>{});
     }catch(_){}
   };
-  es.onerror=()=>{es.close();setTimeout(connectSSE,30000)};
+  es.onerror=()=>{es.close();setTimeout(connectSSE,30000);if(allDeals.length>0&&!document.getElementById('rc-banner'))showReconnecting();};
 }
 
 /* ══════════════════════════════════════
@@ -1506,6 +1512,39 @@ function showError(msg){
     <p>${esc(msg||'Check the server is running.')}</p>
     <button class="retry-btn" onclick="loadDeals()">Retry</button>
   </div></div>`;
+}
+
+let _rcTimer=null, _rcCount=0;
+function showReconnecting(){
+  let b=document.getElementById('rc-banner');
+  if(!b){
+    b=document.createElement('div');
+    b.id='rc-banner';
+    b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#fff;text-align:center;padding:9px 16px;font-size:.84rem;font-weight:600;letter-spacing:.2px;';
+    document.body.prepend(b);
+  }
+  _rcCount++;
+  const wait=Math.min(30*_rcCount,120);
+  let rem=wait;
+  const tick=()=>{
+    rem--;
+    if(rem<=0){
+      b.textContent='Reconnecting…';
+      clearTimeout(_rcTimer);
+      loadDeals(allDeals.length>0).then(()=>{
+        if(document.getElementById('rc-banner')?.isConnected) _rcOk();
+      }).catch(()=>{ _rcCount>4?showError('Server unreachable.'):showReconnecting(); });
+    } else {
+      b.textContent=`Tunnel restarting — reconnecting in ${rem}s`;
+      _rcTimer=setTimeout(tick,1000);
+    }
+  };
+  clearTimeout(_rcTimer);
+  _rcTimer=setTimeout(tick,1000);
+}
+function _rcOk(){
+  document.getElementById('rc-banner')?.remove();
+  _rcCount=0;
 }
 
 /* ══════════════════════════════════════
