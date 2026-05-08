@@ -1332,8 +1332,8 @@ function _renderDeals(newTids=[], smooth=false){
       return;
     }
     const hotDeals=filtered.filter(d=>{
-      const p=d.price, op=d.originalPrice;
-      return op && p < op && Math.round((1 - p/op)*100)>=40;
+      const p=parsePrice(d.currentPrice), op=parsePrice(d.originalPrice);
+      return p&&op && p < op && Math.round((1 - p/op)*100)>=40;
     }).slice(0,6);
     const hotStripHtml=hotDeals.length?`<div class="hot-strip">
       <div class="hot-strip-title">🔥 HOT DEALS</div>
@@ -1355,12 +1355,19 @@ function _renderDeals(newTids=[], smooth=false){
   if(smooth){
     const grid=root.querySelector('.deals-grid');
     if(grid){ grid.classList.add('bg-loading'); }
-    requestAnimationFrame(()=>{ _commit(); });
+    requestAnimationFrame(()=>{ try{ _commit(); }catch(e){ console.error('[commit-raf]',e); _commit_fallback(root,lmRow); } });
   } else {
     _commit();
   }
 }
 
+function _commit_fallback(root, lmRow){
+  if(!filtered.length) return;
+  try{
+    root.innerHTML=`<div class="deals-grid">${filtered.slice(0,shown||60).map(d=>cardHtml(d,[])).join('')}</div>`;
+    if(lmRow) lmRow.style.display=shown<filtered.length?'block':'none';
+  }catch(_){}
+}
 function loadMore(){
   const step=pageSize===0?60:pageSize;
   shown=Math.min(shown+step, filtered.length);
@@ -1388,8 +1395,8 @@ function cardHtml(d, newTids=[]){
     ?`<img class="deal-img" src="${esc(d.img)}" alt="" loading="lazy" data-color="${scolor}" data-initials="${initials}" onerror="imgError(this)">`
     :`<div class="deal-img img-ph" style="background:${scolor}18;color:${scolor}">${initials}</div>`;
 
-  const pct = d.originalPrice && d.price < d.originalPrice
-    ? Math.round((1 - d.price / d.originalPrice) * 100) : 0;
+  const _cp=parsePrice(d.currentPrice), _op=parsePrice(d.originalPrice);
+  const pct = _cp&&_op && _cp < _op ? Math.round((1 - _cp/_op)*100) : 0;
   const pctHtml = pct >= 5
     ? `<span class="pct-badge ${pct>=40?'pct-hot':pct>=20?'pct-good':'pct-ok'}">-${pct}%</span>`
     : '';

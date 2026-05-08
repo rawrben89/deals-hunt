@@ -20,7 +20,7 @@ log "=== watchdog start ==="
 start_server() {
     pkill -f "server\.py" 2>/dev/null; sleep 2
     cd "$DEALS_DIR" && git pull origin main >>/tmp/server.log 2>&1 && log "git pull done"
-    cd "$DEALS_DIR" && nohup python3 server.py >>/tmp/server.log 2>&1 &
+    cd "$DEALS_DIR" && nohup python3 server.py 9>&- >>/tmp/server.log 2>&1 &
     log "server.py started (PID $!)"
     sleep 8
 }
@@ -88,7 +88,7 @@ if [[ $NEED_CF_RESTART -eq 1 ]]; then
     log "Restarting cloudflared..."
     pkill -f "cloudflared.*tunnel" 2>/dev/null; sleep 2
     truncate -s0 "$CF_LOG"
-    nohup "$CLOUDFLARED_BIN" tunnel --url http://localhost:8080 --logfile "$CF_LOG" >>/tmp/cf_out.log 2>&1 &
+    nohup "$CLOUDFLARED_BIN" tunnel --url http://localhost:8080 --logfile "$CF_LOG" 9>&- >>/tmp/cf_out.log 2>&1 &
     log "cloudflared restarted — waiting for URL (up to 45s)"
 
     NEW_URL=""
