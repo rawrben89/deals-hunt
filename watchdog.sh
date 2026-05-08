@@ -101,13 +101,14 @@ if [[ $NEED_CF_RESTART -eq 1 ]]; then
     if [[ -n "$NEW_URL" ]]; then
         log "Got URL: $NEW_URL"
         if [[ "$NEW_URL" != "$CURRENT_URL" ]]; then
+            # index.html is now a tiny redirect page — update both redirect URLs
             sed -i "s|https://[a-z0-9-]*\.trycloudflare\.com|$NEW_URL|g" "$INDEX_HTML"
             sed -i "s|https://[a-z0-9-]*\.trycloudflare\.com|$NEW_URL|g" "$DEALS_DIR/monitor.html"
             cd "$DEALS_DIR"
             git add index.html monitor.html
             git commit -m "watchdog: update tunnel URL to $NEW_URL"
             git push "$GIT_REMOTE" main
-            log "index.html + monitor.html updated and pushed (was: $CURRENT_URL)"
+            log "index.html (redirect) + monitor.html updated and pushed (was: $CURRENT_URL)"
         else
             log "URL unchanged: $NEW_URL"
         fi

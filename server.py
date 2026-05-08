@@ -2213,8 +2213,8 @@ class Handler(BaseHTTPRequestHandler):
         elif path in ("/monitor", "/monitor.html"):
             self._serve_file("monitor.html", "text/html; charset=utf-8")
 
-        elif path in ("/", "/index.html", "/quebec_ontario_deals.html"):
-            self._serve_file("quebec_ontario_deals.html", "text/html; charset=utf-8")
+        elif path in ("/", "/index.html", "/app.html", "/quebec_ontario_deals.html"):
+            self._serve_file("app.html", "text/html; charset=utf-8")
 
         elif path == "/manifest.json":
             self._serve_file("manifest.json", "application/manifest+json")
