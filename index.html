@@ -1651,6 +1651,8 @@ document.querySelectorAll('#catNav .cat-nav-item').forEach(item=>{
     activeCat=item.dataset.cat;
     setActiveCatBtn(activeCat);
     if(activeCat==='new'){ newTidSet.clear(); updateNewBtn(); }
+    if(activeCat!=='new') localStorage.setItem('activeCat', activeCat);
+    shown=pageSize===0?Infinity:pageSize;
     applyFilters();
   });
 });
@@ -1734,19 +1736,6 @@ document.addEventListener('click',e=>{
   }
 });
 
-document.getElementById('catFilters').addEventListener('click',e=>{
-  const btn=e.target.closest('.fbtn');
-  if(!btn) return;
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  activeCat=btn.dataset.cat;
-  // Clear new badge when user views new deals
-  if(activeCat==='new'){ newTidSet.clear(); updateNewBtn(); }
-  // Persist cat (but not ephemeral tabs)
-  if(activeCat!=='new') localStorage.setItem('activeCat', activeCat);
-  shown=pageSize===0?Infinity:pageSize;
-  applyFilters();
-});
 
 
 document.querySelectorAll('[data-sort]').forEach(b=>{
