@@ -1252,6 +1252,10 @@ function buildStoreList(counts, inPlace=false){
     item.onclick=e=>{
       e.stopPropagation();
       activeStore=item.dataset.store;
+      // Reset category filter so store clicks always show all deals for that store
+      activeCat='all';
+      setActiveCatBtn('all');
+      localStorage.setItem('activeCat','all');
       list.querySelectorAll('.store-item-all,.store-item').forEach(i=>i.classList.remove('active'));
       item.classList.add('active');
       applyFilters();
