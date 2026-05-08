@@ -996,9 +996,9 @@ const CAT_ORDER = [
 ];
 
 /* ══════════════════════════════════════
-   Flipp → retailer search URL
+   Deal → retailer search URL (Flipp + RFD)
 ══════════════════════════════════════ */
-function flippSearchUrl(store, title){
+function dealSearchUrl(store, title){
   const s=store.trim();
   const q=encodeURIComponent(title);
   const map={
@@ -1123,6 +1123,10 @@ function flippSearchUrl(store, title){
     // Home & kitchen
     'Oxford Mills':                  `https://www.oxfordmills.com/search?q=${q}`,
     'Kitchen Stuff Plus':            `https://www.kitchenstuffplus.com/search?q=${q}`,
+    // Online
+    'Amazon':                        `https://www.amazon.ca/s?k=${q}`,
+    'Amazon.ca':                     `https://www.amazon.ca/s?k=${q}`,
+    'Apple':                         `https://www.apple.com/ca/shop/buy-mac?q=${q}`,
     // Other
     'Showcase':                      `https://www.showcaseonline.ca/search?q=${q}`,
     'Adonis':                        `https://www.adonisepicerie.com/en/search?q=${q}`,
@@ -1131,7 +1135,10 @@ function flippSearchUrl(store, title){
     'Highland Farms':                `https://www.highlandfarms.ca/search?q=${q}`,
     'Bumper to Bumper':              `https://www.bumpertobumper.ca/en/search?q=${q}`,
   };
-  return map[s]||'';
+  // Fallback: Google search scoped to the store's known domain, or generic Google Shopping
+  if(map[s]) return map[s];
+  const domainHint = s ? encodeURIComponent(s+' canada ') : '';
+  return `https://www.google.com/search?q=${domainHint}${q}`;
 }
 
 /* ══════════════════════════════════════
@@ -1442,11 +1449,13 @@ function cardHtml(d, newTids=[]){
   const lowBadge=d.isLowest?`<span class="low-badge">Lowest Price</span>`:'';
 
   let viewBtn='';
-  if(d.source!=='Flipp' && d.link){
-    viewBtn=`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" onclick="fetch(API_BASE+'/api/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tid:'${esc(d.tid)}'})}).catch(()=>{})">View →</a>`;
-  } else if(d.source==='Flipp'){
-    const searchUrl=flippSearchUrl(d.store, d.title);
-    if(searchUrl) viewBtn=`<a class="view-btn search-btn" href="${esc(searchUrl)}" target="_blank" rel="noopener noreferrer" onclick="fetch(API_BASE+'/api/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tid:'${esc(d.tid)}'})}).catch(()=>{})">Search →</a>`;
+  const _clickTrack=`fetch(API_BASE+'/api/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tid:'${esc(d.tid)}'})}).catch(()=>{})`;
+  const _isDirectLink = d.link && !d.link.includes('forums.redflagdeals.com') && !d.link.includes('flipp.com');
+  if(_isDirectLink){
+    viewBtn=`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" onclick="${_clickTrack}">View →</a>`;
+  } else {
+    const _su=dealSearchUrl(d.store, d.title);
+    viewBtn=`<a class="view-btn search-btn" href="${esc(_su)}" target="_blank" rel="noopener noreferrer" onclick="${_clickTrack}">Search →</a>`;
   }
 
   const tid_esc=esc(d.tid);
