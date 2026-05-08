@@ -360,6 +360,14 @@ footer a{color:var(--qc)}
 .expiry-badge{font-size:.6rem;color:#f97316;font-weight:600;margin-top:3px}
 .expiry-urgent{color:#ef4444;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── Province toggle ── */
+.prov-toggle{display:flex;gap:3px;align-items:center;margin-left:8px}
+.provbtn{padding:3px 9px;border:1.5px solid rgba(255,255,255,.45);border-radius:99px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);cursor:pointer;font-size:.72rem;font-weight:700;transition:all .15s;letter-spacing:.3px}
+.provbtn:hover{background:rgba(255,255,255,.25)}
+.provbtn.active{background:#fff;color:var(--qc)}
+.provbtn.active.on{color:var(--on)}
+@media(max-width:768px){.prov-toggle{margin-left:4px}.provbtn{padding:2px 7px;font-size:.66rem}}
 </style>
 </head>
 <body>
@@ -371,6 +379,11 @@ footer a{color:var(--qc)}
   <div class="live-row">
     <span class="live-dot"></span>
     <span id="fetchStatus">Connecting…</span>
+    <div class="prov-toggle">
+      <button class="provbtn" id="provAll" onclick="setProvince('all')">All</button>
+      <button class="provbtn" id="provQC" onclick="setProvince('QC')">QC</button>
+      <button class="provbtn on" id="provON" onclick="setProvince('ON')">ON</button>
+    </div>
     <button class="theme-btn" id="themeBtn" onclick="toggleDark()">🌙</button>
   </div>
 </header>
@@ -490,7 +503,7 @@ const API_BASE=(()=>{
   if(window.location.port==='8080'||window.location.hostname.endsWith('trycloudflare.com'))
     return window.location.origin;
   // Static host fallback — update this URL when the tunnel changes
-  return "https://black-acquire-effective-heat.trycloudflare.com";
+  return "https://offline-announced-conservation-treasury.trycloudflare.com";
 })();
 /* ══════════════════════════════════════
    State
@@ -509,6 +522,7 @@ let storeCategoryMap = {};
 let seenTids   = new Set();   // TIDs seen on first load
 let newTidSet  = new Set();   // TIDs new since last fetch
 let _lastFetched = '';        // fetched timestamp from last /api/status or /api/deals
+let activeProv = localStorage.getItem('activeProv') || 'all'; // 'all' | 'QC' | 'ON'
 
 // Wishlist
 let savedTids  = new Set(JSON.parse(localStorage.getItem('savedTids') || '[]'));
@@ -771,8 +785,11 @@ async function loadDeals(spinner=true) {
   if (spinner) showLoading();
   const btn=document.getElementById('refreshBtn');
   if (!bg) { btn.disabled=true; btn.textContent='⟳ Loading…'; }
+  const _ac = new AbortController();
+  const _to = setTimeout(() => _ac.abort(), 25000);
   try {
-    const res = await fetch(API_BASE+'/api/deals');
+    const res = await fetch(API_BASE+'/api/deals', {signal: _ac.signal});
+    clearTimeout(_to);
     if (res.status === 503) {
       document.getElementById('fetchStatus').textContent = 'Fetching from sources, please wait…';
       setTimeout(() => loadDeals(false), 3000);
@@ -797,8 +814,9 @@ async function loadDeals(spinner=true) {
     buildAutocomplete();
     applyFilters([], bg);
   } catch(e) {
+    clearTimeout(_to);
     console.error(e);
-    if (!bg) showError(e.message);
+    if (!bg) showError(e.name==='AbortError' ? 'Request timed out — check your connection.' : e.message);
   } finally {
     btn.disabled=false; btn.textContent='⟳ Refresh';
   }
@@ -1255,6 +1273,7 @@ function applyFilters(newTids=[], smooth=false){
 function _applyFilters(newTids=[], smooth=false){
   const q=searchQ.toLowerCase();
   filtered=allDeals;
+  if(activeProv!=='all') filtered=filtered.filter(d=>(d.provinces||['QC','ON']).includes(activeProv));
   if(activeStore!=='all') filtered=filtered.filter(d=>d.store.trim()===activeStore);
   if(activeCat==='new')        filtered=filtered.filter(d=>d._isNew);
   else if(activeCat==='saved') filtered=filtered.filter(d=>savedTids.has(d.tid));
@@ -1684,6 +1703,15 @@ function setActiveCatBtn(cat){
   document.querySelectorAll('#catNav .cat-nav-item').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
 }
 
+function setProvince(prov){
+  activeProv=prov;
+  localStorage.setItem('activeProv', prov);
+  document.getElementById('provAll')?.classList.toggle('active', prov==='all');
+  document.getElementById('provQC')?.classList.toggle('active', prov==='QC');
+  document.getElementById('provON')?.classList.toggle('active', prov==='ON');
+  applyFilters();
+}
+
 // Wire up category nav clicks
 document.querySelectorAll('#catNav .cat-nav-item').forEach(item=>{
   item.addEventListener('click',()=>{
@@ -1854,6 +1882,9 @@ document.querySelectorAll('[data-pg]').forEach(b=>{
 
 // Restore persisted category tab
 setActiveCatBtn(activeCat);
+
+// Restore persisted province
+setProvince(activeProv);
 
 // Show initial saved count
 updateSavedCount();
