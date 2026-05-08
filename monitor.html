@@ -50,7 +50,11 @@
     .footer { text-align:center; font-size:6px; color:var(--surf0); padding-top:8px; }
     .footer a { color:var(--overlay); text-decoration:none; }
     .footer a:hover { color:var(--blue); }
-    .agents-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    .two-col > * { min-width:0; }
+    .two-col > .panel { margin-bottom:0; }
+    @media(max-width:600px){ .two-col { grid-template-columns:1fr; } }
+    .agents-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:0; }
     @media(max-width:520px){ .agents-grid{ grid-template-columns:1fr; } }
     .agent-card { border:2px solid var(--surf0); background:var(--base); padding:16px 14px; transition:border-color .3s; box-shadow:4px 4px 0 rgba(96,48,255,.15); }
     .agent-card[data-s="ok"]  { border-color:var(--green); box-shadow:4px 4px 0 rgba(166,227,161,.2); }
@@ -103,63 +107,67 @@
       <div class="card-meta" id="m-deals">—</div>
     </div>
   </div>
-  <div class="panel">
-    <div class="panel-title">WATCHDOG LOG</div>
-    <div id="log"><div class="ll">Loading…</div></div>
-  </div>
-  <!-- CCR Agent cards -->
-  <div class="panel" style="padding:10px 14px 4px;margin-bottom:10px">
-    <div class="panel-hdr" style="margin-bottom:0">
-      <span class="panel-title">CCR AGENTS</span>
-      <span style="font-size:5px;color:var(--overlay)">RUNNING IN ANTHROPIC CLOUD</span>
+  <!-- Row 1: Watchdog Log | CCR Agents -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title" style="margin-bottom:10px">WATCHDOG LOG</div>
+      <div id="log"><div class="ll">Loading…</div></div>
     </div>
-  </div>
-  <div class="agents-grid">
-    <div class="agent-card" id="ac-health" data-s="">
-      <div class="agent-hdr">
-        <span class="agent-title">HEALTH AGENT</span>
-        <span class="agent-sched">HOURLY CCR</span>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="panel" style="padding:10px 14px 4px;margin-bottom:0">
+        <div class="panel-hdr" style="margin-bottom:0">
+          <span class="panel-title">CCR AGENTS</span>
+          <span style="font-size:5px;color:var(--overlay)">ANTHROPIC CLOUD</span>
+        </div>
       </div>
-      <div class="agent-status-row">
-        <div class="led" id="al-health" data-s=""></div>
-        <div class="agent-val" id="av-health">PENDING</div>
+      <div class="agents-grid">
+        <div class="agent-card" id="ac-health" data-s="">
+          <div class="agent-hdr">
+            <span class="agent-title">HEALTH AGENT</span>
+            <span class="agent-sched">HOURLY CCR</span>
+          </div>
+          <div class="agent-status-row">
+            <div class="led" id="al-health" data-s=""></div>
+            <div class="agent-val" id="av-health">PENDING</div>
+          </div>
+          <div class="agent-ts" id="at-health">AWAITING FIRST RUN</div>
+          <div class="agent-body" id="ab-health"><span style="color:var(--overlay)">Awaiting first report…</span></div>
+        </div>
+        <div class="agent-card" id="ac-scout" data-s="">
+          <div class="agent-hdr">
+            <span class="agent-title">SCOUT AGENT</span>
+            <span class="agent-sched">WEEKLY CCR</span>
+          </div>
+          <div class="agent-status-row">
+            <div class="led" id="al-scout" data-s=""></div>
+            <div class="agent-val" id="av-scout">PENDING</div>
+          </div>
+          <div class="agent-ts" id="at-scout">NEXT: MON 10:00 UTC</div>
+          <div class="agent-body" id="ab-scout"><span style="color:var(--overlay)">Awaiting first scout…</span></div>
+        </div>
       </div>
-      <div class="agent-ts" id="at-health">AWAITING FIRST RUN</div>
-      <div class="agent-body" id="ab-health"><span style="color:var(--overlay)">Awaiting first report…</span></div>
-    </div>
-    <div class="agent-card" id="ac-scout" data-s="">
-      <div class="agent-hdr">
-        <span class="agent-title">SCOUT AGENT</span>
-        <span class="agent-sched">WEEKLY CCR</span>
-      </div>
-      <div class="agent-status-row">
-        <div class="led" id="al-scout" data-s=""></div>
-        <div class="agent-val" id="av-scout">PENDING</div>
-      </div>
-      <div class="agent-ts" id="at-scout">NEXT: MON 10:00 UTC</div>
-      <div class="agent-body" id="ab-scout"><span style="color:var(--overlay)">Awaiting first scout…</span></div>
-    </div>
-  </div>
-
-  <!-- Team board -->
-  <div class="panel" style="padding:10px 14px 12px">
-    <div class="panel-hdr" style="margin-bottom:8px">
-      <span class="panel-title">TEAM BOARD</span>
-      <span style="font-size:5px;color:var(--overlay)">AGENT ↔ AGENT MESSAGES</span>
-    </div>
-    <div id="teamBoard" style="font-size:6px;line-height:2.4;min-height:18px">
-      <span style="color:var(--overlay)">No messages yet…</span>
     </div>
   </div>
 
-  <!-- GitHub commits -->
-  <div class="panel" style="padding:10px 14px 12px">
-    <div class="panel-hdr" style="margin-bottom:8px">
-      <span class="panel-title">GITHUB</span>
-      <span id="gh-badge" style="font-size:5px;color:var(--overlay)">rawrben89/deals-hunt</span>
+  <!-- Row 2: Team Board | GitHub -->
+  <div class="two-col">
+    <div class="panel" style="padding:10px 14px 12px">
+      <div class="panel-hdr" style="margin-bottom:8px">
+        <span class="panel-title">TEAM BOARD</span>
+        <span style="font-size:5px;color:var(--overlay)">AGENT ↔ AGENT MESSAGES</span>
+      </div>
+      <div id="teamBoard" style="font-size:6px;line-height:2.4;min-height:18px">
+        <span style="color:var(--overlay)">No messages yet…</span>
+      </div>
     </div>
-    <div id="ghCommits" style="font-size:6px;line-height:2.4;min-height:18px">
-      <span style="color:var(--overlay)">Loading…</span>
+    <div class="panel" style="padding:10px 14px 12px">
+      <div class="panel-hdr" style="margin-bottom:8px">
+        <span class="panel-title">GITHUB</span>
+        <span style="font-size:5px;color:var(--overlay)">rawrben89/deals-hunt</span>
+      </div>
+      <div id="ghCommits" style="font-size:6px;line-height:2.4;min-height:18px">
+        <span style="color:var(--overlay)">Loading…</span>
+      </div>
     </div>
   </div>
 
