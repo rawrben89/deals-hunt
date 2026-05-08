@@ -152,6 +152,17 @@
     </div>
   </div>
 
+  <!-- GitHub commits -->
+  <div class="panel" style="padding:10px 14px 12px">
+    <div class="panel-hdr" style="margin-bottom:8px">
+      <span class="panel-title">GITHUB</span>
+      <span id="gh-badge" style="font-size:5px;color:var(--overlay)">rawrben89/deals-hunt</span>
+    </div>
+    <div id="ghCommits" style="font-size:6px;line-height:2.4;min-height:18px">
+      <span style="color:var(--overlay)">Loading…</span>
+    </div>
+  </div>
+
   <div class="footer">
     CRON: */5 * * * * &nbsp;|&nbsp; /tmp/watchdog.log &nbsp;|&nbsp; <a id="deals-link" href="/deals-hunt/">← DEALS</a>
   </div>
@@ -767,6 +778,42 @@ async function pollBoard(){
 }
 pollBoard();setInterval(pollBoard,30000);
 
+// ── GitHub commits ─────────────────────────────────────────────────────────────
+const GH_API='https://api.github.com/repos/rawrben89/deals-hunt/commits?per_page=8';
+const GH_TYPE_COLOR={'feat':'#a6e3a1','fix':'#f9e2af','watchdog':'#89b4fa','chore':'#585b70','refactor':'#cba6f7','docs':'#6c7086'};
+function ghColor(msg){
+  const m=msg.toLowerCase();
+  for(const [k,c] of Object.entries(GH_TYPE_COLOR)) if(m.startsWith(k)) return c;
+  return '#585b70';
+}
+function ghShort(msg){
+  const first=msg.split('\n')[0];
+  return first.length>60?first.slice(0,58)+'…':first;
+}
+async function pollGithub(){
+  try{
+    const r=await fetch(GH_API,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});
+    if(!r.ok) throw r;
+    const commits=await r.json();
+    const el=document.getElementById('ghCommits');
+    if(!commits.length){el.innerHTML='<span style="color:var(--overlay)">No commits found.</span>';return;}
+    el.innerHTML=commits.map(c=>{
+      const msg=c.commit.message||'';
+      const sha=c.sha.slice(0,7);
+      const ago=relAgo(c.commit.author.date);
+      const col=ghColor(msg);
+      const short=ghShort(msg).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      return `<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:3px;overflow:hidden">
+        <span style="color:var(--surf0);flex-shrink:0">${sha}</span>
+        <span style="color:${col};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${short}</span>
+        <span style="color:var(--overlay);flex-shrink:0;font-size:5px">${ago}</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    document.getElementById('ghCommits').innerHTML='<span style="color:var(--red)">GitHub API unreachable</span>';
+  }
+}
+pollGithub();setInterval(pollGithub,60000);
 
 // Fix DEALS link: tunnel and localhost use /, GitHub Pages uses /deals-hunt/
 const _h=window.location.hostname;
