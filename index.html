@@ -1398,13 +1398,7 @@ function loadMore(){
 ══════════════════════════════════════ */
 function cardHtml(d, newTids=[]){
   const isNew=newTids.includes(d.tid);
-  const srcBadge=d.source==='Walmart'
-    ?'<span class="src-badge wm">Walmart</span>'
-    :d.source==='RedFlagDeals'
-    ?'<span class="src-badge rfd">RFD</span>'
-    :d.source==='Flipp'
-    ?'<span class="src-badge flipp">Flipp</span>'
-    :'';
+  const srcBadge=d.source==='Walmart'?'<span class="src-badge wm">Walmart</span>':'';
 
   const clearanceBadge=d.clearance?'<span class="clearance-tag">Clearance</span>':'';
 
