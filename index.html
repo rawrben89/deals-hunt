@@ -265,11 +265,23 @@ footer a{color:var(--qc)}
 
 /* ── Mobile ── */
 @media(max-width:768px){
-  /* Compact header */
-  header{padding:10px 14px 8px}
-  header h1{font-size:1.25rem;margin-bottom:2px}
+  /* Header: compact horizontal bar on mobile */
+  header{padding:0;text-align:left}
+  header h1{display:none}
   header p{display:none}
-  .live-row{font-size:.65rem;margin-bottom:0}
+  .live-row{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 14px;font-size:.72rem;margin-bottom:0;
+    justify-content:flex-start;
+  }
+  .live-row::before{
+    content:'🍁 QC & ON Deals';
+    font-weight:800;font-size:.85rem;color:#fff;
+    flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .live-dot{flex-shrink:0}
+  #fetchStatus{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+  .theme-btn{margin-left:auto;flex-shrink:0}
 
   /* Sidebar: just category pills, no labels, no stores */
   .page-layout{flex-direction:column}
