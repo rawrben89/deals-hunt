@@ -196,7 +196,10 @@ footer a{color:var(--qc)}
 [data-theme="dark"] .controls{background:#16213e;border-color:var(--border)}
 [data-theme="dark"] .bottom-bar{background:#111827}
 [data-theme="dark"] .cat-header{background:#1a2740;color:var(--muted)}
-[data-theme="dark"] .cat-header:hover,[data-theme="dark"] .store-item:hover,[data-theme="dark"] .store-item-all:hover{background:#1a2f50}
+[data-theme="dark"] .cat-header:hover,[data-theme="dark"] .store-item:hover,[data-theme="dark"] .store-item-all:hover,[data-theme="dark"] .cat-nav-item:hover{background:#1a2f50}
+[data-theme="dark"] .cat-nav-item{color:var(--text)}
+[data-theme="dark"] .cat-nav-item .cnt-badge{background:#1a2f50;color:var(--muted)}
+[data-theme="dark"] .cat-nav-item.active .cnt-badge{background:var(--qc);color:#fff}
 [data-theme="dark"] #searchInput{background:var(--card);color:var(--text);border-color:var(--border)}
 [data-theme="dark"] .fbtn{background:var(--card);border-color:var(--border);color:var(--muted)}
 [data-theme="dark"] .fbtn.active{background:var(--qc);border-color:var(--qc);color:#fff}
@@ -220,6 +223,19 @@ footer a{color:var(--qc)}
 .heart-btn.saved:hover{transform:scale(1.18)}
 .fbtn.saved-btn{border-color:#e91e63;color:#e91e63}
 .fbtn.saved-btn.active{background:#e91e63;border-color:#e91e63;color:#fff}
+
+/* ── Category nav (sidebar) ── */
+.cat-nav-item{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:.84rem;font-weight:500;color:var(--text);transition:background .12s;border-left:3px solid transparent;border-bottom:1px solid var(--border)}
+.cat-nav-item:hover{background:var(--bg)}
+.cat-nav-item.active{background:#e3f2fd;color:var(--qc);font-weight:700;border-left-color:var(--qc)}
+.cat-nav-item .cat-nav-icon{font-size:.9rem;flex-shrink:0;width:18px;text-align:center}
+.cat-nav-item .cnt-badge{margin-left:auto;font-size:.68rem;background:var(--bg);border-radius:99px;padding:1px 6px;color:var(--muted);font-weight:700;flex-shrink:0}
+.cat-nav-item.active .cnt-badge{background:var(--qc);color:#fff}
+.cat-nav-new.active{background:#f3e5f5;color:#6a1b9a;border-left-color:#6a1b9a}
+.cat-nav-new.active .cnt-badge{background:#6a1b9a;color:#fff}
+.cat-nav-saved{color:#e91e63}
+.cat-nav-saved.active{background:#fce4ec;color:#e91e63;border-left-color:#e91e63}
+.cat-nav-saved.active .cnt-badge{background:#e91e63;color:#fff}
 
 /* ── Alert bell ── */
 .alert-btn{background:none;border:none;cursor:pointer;font-size:.82rem;padding:3px 4px;opacity:.3;transition:opacity .15s;line-height:1;flex-shrink:0}
@@ -253,6 +269,13 @@ footer a{color:var(--qc)}
   .sidebar{width:100%!important;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
   .sidebar-hd{position:static;padding:6px 12px 4px}
   .sidebar-resize{display:none}
+  #catNav{display:flex;overflow-x:auto;padding:4px 10px 8px;gap:5px;scrollbar-width:none;align-items:center}
+  #catNav::-webkit-scrollbar{display:none}
+  .cat-nav-item{flex-shrink:0;padding:4px 11px;border:1.5px solid var(--border);border-radius:99px;font-size:.73rem;white-space:nowrap;border-left:1.5px solid var(--border);border-bottom:none;background:#fff}
+  .cat-nav-item.active{background:var(--qc);border-color:var(--qc);color:#fff;border-left-color:var(--qc)}
+  .cat-nav-new.active{background:#6a1b9a;border-color:#6a1b9a}
+  .cat-nav-saved.active{background:#e91e63;border-color:#e91e63}
+  .cat-nav-item .cat-nav-icon,.cat-nav-item .cnt-badge{display:none}
   #storeList{display:flex;overflow-x:auto;padding:4px 10px 8px;gap:5px;scrollbar-width:none;align-items:center}
   #storeList::-webkit-scrollbar{display:none}
   /* flatten accordion on mobile */
@@ -342,6 +365,23 @@ footer a{color:var(--qc)}
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
+    <div class="sidebar-hd">Categories</div>
+    <div id="catNav">
+      <div class="cat-nav-item active" data-cat="all"><span class="cat-nav-icon">🛍</span>All Deals</div>
+      <div class="cat-nav-item cat-nav-new" id="newDealsBtn" data-cat="new" style="display:none"><span class="cat-nav-icon">✨</span>New<span class="cnt-badge" id="newCount">0</span></div>
+      <div class="cat-nav-item cat-nav-saved" id="savedDealsBtn" data-cat="saved"><span class="cat-nav-icon">♥</span>Saved<span class="cnt-badge" id="savedCount"></span></div>
+      <div class="cat-nav-item" data-cat="tech"><span class="cat-nav-icon">💻</span>Electronics</div>
+      <div class="cat-nav-item" data-cat="gaming"><span class="cat-nav-icon">🎮</span>Gaming</div>
+      <div class="cat-nav-item" data-cat="home"><span class="cat-nav-icon">🏠</span>Home &amp; Kitchen</div>
+      <div class="cat-nav-item" data-cat="tools"><span class="cat-nav-icon">🔧</span>Tools &amp; Reno</div>
+      <div class="cat-nav-item" data-cat="fashion"><span class="cat-nav-icon">👗</span>Fashion</div>
+      <div class="cat-nav-item" data-cat="sports"><span class="cat-nav-icon">⚽</span>Sports &amp; Outdoors</div>
+      <div class="cat-nav-item" data-cat="baby"><span class="cat-nav-icon">🍼</span>Baby &amp; Kids</div>
+      <div class="cat-nav-item" data-cat="health"><span class="cat-nav-icon">💊</span>Health &amp; Beauty</div>
+      <div class="cat-nav-item" data-cat="grocery"><span class="cat-nav-icon">🛒</span>Grocery &amp; Drinks</div>
+      <div class="cat-nav-item" data-cat="auto"><span class="cat-nav-icon">🚗</span>Auto</div>
+      <div class="cat-nav-item" data-cat="office"><span class="cat-nav-icon">📎</span>Office</div>
+    </div>
     <div class="sidebar-hd">Stores</div>
     <div id="storeList"></div>
   </aside>
@@ -358,22 +398,6 @@ footer a{color:var(--qc)}
           <div id="searchDropdown" class="search-dropdown"></div>
         </div>
         <button id="refreshBtn" onclick="manualRefresh()">⟳ Refresh</button>
-      </div>
-      <div class="filter-row" id="catFilters">
-        <button class="fbtn active" data-cat="all">All</button>
-        <button class="fbtn new-btn" id="newDealsBtn" data-cat="new" style="display:none">New <span class="new-count" id="newCount">0</span></button>
-        <button class="fbtn saved-btn" data-cat="saved" id="savedDealsBtn">♥ Saved <span id="savedCount"></span></button>
-        <button class="fbtn" data-cat="tech">Electronics</button>
-        <button class="fbtn" data-cat="gaming">Gaming</button>
-        <button class="fbtn" data-cat="home">Home &amp; Kitchen</button>
-        <button class="fbtn" data-cat="tools">Tools &amp; Reno</button>
-        <button class="fbtn" data-cat="fashion">Fashion</button>
-        <button class="fbtn" data-cat="sports">Sports &amp; Outdoors</button>
-        <button class="fbtn" data-cat="baby">Baby &amp; Kids</button>
-        <button class="fbtn" data-cat="health">Health &amp; Beauty</button>
-        <button class="fbtn" data-cat="grocery">Grocery &amp; Drinks</button>
-        <button class="fbtn" data-cat="auto">Auto</button>
-        <button class="fbtn" data-cat="office">Office</button>
       </div>
     </div>
 
@@ -1613,15 +1637,23 @@ function updateNewBtn(){
   const btn=document.getElementById('newDealsBtn');
   const cnt=document.getElementById('newCount');
   const n=newTidSet.size;
-  btn.style.display=n>0?'':'none';
+  btn.style.display=n>0?'flex':'none';
   if(cnt) cnt.textContent=n;
 }
 
 function setActiveCatBtn(cat){
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  const t=document.querySelector(`.fbtn[data-cat="${cat}"]`);
-  if(t) t.classList.add('active');
+  document.querySelectorAll('#catNav .cat-nav-item').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
 }
+
+// Wire up category nav clicks
+document.querySelectorAll('#catNav .cat-nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    activeCat=item.dataset.cat;
+    setActiveCatBtn(activeCat);
+    if(activeCat==='new'){ newTidSet.clear(); updateNewBtn(); }
+    applyFilters();
+  });
+});
 
 /* ══════════════════════════════════════
    Autocomplete
