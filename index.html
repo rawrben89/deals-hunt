@@ -1244,6 +1244,15 @@ function parsePrice(s){
 }
 
 function applyFilters(newTids=[], smooth=false){
+  try { _applyFilters(newTids, smooth); }
+  catch(e){
+    console.error('[applyFilters]', e);
+    filtered=allDeals;
+    shown=Math.min(pageSize||60, filtered.length);
+    try{ _renderDeals([], false); }catch(_){}
+  }
+}
+function _applyFilters(newTids=[], smooth=false){
   const q=searchQ.toLowerCase();
   filtered=allDeals;
   if(activeStore!=='all') filtered=filtered.filter(d=>d.store.trim()===activeStore);
@@ -1299,6 +1308,15 @@ function applyFilters(newTids=[], smooth=false){
 }
 
 function renderDeals(newTids=[], smooth=false){
+  try{ _renderDeals(newTids, smooth); }
+  catch(e){
+    console.error('[renderDeals]', e);
+    const root=document.getElementById('root');
+    if(root && filtered.length)
+      try{ root.innerHTML=`<div class="deals-grid">${filtered.slice(0,60).map(d=>cardHtml(d,[])).join('')}</div>`; }catch(_){}
+  }
+}
+function _renderDeals(newTids=[], smooth=false){
   const stats=document.getElementById('statsBar');
   stats.textContent=`${filtered.length} deal${filtered.length!==1?'s':''} — Quebec & Ontario`;
 
@@ -1844,6 +1862,16 @@ if('serviceWorker' in navigator){
 loadDeals();
 connectSSE();
 setInterval(() => { if(document.visibilityState === 'visible') applyFilters(); }, 60000);
+
+// Recovery watchdog: if deals are loaded but nothing is visible, re-render
+setInterval(()=>{
+  if(!allDeals.length) return;
+  const root=document.getElementById('root');
+  if(root && !root.querySelector('.deal-card,.state-box,.hot-strip')){
+    console.warn('[watchdog] deals loaded but root empty — recovering');
+    try{ applyFilters(); }catch(e){ console.error('[watchdog]',e); }
+  }
+}, 8000);
 </script>
 </body>
 </html>
