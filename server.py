@@ -807,6 +807,7 @@ _QC_ONLY_STORES = {
     "Maxi", "Super C", "Pharmaprix", "Jean Coutu", "SAQ", "Familiprix",
     "Brunet", "Uniprix", "Proxim", "Accès pharma", "Proximed", "Uniprix Sante",
     "Ki Nature & Santé", "Panier Santé La Prairie",
+    "IGA", "Provigo", "Bain Depot",
     "Canac", "BMR", "Patrick Morin", "Club Piscine", "Dormez-Vous",
     "Adonis", "Rachelle Béry", "PA Nature", "Avril Supermarché Santé",
     "Mayrand", "Marché Richelieu", "Les Marchés Tradition", "Bureau en gros",
@@ -823,6 +824,7 @@ _QC_ONLY_STORES = {
 _ON_ONLY_STORES = {
     "Shoppers Drug Mart", "Rexall", "No Frills", "Food Basics", "FreshCo",
     "Loblaws", "Fortinos", "Farm Boy", "Longos", "Foodland",
+    "T&T Supermarket", "Real Canadian Superstore", "Your Independent Grocer",
     "Highland Farms", "LCBO", "The Beer Store", "Guardian",
     "Pharmasave", "I.D.A.", "Chalo FreshCo", "Sobeys",
     "Valu-Mart", "Independent City Market", "Nations Fresh Foods",
