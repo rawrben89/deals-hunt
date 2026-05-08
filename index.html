@@ -470,6 +470,7 @@ let cumulativeStoreCounts = {};
 let storeCategoryMap = {};
 let seenTids   = new Set();   // TIDs seen on first load
 let newTidSet  = new Set();   // TIDs new since last fetch
+let _lastFetched = '';        // fetched timestamp from last /api/status or /api/deals
 
 // Wishlist
 let savedTids  = new Set(JSON.parse(localStorage.getItem('savedTids') || '[]'));
@@ -745,6 +746,7 @@ async function loadDeals(spinner=true) {
 
     allDeals = data.deals.map(d=>({...d, _cat:detectCat(d), _isNew:false}));
     if(seenTids.size===0) data.deals.forEach(d=>seenTids.add(d.tid));
+    _lastFetched = data.fetched || '';
     newTidSet.clear();
     updateNewBtn();
 
@@ -766,8 +768,39 @@ async function loadDeals(spinner=true) {
 
 function manualRefresh(){loadDeals(false)}
 
-/* auto-refresh every 10 min */
-setInterval(()=>loadDeals(false), 600000);
+/* ── Shared update handler (used by both SSE and status poll) ── */
+function _applyDealsUpdate(data){
+  if(!data.deals?.length) return;
+  const brandNew=data.deals.filter(d=>!seenTids.has(d.tid));
+  data.deals.forEach(d=>seenTids.add(d.tid));
+  brandNew.forEach(d=>newTidSet.add(d.tid));
+  allDeals=data.deals.map(d=>({...d,_cat:detectCat(d),_isNew:newTidSet.has(d.tid)}));
+  _lastFetched=data.fetched||'';
+  document.getElementById('fetchStatus').textContent=
+    `${data.count} deals · updated ${fmtTime(data.fetched)}`;
+  document.getElementById('lastUpdated').textContent='';
+  mergeStoreCounts(data.storeCounts, data.deals);
+  buildStoreList(cumulativeStoreCounts, true);
+  buildAutocomplete();
+  updateNewBtn();
+  applyFilters(brandNew.map(d=>d.tid), true);
+  if(brandNew.length)
+    showToast(`${brandNew.length} new deal${brandNew.length>1?'s':''} found!`,
+      'View new', ()=>{ activeCat='new'; setActiveCatBtn('new'); applyFilters(); });
+}
+
+/* ── Status poll: check every 2 min, only reload deals when timestamp changed ── */
+async function checkForUpdates(){
+  try{
+    const r=await fetch(API_BASE+'/api/status',{cache:'no-store'});
+    if(!r.ok) return;
+    const st=await r.json();
+    if(!st.fetched||!_lastFetched||st.fetched===_lastFetched) return;
+    const r2=await fetch(API_BASE+'/api/deals',{cache:'no-store'});
+    if(r2.ok) _applyDealsUpdate(await r2.json());
+  }catch(_){}
+}
+setInterval(checkForUpdates, 120000);
 
 /* ══════════════════════════════════════
    SSE
@@ -777,27 +810,8 @@ function connectSSE(){
   es.onmessage=e=>{
     try{
       const msg=JSON.parse(e.data);
-      if(msg.type==='update'){
-        fetch(API_BASE+'/api/deals').then(r=>r.json()).then(data=>{
-          if(!data.deals?.length) return;
-          // Track which deals are genuinely new since last fetch
-          const brandNew=data.deals.filter(d=>!seenTids.has(d.tid));
-          data.deals.forEach(d=>seenTids.add(d.tid));
-          brandNew.forEach(d=>newTidSet.add(d.tid));
-          allDeals=data.deals.map(d=>({...d,_cat:detectCat(d),_isNew:newTidSet.has(d.tid)}));
-          document.getElementById('fetchStatus').textContent=
-            `${data.count} deals · updated ${fmtTime(data.fetched)}`;
-          document.getElementById('lastUpdated').textContent='';
-          mergeStoreCounts(data.storeCounts, data.deals);
-          buildStoreList(cumulativeStoreCounts, true);
-          buildAutocomplete();
-          updateNewBtn();
-          applyFilters(brandNew.map(d=>d.tid), true);
-          if(brandNew.length)
-            showToast(`${brandNew.length} new deal${brandNew.length>1?'s':''} found!`,
-              'View new', ()=>{ activeCat='new'; setActiveCatBtn('new'); applyFilters(); });
-        }).catch(()=>{});
-      }
+      if(msg.type==='update')
+        fetch(API_BASE+'/api/deals').then(r=>r.json()).then(_applyDealsUpdate).catch(()=>{});
     }catch(_){}
   };
   es.onerror=()=>{es.close();setTimeout(connectSSE,30000)};
