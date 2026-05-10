@@ -498,7 +498,7 @@ footer a{color:var(--qc)}
 </div>
 
 <script>
-const API_BASE='';
+const API_BASE = location.hostname === 'rawrben89.github.io' ? 'https://deals-hunt.onrender.com' : '';
 /* ══════════════════════════════════════
    State
 ══════════════════════════════════════ */
@@ -1533,7 +1533,7 @@ function showReconnecting(){
         if(document.getElementById('rc-banner')?.isConnected) _rcOk();
       }).catch(()=>{ _rcCount>4?showError('Server unreachable.'):showReconnecting(); });
     } else {
-      b.textContent=`Tunnel restarting — reconnecting in ${rem}s`;
+      b.textContent=`Server reconnecting in ${rem}s…`;
       _rcTimer=setTimeout(tick,1000);
     }
   };

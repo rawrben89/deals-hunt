@@ -32,7 +32,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 from datetime import datetime
 
-PORT = 8080
+PORT = int(os.environ.get("PORT", "8080"))
 DB_PATH = os.path.join(os.path.dirname(__file__), "price_history.db")
 _db_lock = threading.Lock()
 
@@ -2214,7 +2214,7 @@ class Handler(BaseHTTPRequestHandler):
             self._serve_file("monitor.html", "text/html; charset=utf-8")
 
         elif path in ("/", "/index.html", "/app.html", "/quebec_ontario_deals.html"):
-            self._serve_file("app.html", "text/html; charset=utf-8")
+            self._serve_file("index.html", "text/html; charset=utf-8")
 
         elif path == "/manifest.json":
             self._serve_file("manifest.json", "application/manifest+json")
