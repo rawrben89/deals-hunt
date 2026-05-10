@@ -217,9 +217,13 @@ footer a{color:var(--qc)}
 .theme-btn:hover{background:rgba(255,255,255,.28)}
 
 /* ── Mobile sidebar ── */
-.hamburger{display:none;background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:4px 8px;line-height:1;margin-right:4px}
+.hamburger{display:none;position:absolute;top:50%;left:14px;transform:translateY(-50%);background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;font-size:1.2rem;cursor:pointer;padding:5px 9px;line-height:1;border-radius:8px;z-index:10}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
 @media(max-width:768px){
+  header{position:relative;padding:14px 16px 12px}
+  header h1{font-size:1.25rem;padding:0 40px}
+  header p{font-size:.75rem;margin-bottom:6px}
+  .live-row{flex-wrap:wrap;row-gap:4px}
   .hamburger{display:block}
   .sidebar{position:fixed;left:0;top:0;height:100%;z-index:200;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 20px rgba(0,0,0,.25)}
   .sidebar.open{transform:translateX(0)}
@@ -385,10 +389,10 @@ footer a{color:var(--qc)}
 
 <!-- HEADER -->
 <header>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="toggleSidebar()">☰</button>
   <h1>🍁 Quebec & Ontario Deals</h1>
   <p>Live price drops &amp; sales from Canadian retailers</p>
   <div class="live-row">
-    <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="toggleSidebar()">☰</button>
     <span class="live-dot"></span>
     <span id="fetchStatus">Connecting…</span>
     <div class="prov-toggle">
@@ -400,7 +404,7 @@ footer a{color:var(--qc)}
   </div>
 </header>
 
-<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
 <div class="page-layout">
 
   <!-- SIDEBAR -->
@@ -1929,10 +1933,18 @@ function observeSparklines(){
   document.querySelectorAll('.sparkline-wrap:not([data-loaded])').forEach(el=>_sparkIO.observe(el));
 }
 
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebarOverlay').classList.toggle('open');
 }
+document.getElementById('sidebar').addEventListener('click', e => {
+  if(window.innerWidth > 768) return;
+  if(e.target.closest('.store-item,.store-item-all,.cat-nav-item')) closeSidebar();
+});
 // Close alert modal on backdrop click
 document.getElementById('alertModal').addEventListener('click',e=>{
   if(e.target===document.getElementById('alertModal')) closeAlertModal();
