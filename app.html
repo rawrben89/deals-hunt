@@ -19,7 +19,7 @@
   --green:#2e7d32; --radius:14px; --sidebar-w:210px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text)}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;max-width:100vw}
 
 /* ── Header ── */
 header{background:linear-gradient(135deg,var(--qc) 0%,#0d47a1 42%,#b71c1c 58%,var(--on) 100%);color:#fff;padding:22px 16px 18px;text-align:center}
@@ -31,7 +31,7 @@ header{background:linear-gradient(135deg,var(--qc) 0%,#0d47a1 42%,#b71c1c 58%,va
 #fetchStatus{opacity:.8}
 
 /* ── Page layout ── */
-.page-layout{display:flex;align-items:flex-start}
+.page-layout{display:flex;align-items:flex-start;width:100%;overflow-x:hidden}
 
 /* ── Sidebar ── */
 .sidebar{width:var(--sidebar-w);flex-shrink:0;background:#fff;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;z-index:90;min-width:140px;max-width:420px}
@@ -301,16 +301,9 @@ footer a{color:var(--qc)}
 
 /* ── Mobile ── */
 @media(max-width:768px){
-  /* Header: single flex row on mobile */
-  header{display:flex;align-items:center;gap:10px;padding:9px 14px;text-align:left}
-  header h1{font-size:.88rem;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.3px}
-  header p{display:none}
-  .live-row{display:flex;align-items:center;gap:6px;font-size:.65rem;margin:0;flex-shrink:0}
-
   /* Full-width column layout */
-  .page-layout{flex-direction:column;align-items:stretch}
-  .main-content{width:100%}
-  .sidebar{width:100%!important;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
+  .page-layout{flex-direction:column;align-items:stretch;width:100%}
+  .main-content{width:100%;min-width:0}
   .sidebar-hd{display:none}
   .sidebar-resize{display:none}
   #storeList{display:none!important}
@@ -1733,24 +1726,32 @@ async function loadSparkline(tid, el){
     const min=Math.min(...prices), max=Math.max(...prices);
     const cur=prices[prices.length-1];
     const first=prices[0];
+    const diff=cur-first;
 
-    // Trend based on first→last price movement
-    const trend = cur < first-0.005 ? 'down' : cur > first+0.005 ? 'up' : 'flat';
-    const lineColor = trend==='down' ? '#2e7d32' : trend==='up' ? '#c62828' : '#1565C0';
+    const trend = diff < -0.005 ? 'down' : diff > 0.005 ? 'up' : 'flat';
+    const lineColor = trend==='down' ? '#2e7d32' : trend==='up' ? '#c62828' : '#546e7a';
     const trendLabel = trend==='down' ? '↓ Dropping' : trend==='up' ? '↑ Rising' : '→ Stable';
+    const diffLabel = trend==='down'
+      ? `Saved $${Math.abs(diff).toFixed(2)}`
+      : trend==='up' ? `+$${diff.toFixed(2)}` : 'No change';
 
-    const W=200, H=44, PAD=4;
-    const xOf=i => PAD + (prices.length===1 ? W/2 : (i/(prices.length-1))*(W-PAD*2));
+    const W=200, H=52, PAD=6;
+    const xOf=i => PAD + (prices.length===1 ? (W-PAD*2)/2 : (i/(prices.length-1))*(W-PAD*2));
+    // High price = high on chart (top), low price = low (bottom)
     const yOf=p => max===min ? H/2 : PAD + ((max-p)/(max-min))*(H-PAD*2);
 
-    const linePoints=prices.map((p,i)=>`${xOf(i).toFixed(1)},${yOf(p).toFixed(1)}`).join(' ');
+    const firstX=xOf(0), firstY=yOf(first);
     const lastX=xOf(prices.length-1), lastY=yOf(cur);
+    const linePoints=prices.map((p,i)=>`${xOf(i).toFixed(1)},${yOf(p).toFixed(1)}`).join(' ');
 
-    // Closed area path for fill
-    const areaD='M '+PAD+','+H+' '+
+    // Fill between the reference line (first price) and the price line
+    // This makes drops show fill BELOW the reference, rises show fill ABOVE
+    const areaD=`M ${firstX.toFixed(1)},${firstY.toFixed(1)} `+
       prices.map((p,i)=>`L ${xOf(i).toFixed(1)},${yOf(p).toFixed(1)}`).join(' ')+
-      ` L ${lastX.toFixed(1)},${H} Z`;
+      ` L ${lastX.toFixed(1)},${firstY.toFixed(1)} Z`;
 
+    // Gradient direction: for drops fill grows downward; for rises upward
+    const gy1=trend==='up'?'1':'0', gy2=trend==='up'?'0':'1';
     const gid='sg'+Math.random().toString(36).slice(2,6);
 
     el.innerHTML=`
@@ -1760,21 +1761,33 @@ async function loadSparkline(tid, el){
       </div>
       <svg viewBox="0 0 ${W} ${H}" class="sparkline-svg" preserveAspectRatio="none">
         <defs>
-          <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.22"/>
+          <linearGradient id="${gid}" x1="0" y1="${gy1}" x2="0" y2="${gy2}">
+            <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.28"/>
             <stop offset="100%" stop-color="${lineColor}" stop-opacity="0.02"/>
           </linearGradient>
         </defs>
+        <!-- Dashed reference line at starting price -->
+        <line x1="${firstX.toFixed(1)}" y1="${firstY.toFixed(1)}"
+              x2="${lastX.toFixed(1)}" y2="${firstY.toFixed(1)}"
+              stroke="#999" stroke-width="1" stroke-dasharray="4,3" opacity="0.55"
+              vector-effect="non-scaling-stroke"/>
+        <!-- Filled area between reference and price line -->
         <path d="${areaD}" fill="url(#${gid})"/>
-        <polyline points="${linePoints}" fill="none" stroke="${lineColor}" stroke-width="1.8"
+        <!-- Price line -->
+        <polyline points="${linePoints}" fill="none" stroke="${lineColor}" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="3.5" fill="${lineColor}"
+        <!-- Open circle at starting price -->
+        <circle cx="${firstX.toFixed(1)}" cy="${firstY.toFixed(1)}" r="3"
+          fill="#fff" stroke="${lineColor}" stroke-width="1.5" opacity="0.8"
           vector-effect="non-scaling-stroke"/>
+        <!-- Solid dot at current price -->
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4"
+          fill="${lineColor}" vector-effect="non-scaling-stroke"/>
       </svg>
       <div class="spark-prices">
-        <span>Low $${min.toFixed(2)}</span>
+        <span>Was $${first.toFixed(2)}</span>
         <span class="spark-cur">Now $${cur.toFixed(2)}</span>
-        <span>High $${max.toFixed(2)}</span>
+        <span style="color:${lineColor};font-weight:700">${diffLabel}</span>
       </div>`;
   }catch(_){}
 }
