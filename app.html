@@ -23,8 +23,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Ro
 
 /* ── Header ── */
 header{background:linear-gradient(135deg,var(--qc) 0%,#0d47a1 42%,#b71c1c 58%,var(--on) 100%);color:#fff;padding:22px 16px 18px;text-align:center}
-header h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
-header p{font-size:.82rem;opacity:.88;margin-bottom:10px}
+.header-h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.header-sub{font-size:.82rem;opacity:.88;margin-bottom:10px}
 .live-row{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.72rem}
 .live-dot{width:7px;height:7px;border-radius:50%;background:#ef5350;animation:livePulse 1.4s ease-in-out infinite;flex-shrink:0}
 @keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
@@ -211,57 +211,31 @@ footer a{color:var(--qc)}
 [data-theme="dark"] #loadMoreBtn{background:var(--card);color:var(--qc)}
 [data-theme="dark"] .store-item-all.active{background:#1a3a6a}
 [data-theme="dark"] .store-item.active{background:#1a3a6a}
-[data-theme="dark"] #catNav .cat-nav-item{background:var(--card)}
-[data-theme="dark"] #catNav .cat-nav-item.active{background:#1a3a6a;color:#90caf9}
 
 /* ── Theme toggle button ── */
 .theme-btn{padding:4px 10px;border:1.5px solid rgba(255,255,255,.5);border-radius:99px;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:background .15s;margin-left:10px}
 .theme-btn:hover{background:rgba(255,255,255,.28)}
 
-/* ── Mobile sidebar ── */
-.hamburger{display:none;position:absolute;top:50%;left:14px;transform:translateY(-50%);background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;font-size:1.2rem;cursor:pointer;padding:5px 9px;line-height:1;border-radius:8px;z-index:10}
+/* ── Mobile top bar ── */
+.header-bar{display:none;align-items:center;gap:10px;padding:10px 12px;background:inherit}
+.header-bar-title{flex:1;font-size:1rem;font-weight:800;letter-spacing:-.3px;color:#fff;text-align:center}
+.hamburger{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;font-size:1.1rem;cursor:pointer;padding:6px 10px;line-height:1;border-radius:8px;flex-shrink:0}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
 @media(max-width:768px){
-  header{position:relative;padding:14px 16px 12px}
-  header h1{font-size:1.25rem;padding:0 46px}
-  header p{font-size:.75rem;margin-bottom:6px}
-  .live-row{flex-wrap:wrap;row-gap:4px;justify-content:center}
-  .hamburger{display:block}
-  /* Theme button: mirror hamburger on the right */
-  .theme-btn{position:absolute;top:50%;right:14px;transform:translateY(-50%);margin-left:0;padding:4px 8px;font-size:.72rem}
-  .sidebar{position:fixed;left:0;top:0;height:100%;z-index:200;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 20px rgba(0,0,0,.25)}
+  /* Swap desktop header for compact top-bar */
+  header{padding:0 0 10px}
+  .header-bar{display:flex}
+  .header-h1{display:none}
+  .header-sub{display:none}
+  .theme-btn-desktop{display:none}
+  .live-row{flex-wrap:wrap;row-gap:4px;justify-content:center;padding:0 8px}
+  /* Sidebar slides in */
+  .sidebar{position:fixed;left:0;top:0;height:100%;z-index:200;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.3)}
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay.open{display:block}
   .sidebar-resize{display:none}
-
-  /* ── Sidebar: 2-column category grid on mobile ── */
-  #catNav{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
-  #catNav .cat-nav-item{
-    background:var(--card);flex-direction:column;align-items:center;
-    justify-content:center;padding:12px 4px 10px;gap:3px;font-size:.72rem;
-    text-align:center;border-left:none;border-bottom:none;min-height:66px
-  }
-  #catNav .cat-nav-item .cat-nav-icon{font-size:1.35rem;width:auto;display:block}
-  #catNav .cat-nav-item .cnt-badge{margin-left:0;margin-top:2px}
-  /* Special items stay full-width rows */
-  #catNav .cat-nav-item[data-cat="all"],
-  #catNav #newDealsBtn,
-  #catNav #savedDealsBtn{
-    grid-column:1/-1;flex-direction:row;justify-content:flex-start;
-    text-align:left;padding:11px 14px;border-left:3px solid transparent;
-    border-bottom:1px solid var(--border);min-height:auto
-  }
-  #catNav .cat-nav-item[data-cat="all"] .cnt-badge,
-  #catNav #newDealsBtn .cnt-badge,
-  #catNav #savedDealsBtn .cnt-badge{margin-left:auto;margin-top:0}
-  /* Active state for grid items */
-  #catNav .cat-nav-item.active{background:#e3f2fd;color:var(--qc)}
-  #catNav .cat-nav-item[data-cat="all"].active,
-  #catNav #savedDealsBtn.active,
-  #catNav #newDealsBtn.active{border-left-color:var(--qc)}
-  #catNav #newDealsBtn.active{border-left-color:#6a1b9a}
-  #catNav #savedDealsBtn.active{border-left-color:#e91e63}
-  /* Bigger store touch targets */
+  /* Slightly taller tap targets inside sidebar */
+  .cat-nav-item{padding:12px 14px;font-size:.88rem}
   .store-item,.store-item-all{padding:12px 14px}
 }
 
@@ -423,9 +397,15 @@ footer a{color:var(--qc)}
 
 <!-- HEADER -->
 <header>
-  <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="toggleSidebar()">☰</button>
-  <h1>🍁 Quebec & Ontario Deals</h1>
-  <p>Live price drops &amp; sales from Canadian retailers</p>
+  <!-- Mobile top bar: hamburger + short title + theme toggle -->
+  <div class="header-bar">
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="toggleSidebar()">☰</button>
+    <span class="header-bar-title">🍁 QC &amp; ON Deals</span>
+    <button class="theme-btn" id="themeBtn" onclick="toggleDark()">🌙</button>
+  </div>
+  <!-- Desktop title + status row -->
+  <h1 class="header-h1">🍁 Quebec & Ontario Deals</h1>
+  <p class="header-sub">Live price drops &amp; sales from Canadian retailers</p>
   <div class="live-row">
     <span class="live-dot"></span>
     <span id="fetchStatus">Connecting…</span>
@@ -434,7 +414,7 @@ footer a{color:var(--qc)}
       <button class="provbtn" id="provQC" onclick="setProvince('QC')">QC</button>
       <button class="provbtn on" id="provON" onclick="setProvince('ON')">ON</button>
     </div>
-    <button class="theme-btn" id="themeBtn" onclick="toggleDark()">🌙</button>
+    <button class="theme-btn theme-btn-desktop" onclick="toggleDark()">🌙</button>
   </div>
 </header>
 
@@ -1694,8 +1674,8 @@ function setViewMode(mode){
 ══════════════════════════════════════ */
 function applyDark(){
   document.documentElement.dataset.theme = darkMode ? 'dark' : '';
-  const btn=document.getElementById('themeBtn');
-  if(btn) btn.textContent = darkMode ? '☀️' : '🌙';
+  const icon = darkMode ? '☀️' : '🌙';
+  document.querySelectorAll('.theme-btn').forEach(b => b.textContent = icon);
 }
 function toggleDark(){
   darkMode=!darkMode;
