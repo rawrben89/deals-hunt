@@ -216,6 +216,17 @@ footer a{color:var(--qc)}
 .theme-btn{padding:4px 10px;border:1.5px solid rgba(255,255,255,.5);border-radius:99px;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:background .15s;margin-left:10px}
 .theme-btn:hover{background:rgba(255,255,255,.28)}
 
+/* ── Mobile sidebar ── */
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:4px 8px;line-height:1;margin-right:4px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
+@media(max-width:768px){
+  .hamburger{display:block}
+  .sidebar{position:fixed;left:0;top:0;height:100%;z-index:200;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 20px rgba(0,0,0,.25)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .sidebar-resize{display:none}
+}
+
 /* ── Wishlist heart ── */
 .heart-btn{background:none;border:none;cursor:pointer;font-size:1rem;padding:3px 4px;opacity:.3;transition:opacity .15s,transform .15s;line-height:1;flex-shrink:0}
 .heart-btn:hover{opacity:.7}
@@ -377,6 +388,7 @@ footer a{color:var(--qc)}
   <h1>🍁 Quebec & Ontario Deals</h1>
   <p>Live price drops &amp; sales from Canadian retailers</p>
   <div class="live-row">
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" onclick="toggleSidebar()">☰</button>
     <span class="live-dot"></span>
     <span id="fetchStatus">Connecting…</span>
     <div class="prov-toggle">
@@ -388,6 +400,7 @@ footer a{color:var(--qc)}
   </div>
 </header>
 
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="page-layout">
 
   <!-- SIDEBAR -->
@@ -526,6 +539,9 @@ let darkMode   = localStorage.getItem('darkMode') === '1';
 
 // Alert modal state
 let _alertTid='', _alertDealData=null;
+
+// Trending click-count cache timestamp
+let _clickCountsTs = 0;
 
 // View mode + price range
 let viewMode = localStorage.getItem('viewMode') || 'grid';
@@ -1321,15 +1337,20 @@ function _applyFilters(newTids=[], smooth=false){
   } else if(sortBy==='pct-desc'){
     filtered=[...filtered].sort((a,b)=>(parseFloat(b.savePct)||0)-(parseFloat(a.savePct)||0));
   } else if(sortBy==='trending'){
-    fetch(API_BASE+'/api/clicks').then(r=>r.json()).then(data=>{
-      clickCounts=data;
+    const _applyTrendingSort = () => {
       filtered=[...filtered].sort((a,b)=>(clickCounts[b.tid]||0)-(clickCounts[a.tid]||0));
       shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
       renderDeals(newTids, smooth);
-    }).catch(()=>{
-      shown = pageSize===0 ? filtered.length : Math.min(pageSize, filtered.length);
-      renderDeals(newTids, smooth);
-    });
+    };
+    if(Date.now() - _clickCountsTs > 60000){
+      fetch(API_BASE+'/api/clicks').then(r=>r.json()).then(data=>{
+        clickCounts=data;
+        _clickCountsTs=Date.now();
+        _applyTrendingSort();
+      }).catch(_applyTrendingSort);
+      return;
+    }
+    _applyTrendingSort();
     return;
   }
 
@@ -1385,9 +1406,10 @@ function _renderDeals(newTids=[], smooth=false){
   if(smooth){
     const grid=root.querySelector('.deals-grid');
     if(grid){ grid.classList.add('bg-loading'); }
-    requestAnimationFrame(()=>{ try{ _commit(); }catch(e){ console.error('[commit-raf]',e); _commit_fallback(root,lmRow); } });
+    requestAnimationFrame(()=>{ try{ _commit(); }catch(e){ console.error('[commit-raf]',e); _commit_fallback(root,lmRow); } requestAnimationFrame(observeSparklines); });
   } else {
     _commit();
+    requestAnimationFrame(observeSparklines);
   }
 }
 
@@ -1894,10 +1916,23 @@ let _priceDebounce;
     _priceDebounce=setTimeout(()=>applyFilters(),350);
   });
 });
-document.getElementById('root').addEventListener('mouseover',e=>{
-  const wrap=e.target.closest('.sparkline-wrap');
-  if(wrap && !wrap.dataset.loaded) loadSparkline(wrap.dataset.tid, wrap);
-});
+const _sparkIO = new IntersectionObserver(entries=>{
+  for(const e of entries){
+    if(e.isIntersecting){
+      const wrap=e.target;
+      if(!wrap.dataset.loaded) loadSparkline(wrap.dataset.tid, wrap);
+      _sparkIO.unobserve(wrap);
+    }
+  }
+},{rootMargin:'120px'});
+function observeSparklines(){
+  document.querySelectorAll('.sparkline-wrap:not([data-loaded])').forEach(el=>_sparkIO.observe(el));
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
 // Close alert modal on backdrop click
 document.getElementById('alertModal').addEventListener('click',e=>{
   if(e.target===document.getElementById('alertModal')) closeAlertModal();
@@ -1939,7 +1974,12 @@ if('serviceWorker' in navigator){
 
 loadDeals();
 connectSSE();
-setInterval(() => { if(document.visibilityState === 'visible') applyFilters(); }, 60000);
+setInterval(() => {
+  if(document.visibilityState !== 'visible' || !allDeals.length) return;
+  fetch(API_BASE+'/api/status').then(r=>r.json()).then(s=>{
+    if(s.fetched && s.fetched !== _lastFetched) loadDeals(true);
+  }).catch(()=>{});
+}, 60000);
 
 // Recovery watchdog: if deals are loaded but nothing is visible, re-render
 setInterval(()=>{

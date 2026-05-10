@@ -375,9 +375,17 @@ def _parse_walmart_page(url):
             if not cur_price:
                 continue
 
-            # For accuracy: require was_price for Walmart flash deals
-            # (rollbacks may not have it — still include but mark clearly)
             save_pct = _save_pct(cur_price, was_price)
+            if not save_pct and savings_str and cur_price:
+                sav_m = re.search(r'\$?\s*(\d[\d,]*\.?\d*)', str(savings_str))
+                if sav_m:
+                    try:
+                        sav = float(sav_m.group(1).replace(',', ''))
+                        cur = float(re.sub(r'[^\d.]', '', str(cur_price)))
+                        if sav > 0 and cur > 0:
+                            save_pct = str(round(sav / (cur + sav) * 100)) + '%'
+                    except Exception:
+                        pass
 
             img_info = item.get("imageInfo", {}) or {}
             img = img_info.get("thumbnailUrl", "")
@@ -746,6 +754,24 @@ def _load_env_password():
 
 _monitor_password = _load_env_password()
 _admin_token      = _secrets_mod.token_hex(32)
+
+# ── Rate limiter ──
+_rl_lock    = threading.Lock()
+_rl_counts  = {}   # ip → [count, window_start]
+_RL_LIMIT   = 12   # requests per window
+_RL_WINDOW  = 60   # seconds
+
+def _rate_ok(ip):
+    now = time.time()
+    with _rl_lock:
+        entry = _rl_counts.get(ip)
+        if entry is None or now - entry[1] > _RL_WINDOW:
+            _rl_counts[ip] = [1, now]
+            return True
+        if entry[0] >= _RL_LIMIT:
+            return False
+        entry[0] += 1
+        return True
 
 
 def _build_and_cache(shared):
@@ -2060,12 +2086,16 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split("?")[0]
 
         if path == "/api/deals":
+            if not _rate_ok(self.client_address[0]):
+                self._send_json({"error": "Too many requests"}, 429)
+                return
             with _cache_lock:
                 result = _cached_result
             if result is None:
                 self._send_json({"error": "Loading…", "deals": []}, 503)
             else:
-                self._send_json(result)
+                public = {k: v for k, v in result.items() if k != "errors"}
+                self._send_json(public)
 
         elif path == "/api/status":
             with _cache_lock:
