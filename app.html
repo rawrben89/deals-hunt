@@ -216,25 +216,28 @@ footer a{color:var(--qc)}
 .theme-btn{padding:4px 10px;border:1.5px solid rgba(255,255,255,.5);border-radius:99px;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:background .15s;margin-left:10px}
 .theme-btn:hover{background:rgba(255,255,255,.28)}
 
-/* ── Mobile top bar ── */
-.header-bar{display:none;align-items:center;gap:10px;padding:10px 12px;background:inherit}
-.header-bar-title{flex:1;font-size:1rem;font-weight:800;letter-spacing:-.3px;color:#fff;text-align:center}
-.hamburger{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;font-size:1.1rem;cursor:pointer;padding:6px 10px;line-height:1;border-radius:8px;flex-shrink:0}
+/* ── Hamburger + mobile top bar ── */
+.hamburger{display:none;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.45);color:#fff;font-size:1.1rem;cursor:pointer;padding:7px 11px;line-height:1;border-radius:8px;flex-shrink:0}
+.header-bar{display:none}
+.header-bar-title{flex:1;font-size:.95rem;font-weight:800;color:#fff;text-align:center;letter-spacing:-.3px}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
+
 @media(max-width:768px){
-  /* Swap desktop header for compact top-bar */
-  header{padding:0 0 10px}
-  .header-bar{display:flex}
+  /* Compact header: strip desktop padding, show mobile bar */
+  header{padding:0}
+  .header-bar{display:flex;align-items:center;gap:8px;padding:10px 14px 8px}
+  .hamburger{display:flex;align-items:center;justify-content:center}
   .header-h1{display:none}
   .header-sub{display:none}
   .theme-btn-desktop{display:none}
-  .live-row{flex-wrap:wrap;row-gap:4px;justify-content:center;padding:0 8px}
-  /* Sidebar slides in */
+  /* Live row: single line, centered */
+  .live-row{padding:2px 14px 12px;justify-content:center;gap:6px;flex-wrap:nowrap}
+  .prov-toggle{margin-left:0}
+  /* Sidebar slides in from left */
   .sidebar{position:fixed;left:0;top:0;height:100%;z-index:200;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.3)}
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay.open{display:block}
   .sidebar-resize{display:none}
-  /* Slightly taller tap targets inside sidebar */
   .cat-nav-item{padding:12px 14px;font-size:.88rem}
   .store-item,.store-item-all{padding:12px 14px}
 }
@@ -400,7 +403,7 @@ footer a{color:var(--qc)}
 .provbtn:hover{background:rgba(255,255,255,.25)}
 .provbtn.active{background:#fff;color:var(--qc)}
 .provbtn.active.on{color:var(--on)}
-@media(max-width:768px){.prov-toggle{margin-left:4px}.provbtn{padding:2px 7px;font-size:.66rem}}
+@media(max-width:768px){.provbtn{padding:2px 7px;font-size:.66rem}}
 </style>
 </head>
 <body>
