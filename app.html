@@ -268,8 +268,18 @@ footer a{color:var(--qc)}
 .card-actions{display:flex;align-items:center;gap:3px}
 
 /* ── Sparkline ── */
-.sparkline-wrap{height:32px;margin-top:8px}
-.sparkline-svg{width:100%;height:100%;overflow:visible}
+.sparkline-wrap{margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
+.sparkline-svg{width:100%;height:44px;display:block;overflow:visible}
+.spark-label{display:flex;justify-content:space-between;align-items:center;font-size:.58rem;color:var(--muted);margin-bottom:3px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.spark-trend{font-size:.62rem;font-weight:700;border-radius:99px;padding:1px 6px}
+.spark-down{background:#e8f5e9;color:#2e7d32}
+.spark-up{background:#ffebee;color:#c62828}
+.spark-flat{background:#f1f5f9;color:var(--muted)}
+.spark-prices{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);margin-top:4px}
+.spark-cur{font-weight:800;color:var(--text)}
+[data-theme="dark"] .spark-down{background:#1b3a2a;color:#66bb6a}
+[data-theme="dark"] .spark-up{background:#3a1b1b;color:#ef9a9a}
+[data-theme="dark"] .spark-flat{background:#1e2a40;color:var(--muted)}
 
 /* ── Price alert modal ── */
 #alertModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center}
@@ -1715,19 +1725,54 @@ async function loadSparkline(tid, el){
     const data=await r.json();
     const pts=(data.points||[]);
     if(pts.length<2) return;
+
     const prices=pts.map(p=>p.price);
     const min=Math.min(...prices), max=Math.max(...prices);
-    const W=100, H=28;
-    const coords=prices.map((p,i)=>{
-      const x=(i/(prices.length-1))*W;
-      const y=max===min ? H/2 : H-((p-min)/(max-min))*(H-4)-2;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-    el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" class="sparkline-svg" preserveAspectRatio="none">
-      <polyline points="${coords}" fill="none" stroke="var(--qc)" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-    </svg><div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);margin-top:1px">
-      <span>$${min.toFixed(2)}</span><span>$${max.toFixed(2)}</span></div>`;
+    const cur=prices[prices.length-1];
+    const first=prices[0];
+
+    // Trend based on first→last price movement
+    const trend = cur < first-0.005 ? 'down' : cur > first+0.005 ? 'up' : 'flat';
+    const lineColor = trend==='down' ? '#2e7d32' : trend==='up' ? '#c62828' : '#1565C0';
+    const trendLabel = trend==='down' ? '↓ Dropping' : trend==='up' ? '↑ Rising' : '→ Stable';
+
+    const W=200, H=44, PAD=4;
+    const xOf=i => PAD + (prices.length===1 ? W/2 : (i/(prices.length-1))*(W-PAD*2));
+    const yOf=p => max===min ? H/2 : PAD + ((max-p)/(max-min))*(H-PAD*2);
+
+    const linePoints=prices.map((p,i)=>`${xOf(i).toFixed(1)},${yOf(p).toFixed(1)}`).join(' ');
+    const lastX=xOf(prices.length-1), lastY=yOf(cur);
+
+    // Closed area path for fill
+    const areaD='M '+PAD+','+H+' '+
+      prices.map((p,i)=>`L ${xOf(i).toFixed(1)},${yOf(p).toFixed(1)}`).join(' ')+
+      ` L ${lastX.toFixed(1)},${H} Z`;
+
+    const gid='sg'+Math.random().toString(36).slice(2,6);
+
+    el.innerHTML=`
+      <div class="spark-label">
+        <span>Price History</span>
+        <span class="spark-trend spark-${trend}">${trendLabel}</span>
+      </div>
+      <svg viewBox="0 0 ${W} ${H}" class="sparkline-svg" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="${lineColor}" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <path d="${areaD}" fill="url(#${gid})"/>
+        <polyline points="${linePoints}" fill="none" stroke="${lineColor}" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="3.5" fill="${lineColor}"
+          vector-effect="non-scaling-stroke"/>
+      </svg>
+      <div class="spark-prices">
+        <span>Low $${min.toFixed(2)}</span>
+        <span class="spark-cur">Now $${cur.toFixed(2)}</span>
+        <span>High $${max.toFixed(2)}</span>
+      </div>`;
   }catch(_){}
 }
 
