@@ -46,6 +46,7 @@ SMTP_PASS = os.environ.get("SMTP_PASS", "")
 # ─────────────────────────────────────────────────────────
 def _init_db():
     with sqlite3.connect(DB_PATH, timeout=10) as conn:
+        conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("""CREATE TABLE IF NOT EXISTS price_min (
             tid       TEXT PRIMARY KEY,
             store     TEXT,
@@ -263,25 +264,41 @@ def _get(url, extra=None):
     if extra:
         h.update(extra)
     req = urllib.request.Request(url, headers=h)
-    with urllib.request.urlopen(req, timeout=10) as r:
-        raw = r.read()
-    try:
-        return gzip.decompress(raw).decode("utf-8", errors="replace")
-    except Exception:
-        return raw.decode("utf-8", errors="replace")
+    last_exc = None
+    for attempt in range(2):
+        try:
+            with urllib.request.urlopen(req, timeout=10) as r:
+                raw = r.read()
+            try:
+                return gzip.decompress(raw).decode("utf-8", errors="replace")
+            except Exception:
+                return raw.decode("utf-8", errors="replace")
+        except Exception as e:
+            last_exc = e
+            if attempt == 0:
+                time.sleep(2)
+    raise last_exc
 
 
 def _get_json(url, referer="https://stocktrack.ca/"):
     h = dict(_JSON_H)
     h["Referer"] = referer
     req = urllib.request.Request(url, headers=h)
-    with urllib.request.urlopen(req, timeout=10) as r:
-        raw = r.read()
-    try:
-        raw = gzip.decompress(raw)
-    except Exception:
-        pass
-    return json.loads(raw.decode("utf-8", errors="replace"))
+    last_exc = None
+    for attempt in range(2):
+        try:
+            with urllib.request.urlopen(req, timeout=10) as r:
+                raw = r.read()
+            try:
+                raw = gzip.decompress(raw)
+            except Exception:
+                pass
+            return json.loads(raw.decode("utf-8", errors="replace"))
+        except Exception as e:
+            last_exc = e
+            if attempt == 0:
+                time.sleep(2)
+    raise last_exc
 
 
 def _clean(s):
