@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-05-16T17:16:34.950970+00:00",
+  "checked_at": "2026-05-17T21:12:04.763269+00:00",
   "tunnel_url": "https://school-console-affairs-forever.trycloudflare.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,8 +10,8 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "Network policy in Claude Code remote sandbox blocks DNS resolution for *.trycloudflare.com. Could not reach tunnel to check board, commands, status, or post report.",
-    "Static analysis of server.py: syntax OK, all 10 scrapers present (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb), no broken URLs detected."
+    "Network policy in Claude Code remote sandbox blocks DNS resolution for *.trycloudflare.com. Could not reach tunnel to check board, commands, status, or post report. Same issue as 2026-05-16 run.",
+    "Static analysis of server.py: syntax OK. Scrapers present: walmart, stocktrack, redflagdeals, flipp, shopify (17 stores), homedepot, rona, lcbo, saq, bcldb. No broken URLs detected."
   ],
   "overall": "unknown \u2014 tunnel unreachable from remote execution environment",
   "static_analysis": {
@@ -28,8 +28,22 @@
       "saq",
       "bcldb"
     ],
-    "total_lines": 2433,
+    "shopify_stores": [
+      "Reitmans",
+      "Penningtons",
+      "Laura",
+      "Melanie Lyne",
+      "Thyme Maternity",
+      "Ardene",
+      "Frank and Oak",
+      "Addition Elle",
+      "Bootlegger",
+      "Cleo",
+      "Altitude Sports",
+      "MEC"
+    ],
+    "total_lines": 2432,
     "code_issues": "none"
   },
-  "env_note": "Health agent running in Claude Code on the web (cloud sandbox). Anthropic sandbox network policy blocks *.trycloudflare.com DNS and routing. Health checks require an execution environment on the same network as the tunnel (e.g. local Claude Code CLI on the user's machine, or a server on the same LAN). Recommend running the health agent via local Claude Code CLI instead."
+  "env_note": "Health agent running in Claude Code on the web (cloud sandbox). Network policy blocks *.trycloudflare.com. To enable live health checks, run the agent via local Claude Code CLI on the same network as the tunnel, or configure a network policy that allows trycloudflare.com."
 }
