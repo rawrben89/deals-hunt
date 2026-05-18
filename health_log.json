@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-05-17T21:12:04.763269+00:00",
-  "tunnel_url": "https://school-console-affairs-forever.trycloudflare.com",
-  "server_up": null,
+  "checked_at": "2026-05-18T19:12:05.304376+00:00",
+  "tunnel_url": "https://gzip-fcc-environment-sheet.trycloudflare.com",
+  "server_up": false,
   "deals_fresh": null,
   "staleness_minutes": null,
   "dead_scrapers": [],
@@ -10,12 +10,15 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "Network policy in Claude Code remote sandbox blocks DNS resolution for *.trycloudflare.com. Could not reach tunnel to check board, commands, status, or post report. Same issue as 2026-05-16 run.",
-    "Static analysis of server.py: syntax OK. Scrapers present: walmart, stocktrack, redflagdeals, flipp, shopify (17 stores), homedepot, rona, lcbo, saq, bcldb. No broken URLs detected."
+    "Tunnel URL https://gzip-fcc-environment-sheet.trycloudflare.com returns HTTP 403 'Host not in allowlist' \u2014 cloudflared has disconnected from Cloudflare's network. Watchdog should restart it.",
+    "DNS resolution now works (improvement over 2026-05-17 run which had full DNS block). Tunnel itself is down.",
+    "Cannot reach /api/board, /api/command, /api/status, or /api/health-report. Falling back to GitHub health_log.json.",
+    "No previous dead scrapers to escalate (last run also couldn't reach server)."
   ],
-  "overall": "unknown \u2014 tunnel unreachable from remote execution environment",
+  "overall": "down",
   "static_analysis": {
     "syntax_ok": true,
+    "total_lines": 2534,
     "scrapers_present": [
       "walmart",
       "stocktrack",
@@ -26,7 +29,8 @@
       "rona",
       "lcbo",
       "saq",
-      "bcldb"
+      "bcldb",
+      "camel"
     ],
     "shopify_stores": [
       "Reitmans",
@@ -36,14 +40,12 @@
       "Thyme Maternity",
       "Ardene",
       "Frank and Oak",
-      "Addition Elle",
-      "Bootlegger",
-      "Cleo",
-      "Altitude Sports",
-      "MEC"
+      "Addition Elle"
     ],
-    "total_lines": 2432,
-    "code_issues": "none"
-  },
-  "env_note": "Health agent running in Claude Code on the web (cloud sandbox). Network policy blocks *.trycloudflare.com. To enable live health checks, run the agent via local Claude Code CLI on the same network as the tunnel, or configure a network policy that allows trycloudflare.com."
+    "lcbo_implementation": "Coveo REST API (org: lcboproductionx2kwygnc) \u2014 correct, matches recent fix",
+    "code_issues": "none detected",
+    "tunnel_status": "DOWN \u2014 cloudflared disconnected, watchdog should restart",
+    "api_url_json_last_updated": "2026-05-18T14:06:02Z",
+    "note": "Tunnel went down after api-url.json was last updated. Watchdog cron should detect and restart within 5 minutes if host is reachable."
+  }
 }
