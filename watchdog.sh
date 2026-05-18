@@ -62,16 +62,10 @@ if [[ "$STALENESS" -gt 900 ]]; then
 fi
 
 # ── 3. Keep cloudflared tunnel alive ─────────────────────────────────────────
-start_tunnel() {
-    pkill -f "cloudflared" 2>/dev/null; sleep 2
-    nohup "$CLOUDFLARED" tunnel --url http://localhost:8080 --no-autoupdate \
-        >> "$CF_LOG" 2>&1 &
-    log "cloudflared started (PID $!)"
-    sleep 8
-    # Extract new URL and update index.html
-    NEW_URL=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' "$CF_LOG" | tail -1)
-    if [[ -n "$NEW_URL" ]]; then
-        cat > "$DEALS_DIR/index.html" <<EOF
+update_tunnel_url() {
+    local NEW_URL="$1"
+    # Update index.html (local tunnel redirect)
+    cat > "$DEALS_DIR/index.html" <<EOF
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,6 +78,27 @@ start_tunnel() {
 </body>
 </html>
 EOF
+    # Update api-url.json (used by GitHub Pages frontend)
+    echo "{\"url\": \"${NEW_URL}\"}" > "$DEALS_DIR/api-url.json"
+    # Commit and push so GitHub Pages picks it up
+    cd "$DEALS_DIR"
+    git add index.html api-url.json
+    if ! git diff --cached --quiet; then
+        git commit -m "chore: update tunnel URL to $NEW_URL [skip ci]"
+        git push origin main >> /tmp/watchdog_git.log 2>&1 && log "Pushed new tunnel URL to GitHub" \
+            || log "WARNING: git push failed"
+    fi
+}
+
+start_tunnel() {
+    pkill -f "cloudflared" 2>/dev/null; sleep 2
+    nohup "$CLOUDFLARED" tunnel --url http://localhost:8080 --no-autoupdate \
+        >> "$CF_LOG" 2>&1 &
+    log "cloudflared started (PID $!)"
+    sleep 8
+    NEW_URL=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' "$CF_LOG" | tail -1)
+    if [[ -n "$NEW_URL" ]]; then
+        update_tunnel_url "$NEW_URL"
         log "Tunnel URL updated to $NEW_URL"
     else
         log "WARNING: could not extract tunnel URL from log"

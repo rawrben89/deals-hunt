@@ -529,7 +529,7 @@ footer a{color:var(--qc)}
 </div>
 
 <script>
-const API_BASE = location.hostname === 'rawrben89.github.io' ? 'https://deals-hunt.onrender.com' : '';
+let API_BASE = '';
 /* ══════════════════════════════════════
    State
 ══════════════════════════════════════ */
@@ -2053,14 +2053,22 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
 }
 
-loadDeals();
-connectSSE();
-setInterval(() => {
-  if(document.visibilityState !== 'visible' || !allDeals.length) return;
-  fetch(API_BASE+'/api/status').then(r=>r.json()).then(s=>{
-    if(s.fetched && s.fetched !== _lastFetched) loadDeals(true);
-  }).catch(()=>{});
-}, 60000);
+(async () => {
+  if (location.hostname === 'rawrben89.github.io') {
+    try {
+      const _cfg = await fetch('/deals-hunt/api-url.json', {cache: 'no-store'}).then(r => r.json());
+      API_BASE = (_cfg.url || '').replace(/\/$/, '');
+    } catch (_) {}
+  }
+  loadDeals();
+  connectSSE();
+  setInterval(() => {
+    if(document.visibilityState !== 'visible' || !allDeals.length) return;
+    fetch(API_BASE+'/api/status').then(r=>r.json()).then(s=>{
+      if(s.fetched && s.fetched !== _lastFetched) loadDeals(true);
+    }).catch(()=>{});
+  }, 60000);
+})();
 
 // Recovery watchdog: if deals are loaded but nothing is visible, re-render
 setInterval(()=>{
