@@ -636,11 +636,6 @@ _SHOPIFY_STORES = [
     ("Ardene",          "www.ardene.com",           "Clothing"),
     ("Frank and Oak",   "www.frankandoak.com",      "Clothing"),
     ("Addition Elle",   "www.additionelle.com",     "Clothing"),
-    ("Bootlegger",      "www.bootlegger.com",       "Clothing"),
-    ("Cleo",            "www.cleo.ca",              "Clothing"),
-    # Sporting & Outdoor
-    ("Altitude Sports", "www.altitude-sports.com",  "Sporting & Outdoor"),
-    ("MEC",             "www.mec.ca",               "Sporting & Outdoor"),
 ]
 
 # Try these collection slugs in order until one returns products
@@ -892,6 +887,7 @@ def _deal_provinces(store):
 
 _STORE_CATEGORY = {
     # General
+    "Amazon": "General",
     "Walmart": "General", "Costco": "General", "Giant Tiger": "General",
     "Rossy": "General", "Hart Stores": "General", "Dollarama": "General",
     # Grocery
@@ -959,9 +955,7 @@ _STORE_CATEGORY = {
     "Reitmans": "Clothing", "Penningtons": "Clothing", "Laura": "Clothing",
     "Melanie Lyne": "Clothing", "Thyme Maternity": "Clothing",
     "Ardene": "Clothing", "Frank and Oak": "Clothing",
-    "Addition Elle": "Clothing", "Bootlegger": "Clothing", "Cleo": "Clothing",
-    # Sporting & Outdoor (new)
-    "Altitude Sports": "Sporting & Outdoor", "MEC": "Sporting & Outdoor",
+    "Addition Elle": "Clothing",
     # Pets
     "PetSmart": "Pets", "Mondou": "Pets", "Pet Valu": "Pets",
     "Ren's Pets": "Pets", "Animo Etc.": "Pets", "Chico": "Pets",
@@ -1031,9 +1025,6 @@ _FLIPP_TARGET_MERCHANTS = {
     # Clothing & Beauty
     "Old Navy", "H&M", "Chatters Salon", "Len's Mill Store", "Sephora",
     "Holt Renfrew", "Ardene", "Frank and Oak", "Addition Elle",
-    "Bootlegger", "Cleo",
-    # Sporting & Outdoor (new)
-    "Altitude Sports", "MEC",
     # Specialty
     "SAQ", "LCBO", "The Beer Store",
 }
@@ -1494,150 +1485,117 @@ def get_rona_deals():
 
 
 # ─────────────────────────────────────────────────────────
-# SOURCE 8: LCBO (Ontario liquor board — sale items)
+# SOURCE 8: LCBO (Ontario liquor board — sale items via Coveo search API)
 # ─────────────────────────────────────────────────────────
+_LCBO_COVEO_ORG   = "lcboproductionx2kwygnc"
+_LCBO_COVEO_TOKEN = "xx883b5583-07fb-416b-874b-77cce565d927"
+
+
+def _lcbo_get_token():
+    """Extract fresh Coveo token from LCBO page if needed."""
+    try:
+        text = _get("https://www.lcbo.com/en/on-sale")
+        m = re.search(r'configureCloudV2Endpoint\s*\(\s*["\']([^"\']+)["\'],\s*["\']([^"\']+)["\']', text)
+        if m:
+            return m.group(1), m.group(2)
+    except Exception:
+        pass
+    return _LCBO_COVEO_ORG, _LCBO_COVEO_TOKEN
+
+
 def get_lcbo_deals():
     deals, errors = [], []
     seen = set()
+    org, token = _LCBO_COVEO_ORG, _LCBO_COVEO_TOKEN
 
-    feeds = [
-        ("Sale",      "https://www.lcbo.com/en/sale?sz=120&start=0"),
-        ("Sale p2",   "https://www.lcbo.com/en/sale?sz=120&start=120"),
-        ("Sale p3",   "https://www.lcbo.com/en/sale?sz=120&start=240"),
-    ]
-
-    def _extract(item, label):
-        title = _clean(
-            item.get("name") or item.get("title") or item.get("productName") or ""
+    for first_result in range(0, 300, 100):
+        body = json.dumps({
+            "q": "",
+            "numberOfResults": 100,
+            "firstResult": first_result,
+            "aq": "@ec_promo_price>0",
+            "fieldsToInclude": [
+                "ec_name", "ec_brand", "ec_price", "ec_promo_price",
+                "ec_thumbnails", "ec_category", "permanentid",
+            ],
+        }).encode()
+        req = urllib.request.Request(
+            f"https://{org}.org.coveo.com/rest/search/v2",
+            data=body,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Origin": "https://www.lcbo.com",
+                "Referer": "https://www.lcbo.com/",
+            },
+            method="POST",
         )
-        if not title:
-            return
-
-        # LCBO uses nested price object: {"sales":{"value":X},"list":{"value":Y}}
-        price_obj = item.get("price") or item.get("pricing") or {}
-        if isinstance(price_obj, dict):
-            sales = price_obj.get("sales") or price_obj.get("sale") or {}
-            lst   = price_obj.get("list")  or price_obj.get("regular") or {}
-            cur_val = (sales.get("value") if isinstance(sales, dict) else sales) or \
-                      price_obj.get("salePrice") or price_obj.get("currentPrice") or 0
-            old_val = (lst.get("value") if isinstance(lst, dict) else lst) or \
-                      price_obj.get("listPrice") or price_obj.get("regularPrice") or 0
-        else:
-            cur_val = item.get("salePrice") or item.get("price") or 0
-            old_val = item.get("listPrice") or item.get("regularPrice") or 0
-
         try:
-            cur = float(cur_val)
-            old = float(old_val)
-        except (TypeError, ValueError):
-            cur, old = 0.0, 0.0
-        if cur <= 0:
-            return
-
-        prod_id = str(item.get("id") or item.get("productId") or
-                      item.get("sku") or item.get("code") or "")
-        if not prod_id:
-            prod_id = hashlib.md5(title.encode()).hexdigest()[:10]
-        tid = f"lcbo-{prod_id}"
-        if tid in seen:
-            return
-        seen.add(tid)
-
-        url_path = item.get("url") or item.get("link") or item.get("canonicalUrl") or ""
-        if url_path and not url_path.startswith("http"):
-            link = "https://www.lcbo.com" + url_path
-        else:
-            link = url_path
-
-        img = ""
-        imgs = item.get("images") or []
-        if isinstance(imgs, dict):
-            imgs = list(imgs.values())
-        if isinstance(imgs, list) and imgs:
-            first = imgs[0] if isinstance(imgs[0], dict) else {}
-            img = (first.get("href") or first.get("url") or first.get("src") or
-                   first.get("link") or "")
-        if not img:
-            for k in ("image", "thumbnail", "imageUrl", "primaryImage"):
-                v = item.get(k)
-                if isinstance(v, str) and v:
-                    img = v
-                    break
-                elif isinstance(v, dict):
-                    img = v.get("href") or v.get("url") or v.get("src") or ""
-                    if img:
-                        break
-
-        save_pct = ""
-        if old > cur > 0:
-            save_pct = str(round((old - cur) / old * 100)) + "%"
-
-        deals.append({
-            "source":        "LCBO",
-            "tid":           tid,
-            "title":         title,
-            "brand":         _clean(item.get("brand") or item.get("brandName") or ""),
-            "store":         "LCBO",
-            "link":          link,
-            "currentPrice":  f"${cur:.2f}",
-            "originalPrice": f"${old:.2f}" if old > cur else "",
-            "savings":       f"Save ${old - cur:.2f}" if old > cur else "",
-            "savePct":       save_pct,
-            "pubDate":       "",
-            "relTime":       "Sale",
-            "votes":         0,
-            "img":           img,
-            "category":      "",
-            "clearance":     False,
-            "dropDate":      "",
-            "validUntil":    "",
-            "provinces":     ["ON"],
-        })
-
-    def _walk(obj, label, depth=0):
-        if depth > 5 or len(deals) >= 400:
-            return
-        if isinstance(obj, list):
-            if obj and isinstance(obj[0], dict) and any(
-                k in obj[0] for k in ("name", "title", "id", "productId", "sku")
-            ):
-                for item in obj:
-                    if isinstance(item, dict):
-                        _extract(item, label)
-            else:
-                for v in obj[:5]:
-                    _walk(v, label, depth + 1)
-        elif isinstance(obj, dict):
-            for k in ("hits", "products", "items", "results", "productList"):
-                v = obj.get(k)
-                if isinstance(v, list) and v:
-                    before = len(deals)
-                    for item in v:
-                        if isinstance(item, dict):
-                            _extract(item, label)
-                    if len(deals) > before:
-                        return
-            for k, v in obj.items():
-                if isinstance(v, (dict, list)):
-                    _walk(v, label, depth + 1)
-
-    for label, url in feeds:
-        try:
-            text = _get(url)
-            nd = re.search(r'id=["\']__NEXT_DATA__["\'][^>]*>(.*?)</script>', text, re.S)
-            if nd:
-                data = json.loads(nd.group(1))
-                before = len(deals)
-                _walk(data.get("props", {}).get("pageProps", data), label)
-                if len(deals) == before:
-                    errors.append(f"LCBO {label}: 0 products extracted")
-                    break
-            else:
-                errors.append(f"LCBO {label}: no __NEXT_DATA__")
-                break
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read())
         except Exception as e:
-            errors.append(f"LCBO {label}: {e}")
+            if "401" in str(e) and first_result == 0:
+                # Token expired — re-fetch from page and retry once
+                org, token = _lcbo_get_token()
+                body = body  # rebuilt below on next iteration
+                errors.append(f"LCBO: token refreshed")
+                continue
+            errors.append(f"LCBO p{first_result}: {e}")
             break
+
+        results = data.get("results", [])
+        if not results:
+            break
+
+        for item in results:
+            raw = item.get("raw", {})
+            title = _clean(raw.get("ec_name") or "")
+            if not title:
+                continue
+            try:
+                cur = float(raw.get("ec_promo_price") or 0)
+                old = float(raw.get("ec_price") or 0)
+            except (TypeError, ValueError):
+                continue
+            if cur <= 0:
+                continue
+
+            prod_id = str(raw.get("permanentid") or hashlib.md5(title.encode()).hexdigest()[:10])
+            tid = f"lcbo-{prod_id}"
+            if tid in seen:
+                continue
+            seen.add(tid)
+
+            link = item.get("clickUri") or f"https://www.lcbo.com/en/search#{prod_id}"
+            img = raw.get("ec_thumbnails") or ""
+            if isinstance(img, list):
+                img = img[0] if img else ""
+
+            save_pct = ""
+            if old > cur > 0:
+                save_pct = str(round((old - cur) / old * 100)) + "%"
+
+            deals.append({
+                "source":        "LCBO",
+                "tid":           tid,
+                "title":         title,
+                "brand":         _clean(str(raw.get("ec_brand") or "")),
+                "store":         "LCBO",
+                "link":          link,
+                "currentPrice":  f"${cur:.2f}",
+                "originalPrice": f"${old:.2f}" if old > cur else "",
+                "savings":       f"Save ${old - cur:.2f}" if old > cur else "",
+                "savePct":       save_pct,
+                "pubDate":       "",
+                "relTime":       "Sale",
+                "votes":         0,
+                "img":           img,
+                "category":      "",
+                "clearance":     False,
+                "dropDate":      "",
+                "validUntil":    "",
+                "provinces":     ["ON"],
+            })
 
     return deals, errors
 
@@ -1974,6 +1932,146 @@ def get_bcldb_deals():
     return deals, errors
 
 
+# ─────────────────────────────────────────────────────────
+# SOURCE 11: CamelCamelCamel RSS (Amazon Canada price drops)
+# ─────────────────────────────────────────────────────────
+_CAMEL_FEEDS = [
+    ("https://camelcamelcamel.com/top_drops/ca/rss",             "General"),
+    ("https://camelcamelcamel.com/top_drops/ca/electronics/rss", "Electronics"),
+    ("https://camelcamelcamel.com/top_drops/ca/kitchen/rss",     "Home & Kitchen"),
+    ("https://camelcamelcamel.com/top_drops/ca/sports/rss",      "Sporting & Outdoor"),
+    ("https://camelcamelcamel.com/top_drops/ca/toys/rss",        "Baby & Kids"),
+    ("https://camelcamelcamel.com/top_drops/ca/tools/rss",       "Home & Garden"),
+    ("https://camelcamelcamel.com/top_drops/ca/clothing/rss",    "Clothing"),
+]
+
+
+def _camel_parse_feed(url, default_category):
+    deals = []
+    try:
+        xml_text = _get(url, extra={"Accept": "application/rss+xml,application/xml,*/*",
+                                     "Referer": "https://camelcamelcamel.com/"})
+        root = ET.fromstring(xml_text)
+    except Exception as e:
+        return deals, f"CamelCamelCamel {url}: {e}"
+
+    channel = root.find("channel")
+    if channel is None:
+        return deals, f"CamelCamelCamel {url}: no <channel>"
+
+    seen_asins = set()
+    for item in channel.findall("item"):
+        title_raw = _clean((item.findtext("title") or "").strip())
+        link_raw  = (item.findtext("link") or "").strip()
+        desc_raw  = _clean(item.findtext("description") or "")
+        pub_raw   = (item.findtext("pubDate") or "")
+
+        if not title_raw or not link_raw:
+            continue
+
+        # ASIN from CCC URL e.g. /product/B07XXX
+        asin_m = re.search(r'/product/([A-Z0-9]{10})', link_raw)
+        if not asin_m:
+            continue
+        asin = asin_m.group(1)
+        if asin in seen_asins:
+            continue
+        seen_asins.add(asin)
+
+        cur_price = 0.0
+        was_price = 0.0
+        save_pct  = ""
+        clean_title = title_raw
+
+        # "Title — dropped to CA$X.XX from CA$Y.YY (Z% decrease)"
+        m = re.search(
+            r'\s*[—\-]\s*dropped\s+to\s+(?:CA)?\$?\s*([\d,.]+)'
+            r'\s+from\s+(?:CA)?\$?\s*([\d,.]+)'
+            r'(?:\s*\((\d+)%)?',
+            title_raw, re.I
+        )
+        if m:
+            try:
+                cur_price = float(m.group(1).replace(',', ''))
+                was_price = float(m.group(2).replace(',', ''))
+                save_pct  = (m.group(3) + "%") if m.group(3) else ""
+            except (ValueError, TypeError):
+                pass
+            clean_title = title_raw[:m.start()].strip()
+        else:
+            # Fallback: grab any prices from title or description
+            prices = re.findall(r'(?:CA)?\$\s*([\d,]+\.\d{2})', title_raw + " " + desc_raw)
+            if prices:
+                try:
+                    cur_price = float(prices[0].replace(',', ''))
+                    if len(prices) > 1:
+                        was_price = float(prices[1].replace(',', ''))
+                except (ValueError, TypeError):
+                    pass
+            pct_m = re.search(r'(\d+)\s*%\s*(?:off|decrease|drop)', title_raw + " " + desc_raw, re.I)
+            if pct_m:
+                save_pct = pct_m.group(1) + "%"
+
+        if not save_pct and was_price > cur_price > 0:
+            save_pct = str(round((was_price - cur_price) / was_price * 100)) + "%"
+
+        # Parse pubDate to YYYY-MM-DD
+        pub_date = ""
+        try:
+            import email.utils
+            pub_date = datetime(*email.utils.parsedate(pub_raw)[:3]).strftime("%Y-%m-%d")
+        except Exception:
+            pub_date = pub_raw[:10] if pub_raw else ""
+
+        cur_str = f"${cur_price:.2f}" if cur_price > 0 else ""
+        was_str = f"${was_price:.2f}" if was_price > cur_price > 0 else ""
+        sav_str = f"Save ${was_price - cur_price:.2f}" if was_price > cur_price > 0 else ""
+
+        deals.append({
+            "source":        "CamelCamelCamel",
+            "tid":           f"camel-{asin}",
+            "title":         clean_title or title_raw,
+            "brand":         "",
+            "store":         "Amazon",
+            "link":          f"https://www.amazon.ca/dp/{asin}/",
+            "currentPrice":  cur_str,
+            "originalPrice": was_str,
+            "savings":       sav_str,
+            "savePct":       save_pct,
+            "pubDate":       pub_date,
+            "relTime":       "Price Drop",
+            "votes":         0,
+            "img":           f"https://images-na.ssl-images-amazon.com/images/P/{asin}.01._SX300_.jpg",
+            "category":      default_category,
+            "clearance":     False,
+            "dropDate":      pub_date,
+            "validUntil":    "",
+            "provinces":     ["QC", "ON"],
+        })
+
+    return deals, None
+
+
+def get_camel_deals():
+    all_deals, errors = [], []
+    seen = set()
+
+    def _fetch(feed_info):
+        url, category = feed_info
+        return _camel_parse_feed(url, category)
+
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        for deals, err in ex.map(_fetch, _CAMEL_FEEDS):
+            if err:
+                errors.append(err)
+            for d in deals:
+                if d["tid"] not in seen:
+                    seen.add(d["tid"])
+                    all_deals.append(d)
+
+    return all_deals, errors
+
+
 _SOURCES = [
     ("walmart",      get_walmart_deals,      "Walmart"),
     ("stocktrack",   get_stocktrack_deals,   "StockTrack"),
@@ -1985,6 +2083,7 @@ _SOURCES = [
     ("lcbo",         get_lcbo_deals,         "LCBO"),
     ("saq",          get_saq_deals,          "SAQ"),
     ("bcldb",        get_bcldb_deals,        "BC Liquor Stores"),
+    ("camel",        get_camel_deals,        "Amazon"),
 ]
 
 
