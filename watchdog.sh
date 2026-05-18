@@ -64,25 +64,10 @@ fi
 # ── 3. Keep cloudflared tunnel alive ─────────────────────────────────────────
 update_tunnel_url() {
     local NEW_URL="$1"
-    # Update index.html (local tunnel redirect)
-    cat > "$DEALS_DIR/index.html" <<EOF
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="refresh" content="0;url=${NEW_URL}/">
-<title>QC &amp; ON Deals</title>
-</head>
-<body>
-<script>window.location.replace("${NEW_URL}/");</script>
-</body>
-</html>
-EOF
-    # Update api-url.json (used by GitHub Pages frontend)
+    # Update api-url.json so GitHub Pages frontend discovers the new backend
     echo "{\"url\": \"${NEW_URL}\"}" > "$DEALS_DIR/api-url.json"
-    # Commit and push so GitHub Pages picks it up
     cd "$DEALS_DIR"
-    git add index.html api-url.json
+    git add api-url.json
     if ! git diff --cached --quiet; then
         git commit -m "chore: update tunnel URL to $NEW_URL [skip ci]"
         git push origin main >> /tmp/watchdog_git.log 2>&1 && log "Pushed new tunnel URL to GitHub" \
