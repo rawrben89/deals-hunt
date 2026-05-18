@@ -95,8 +95,8 @@ if ! pgrep -f "cloudflared" > /dev/null 2>&1; then
     truncate -s 0 "$CF_LOG"
     start_tunnel
 else
-    # Verify the tunnel URL in index.html is still live
-    CURRENT_URL=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' "$DEALS_DIR/index.html" | head -1)
+    # Verify the tunnel URL in api-url.json is still live
+    CURRENT_URL=$(python3 -c "import json; print(json.load(open('$DEALS_DIR/api-url.json')).get('url',''))" 2>/dev/null || echo "")
     if [[ -n "$CURRENT_URL" ]]; then
         HTTP_CODE=$(curl -sf --max-time 8 -o /dev/null -w "%{http_code}" "$CURRENT_URL/" 2>/dev/null || echo "000")
         if [[ "$HTTP_CODE" != "200" ]]; then
