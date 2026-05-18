@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-05-18T20:13:14.851341+00:00",
+  "checked_at": "2026-05-18T21:12:44.084703+00:00",
   "tunnel_url": "https://gzip-fcc-environment-sheet.trycloudflare.com",
   "server_up": false,
   "deals_fresh": null,
@@ -10,13 +10,16 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "Tunnel URL https://gzip-fcc-environment-sheet.trycloudflare.com returns HTTP 403 host_not_allowed \u2014 cloudflared has disconnected from Cloudflare network.",
-    "Bug found and fixed in watchdog.sh: tunnel liveness check was reading URL from index.html (no URL there) instead of api-url.json \u2014 tunnel was never being restarted on disconnect.",
-    "Fix pushed to GitHub (commit 070fcc0). Next watchdog cron run should detect dead tunnel and restart cloudflared.",
+    "Tunnel URL https://gzip-fcc-environment-sheet.trycloudflare.com returns HTTP 403 host_not_allowed \u2014 cloudflared still disconnected.",
+    "This is the 3rd consecutive down run (previous: 20:13Z and 19:12Z on 2026-05-18).",
+    "Watchdog fix was pushed at 20:12Z (commit 070fcc0) \u2014 read tunnel URL from api-url.json \u2014 but api-url.json has not been updated in 7+ hours (last update: 14:06Z).",
+    "Server machine appears completely offline: watchdog cron should have run 10+ times since fix but shows no activity.",
     "Cannot reach /api/board, /api/command, /api/status, or /api/health-report. Falling back to GitHub health_log.json write.",
-    "This is the 2nd consecutive down run (previous: 2026-05-18T19:12:05Z). Root cause now patched."
+    "Static analysis of server.py: syntax OK, 11 scrapers defined (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel).",
+    "No URL fixes attempted \u2014 server is offline, cannot verify deal counts."
   ],
   "overall": "down",
+  "consecutive_down_runs": 3,
   "static_analysis": {
     "syntax_ok": true,
     "total_lines": 2534,
@@ -33,6 +36,6 @@
       "bcldb",
       "camel"
     ],
-    "watchdog_fix": "Fixed tunnel URL source from index.html to api-url.json (commit 070fcc0)"
+    "watchdog_status": "Fix in place (commit 070fcc0) but no effect \u2014 machine may be offline"
   }
 }
