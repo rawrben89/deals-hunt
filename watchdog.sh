@@ -1,10 +1,12 @@
 #!/bin/bash
-# watchdog.sh — Keeps deals-hunt server alive locally.
+# watchdog.sh — Keeps deals-hunt server and cloudflared tunnel alive.
 # Run every 5 minutes via cron.
 
 DEALS_DIR="/home/rawrben/projects/deals_hunt"
 WATCHDOG_LOG="/tmp/watchdog.log"
 LOCK="/tmp/watchdog.lock"
+CLOUDFLARED="/home/rawrben/cloudflared"
+CF_LOG="/tmp/cloudflared.log"
 
 # Prevent concurrent runs
 exec 9>"$LOCK"
@@ -57,6 +59,54 @@ except:
 if [[ "$STALENESS" -gt 900 ]]; then
     log "Deals stale (${STALENESS}s old) — restarting server to force refresh"
     start_server
+fi
+
+# ── 3. Keep cloudflared tunnel alive ─────────────────────────────────────────
+start_tunnel() {
+    pkill -f "cloudflared" 2>/dev/null; sleep 2
+    nohup "$CLOUDFLARED" tunnel --url http://localhost:8080 --no-autoupdate \
+        >> "$CF_LOG" 2>&1 &
+    log "cloudflared started (PID $!)"
+    sleep 8
+    # Extract new URL and update index.html
+    NEW_URL=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' "$CF_LOG" | tail -1)
+    if [[ -n "$NEW_URL" ]]; then
+        cat > "$DEALS_DIR/index.html" <<EOF
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="0;url=${NEW_URL}/">
+<title>QC &amp; ON Deals</title>
+</head>
+<body>
+<script>window.location.replace("${NEW_URL}/");</script>
+</body>
+</html>
+EOF
+        log "Tunnel URL updated to $NEW_URL"
+    else
+        log "WARNING: could not extract tunnel URL from log"
+    fi
+}
+
+if ! pgrep -f "cloudflared" > /dev/null 2>&1; then
+    log "cloudflared not running — starting tunnel"
+    truncate -s 0 "$CF_LOG"
+    start_tunnel
+else
+    # Verify the tunnel URL in index.html is still live
+    CURRENT_URL=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' "$DEALS_DIR/index.html" | head -1)
+    if [[ -n "$CURRENT_URL" ]]; then
+        HTTP_CODE=$(curl -sf --max-time 8 -o /dev/null -w "%{http_code}" "$CURRENT_URL/" 2>/dev/null || echo "000")
+        if [[ "$HTTP_CODE" != "200" ]]; then
+            log "Tunnel URL $CURRENT_URL dead ($HTTP_CODE) — restarting"
+            truncate -s 0 "$CF_LOG"
+            start_tunnel
+        else
+            log "Tunnel OK ($CURRENT_URL)"
+        fi
+    fi
 fi
 
 log "=== watchdog done ==="
