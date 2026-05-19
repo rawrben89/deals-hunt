@@ -118,5 +118,49 @@
       ],
       "cloudflared_status": "403 host_not_allowed persists for 29+ hours — Cloudflare Access policy blocking cloud-agent IPs"
     }
+  },
+  {
+    "checked_at": "2026-05-19T20:09:00.000000+00:00",
+    "tunnel_url": "https://gzip-fcc-environment-sheet.trycloudflare.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "6th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com still returns HTTP 403 host_not_allowed.",
+      "api-url.json unchanged since 2026-05-18T14:06Z — 30+ hours without a tunnel URL update.",
+      "TLS handshake succeeds; Cloudflare edge is live but x-deny-reason: host_not_allowed blocks all agent requests.",
+      "Cannot reach /api/board, /api/command, /api/status, /api/health-report — all blocked. Writing to GitHub health_log.json as fallback.",
+      "All 11 scrapers untestable while server API is inaccessible.",
+      "URGENT: Server has been unreachable to health agent for 6+ runs (~6 hours). Manual intervention required: restart cloudflared OR update api-url.json with a new tunnel URL that does not have a Cloudflare Access policy blocking cloud IPs."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 6,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_defined": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "cloudflared_status": "403 host_not_allowed persists 30+ hours — Cloudflare Access policy blocking cloud-agent IPs",
+      "recommended_actions": [
+        "Run on server: cloudflared tunnel --url http://localhost:8080 (gets a new URL without Access policy)",
+        "OR: Disable Cloudflare Access policy for this tunnel in the Cloudflare dashboard",
+        "OR: Add cloud agent IP ranges to the Cloudflare Access allowlist"
+      ]
+    }
   }
 ]
