@@ -11,13 +11,13 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "Tunnel URL https://gzip-fcc-environment-sheet.trycloudflare.com returns HTTP 403 host_not_allowed \u2014 cloudflared still disconnected.",
+      "Tunnel URL https://gzip-fcc-environment-sheet.trycloudflare.com returns HTTP 403 host_not_allowed — cloudflared still disconnected.",
       "This is the 3rd consecutive down run (previous: 20:13Z and 19:12Z on 2026-05-18).",
-      "Watchdog fix was pushed at 20:12Z (commit 070fcc0) \u2014 read tunnel URL from api-url.json \u2014 but api-url.json has not been updated in 7+ hours (last update: 14:06Z).",
+      "Watchdog fix was pushed at 20:12Z (commit 070fcc0) — read tunnel URL from api-url.json — but api-url.json has not been updated in 7+ hours (last update: 14:06Z).",
       "Server machine appears completely offline: watchdog cron should have run 10+ times since fix but shows no activity.",
       "Cannot reach /api/board, /api/command, /api/status, or /api/health-report. Falling back to GitHub health_log.json write.",
       "Static analysis of server.py: syntax OK, 11 scrapers defined (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel).",
-      "No URL fixes attempted \u2014 server is offline, cannot verify deal counts."
+      "No URL fixes attempted — server is offline, cannot verify deal counts."
     ],
     "overall": "down",
     "consecutive_down_runs": 3,
@@ -37,7 +37,7 @@
         "bcldb",
         "camel"
       ],
-      "watchdog_status": "Fix in place (commit 070fcc0) but no effect \u2014 machine may be offline"
+      "watchdog_status": "Fix in place (commit 070fcc0) but no effect — machine may be offline"
     }
   },
   {
@@ -52,11 +52,11 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "Tunnel returns HTTP 403 host_not_allowed \u2014 cloudflared IS running (TLS handshake completes, 403 returned) but Cloudflare is blocking this cloud IP/host.",
+      "Tunnel returns HTTP 403 host_not_allowed — cloudflared IS running (TLS handshake completes, 403 returned) but Cloudflare is blocking this cloud IP/host.",
       "4th consecutive down run (previous: 21:12Z, 20:13Z, 19:12Z 2026-05-18).",
-      "KEY FINDING: machine appears ONLINE \u2014 prior runs misidentified as dead machine. The 403 is a Cloudflare Access policy blocking cloud-agent IPs, not a downed server.",
-      "api-url.json last updated 14:06Z \u2014 tunnel URL unchanged for 8+ hours, consistent with tunnel staying alive (not restarting).",
-      "Cannot access /api/board, /api/command, /api/status \u2014 all blocked by same Cloudflare policy.",
+      "KEY FINDING: machine appears ONLINE — prior runs misidentified as dead machine. The 403 is a Cloudflare Access policy blocking cloud-agent IPs, not a downed server.",
+      "api-url.json last updated 14:06Z — tunnel URL unchanged for 8+ hours, consistent with tunnel staying alive (not restarting).",
+      "Cannot access /api/board, /api/command, /api/status — all blocked by same Cloudflare policy.",
       "Recommended fix: run on server: cloudflared tunnel --url http://localhost:8080 --no-autoupdate (fresh URL may not have Access policy) OR disable CF Access for this tunnel in Cloudflare dashboard."
     ],
     "overall": "down",
@@ -77,7 +77,46 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "Process RUNNING \u2014 403 host_not_allowed from Cloudflare edge, not connection-refused from dead machine"
+      "cloudflared_status": "Process RUNNING — 403 host_not_allowed from Cloudflare edge, not connection-refused from dead machine"
+    }
+  },
+  {
+    "checked_at": "2026-05-19T19:07:49.586777+00:00",
+    "tunnel_url": "https://gzip-fcc-environment-sheet.trycloudflare.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "5th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com still returns HTTP 403 host_not_allowed.",
+      "api-url.json has not been updated since 2026-05-18T14:06Z — 29+ hours without a tunnel URL change.",
+      "TLS handshake succeeds (Cloudflare edge is reachable), but the 403 x-deny-reason: host_not_allowed prevents all API access.",
+      "Cannot reach /api/board, /api/command, /api/status, /api/health-report — all blocked. Falling back to GitHub health_log.json.",
+      "All 11 scrapers (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel) are untestable while server is offline.",
+      "ACTION REQUIRED: Either (1) restart cloudflared on the server machine to get a new tunnel URL, or (2) disable the Cloudflare Access policy for this tunnel so agent IPs are allowed through."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 5,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_defined": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "cloudflared_status": "403 host_not_allowed persists for 29+ hours — Cloudflare Access policy blocking cloud-agent IPs"
     }
   }
 ]
