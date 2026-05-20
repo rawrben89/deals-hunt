@@ -349,5 +349,44 @@
       ],
       "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart."
     }
+  },
+  {
+    "checked_at": "2026-05-20T21:07:41Z",
+    "tunnel_url": "https://gzip-fcc-environment-sheet.trycloudflare.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "12th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN) since run 10.",
+      "api-url.json unchanged since 2026-05-18T14:06:02Z \u2014 now 36+ hours stale.",
+      "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
+      "Server completely unreachable; health report committed to GitHub repo as fallback.",
+      "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 12,
+    "static_analysis": {
+      "syntax_ok": true,
+      "total_lines": 2534,
+      "scrapers_defined": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart."
+    }
   }
 ]
