@@ -271,5 +271,44 @@
       "ACTION REQUIRED: cloudflared must be restarted on the host machine and api-url.json updated with new tunnel URL."
     ],
     "overall": "down"
+  },
+  {
+    "checked_at": "2026-05-20T19:08:45Z",
+    "tunnel_url": "https://gzip-fcc-environment-sheet.trycloudflare.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "10th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com now fails DNS resolution (previously returned HTTP 403).",
+      "CHANGED STATUS: Prior runs (1\u20139) saw HTTP 403 host_not_allowed (TLS handshake succeeded, tunnel was alive). This run gets NXDOMAIN \u2014 the temporary tunnel URL has fully expired.",
+      "api-url.json has not changed since 2026-05-18T14:06:02Z \u2014 now 34+ hours stale. Cloudflare trycloudflare.com tunnels typically expire after 24\u201348 hours.",
+      "Server completely unreachable; health report committed to GitHub repo as fallback.",
+      "CRITICAL ACTION REQUIRED: cloudflared process has stopped on the host machine. Operator must: (1) restart cloudflared to obtain a new trycloudflare.com URL, (2) update api-url.json with the new URL, (3) push to GitHub so GitHub Pages and agents can find it."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 10,
+    "static_analysis": {
+      "syntax_ok": true,
+      "total_lines": 2534,
+      "scrapers_defined": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "cloudflared_status": "EXPIRED \u2014 DNS resolution now fails (NXDOMAIN). Prior runs saw 403 from live tunnel; tunnel has now fully stopped and DNS TTL expired."
+    }
   }
 ]
