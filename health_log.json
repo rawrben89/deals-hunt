@@ -232,5 +232,45 @@
       "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2534 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
+  },
+  {
+    "checked_at": "2026-05-22T20:14:05Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "20th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 'host_not_allowed' from this cloud monitoring environment.",
+      "api-url.json was updated 2026-05-22T03:56:10Z to point to new Render.com deployment (replacing expired Cloudflare tunnel).",
+      "Render's edge proxy is blocking requests from this Anthropic cloud environment IP \u2014 service may be functional for browser/GitHub Pages users.",
+      "Cannot verify scraper health or deal freshness until Render's IP restrictions are resolved or monitoring runs from an allowed origin.",
+      "server.py code is intact (2535 lines, 11 sources, syntax OK); no scraper fixes possible while server is unreachable.",
+      "RECOMMENDED ACTION: Verify https://deals-hunt.onrender.com is accessible from a browser. If Render has IP allowlist configured, add monitoring IPs or use Render's internal health-check mechanism."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 20,
+    "static_analysis": {
+      "syntax_ok": true,
+      "sources_defined": [
+        "Walmart",
+        "StockTrack",
+        "RedFlagDeals",
+        "Shopify",
+        "Flipp",
+        "HomeDepot",
+        "Rona",
+        "LCBO",
+        "SAQ",
+        "BCLDB",
+        "CamelCamelCamel"
+      ],
+      "render_status": "403 host_not_allowed \u2014 Render edge is blocking cloud monitoring IPs. Backend may be healthy for browser traffic.",
+      "note": "Transitioned from expired Cloudflare tunnel to Render.com backend as of 2026-05-22T03:56:10Z. Render IP allowlist appears to block automated/cloud requests."
+    }
   }
 ]
