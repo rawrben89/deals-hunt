@@ -1556,9 +1556,10 @@ function cardHtml(d, newTids=[]){
 
   let viewBtn='';
   const _clickTrack=`fetch(API_BASE+'/api/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tid:'${esc(d.tid)}'})}).catch(()=>{})`;
-  const _isDirectLink = d.link && !d.link.includes('forums.redflagdeals.com') && !d.link.includes('flipp.com');
-  if(_isDirectLink){
-    viewBtn=`<a class="view-btn" href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" onclick="${_clickTrack}">View →</a>`;
+  const _directUrl = d.direct_link || d.link;
+  const _isProductLink = _directUrl && !_directUrl.includes('forums.redflagdeals.com') && !_directUrl.includes('flipp.com');
+  if(_directUrl){
+    viewBtn=`<a class="view-btn" href="${esc(_directUrl)}" target="_blank" rel="noopener noreferrer" onclick="${_clickTrack}">${_isProductLink?'View →':'View Thread →'}</a>`;
   } else {
     const _su=dealSearchUrl(d.store, d.title);
     viewBtn=`<a class="view-btn search-btn" href="${esc(_su)}" target="_blank" rel="noopener noreferrer" onclick="${_clickTrack}">Search →</a>`;
