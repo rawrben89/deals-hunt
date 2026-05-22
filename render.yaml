@@ -1,11 +1,9 @@
 services:
   - type: web
     name: deals-hunt
-    env: python
+    runtime: python
     region: oregon
     plan: free
-    buildCommand: ""
+    buildCommand: pip install --quiet --upgrade pip
     startCommand: python server.py
-    envVars:
-      - key: PORT
-        generateValue: false
+    healthCheckPath: /api/status

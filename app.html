@@ -814,10 +814,15 @@ async function loadDeals(spinner=true) {
   const btn=document.getElementById('refreshBtn');
   if (!bg) { btn.disabled=true; btn.textContent='⟳ Loading…'; }
   const _ac = new AbortController();
-  const _to = setTimeout(() => _ac.abort(), 25000);
+  const _to = setTimeout(() => _ac.abort(), 70000);
+  // On Render free tier, cold start takes 30–50 s — show a hint after 10 s
+  const _wakeHint = (!bg || !allDeals.length) ? setTimeout(() => {
+    document.getElementById('fetchStatus').textContent = 'Server waking up, please wait…';
+  }, 10000) : null;
   try {
     const res = await fetch(API_BASE+'/api/deals', {signal: _ac.signal});
     clearTimeout(_to);
+    clearTimeout(_wakeHint);
     if (res.status === 503) {
       document.getElementById('fetchStatus').textContent = 'Fetching from sources, please wait…';
       setTimeout(() => loadDeals(false), 3000);
@@ -843,6 +848,7 @@ async function loadDeals(spinner=true) {
     applyFilters([], bg);
   } catch(e) {
     clearTimeout(_to);
+    clearTimeout(_wakeHint);
     console.error(e);
     if(allDeals.length>0){
       // Deals already showing — use reconnecting banner, keep page usable
