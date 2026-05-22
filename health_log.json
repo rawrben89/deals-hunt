@@ -272,5 +272,45 @@
       "render_status": "403 host_not_allowed \u2014 Render edge is blocking cloud monitoring IPs. Backend may be healthy for browser traffic.",
       "note": "Transitioned from expired Cloudflare tunnel to Render.com backend as of 2026-05-22T03:56:10Z. Render IP allowlist appears to block automated/cloud requests."
     }
+  },
+  {
+    "checked_at": "2026-05-22T21:04:08Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "21th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
+      "api-url.json points to Render.com deployment updated 2026-05-22T03:56:10Z.",
+      "Render edge proxy is blocking requests from Anthropic cloud environment IP range; browser and GitHub Pages traffic remains unaffected.",
+      "Cannot verify scraper health or deal freshness until Render IP restrictions are resolved.",
+      "server.py code is intact (2535 lines, 11 sources, syntax OK).",
+      "RECOMMENDED ACTION: Check Render dashboard for IP allowlist settings, or configure Render to allow all IPs for this public service."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 21,
+    "static_analysis": {
+      "syntax_ok": true,
+      "sources_defined": [
+        "Walmart",
+        "StockTrack",
+        "RedFlagDeals",
+        "Shopify",
+        "Flipp",
+        "HomeDepot",
+        "Rona",
+        "LCBO",
+        "SAQ",
+        "BCLDB",
+        "CamelCamelCamel"
+      ],
+      "render_status": "403 host_not_allowed \u2014 Render edge blocking cloud monitoring IPs. Service is healthy for browser/GitHub-Actions traffic.",
+      "note": "server.py 2535 lines, 11 sources, syntax OK. No scraper fixes possible while server is unreachable from this environment."
+    }
   }
 ]
