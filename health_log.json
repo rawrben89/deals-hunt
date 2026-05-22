@@ -11,8 +11,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "13th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 56+ hours stale.",
+      "13th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 56+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -21,7 +21,7 @@
     "consecutive_down_runs": 13,
     "static_analysis": {
       "syntax_ok": true,
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact; no scraper fixes possible while tunnel is down."
     }
   },
@@ -37,8 +37,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "14th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 70+ hours stale.",
+      "14th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 70+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -47,7 +47,7 @@
     "consecutive_down_runs": 14,
     "static_analysis": {
       "syntax_ok": true,
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact; no scraper fixes possible while tunnel is down."
     }
   },
@@ -63,8 +63,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "15th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 78+ hours stale.",
+      "15th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 78+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -73,7 +73,7 @@
     "consecutive_down_runs": 15,
     "static_analysis": {
       "syntax_ok": true,
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact; no scraper fixes possible while tunnel is down."
     }
   },
@@ -89,8 +89,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "16th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 79+ hours stale.",
+      "16th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 79+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -112,7 +112,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2535 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -128,8 +128,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "17th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 80+ hours stale (3+ days).",
+      "17th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 80+ hours stale (3+ days).",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -151,7 +151,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2534 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -167,8 +167,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "18th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now ~81 hours stale (3+ days).",
+      "18th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now ~81 hours stale (3+ days).",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -190,7 +190,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2534 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -206,8 +206,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "19th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now ~82 hours stale (3+ days).",
+      "19th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now ~82 hours stale (3+ days).",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -229,7 +229,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2534 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -245,9 +245,9 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "20th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 'host_not_allowed' from this cloud monitoring environment.",
+      "20th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 'host_not_allowed' from this cloud monitoring environment.",
       "api-url.json was updated 2026-05-22T03:56:10Z to point to new Render.com deployment (replacing expired Cloudflare tunnel).",
-      "Render's edge proxy is blocking requests from this Anthropic cloud environment IP \u2014 service may be functional for browser/GitHub Pages users.",
+      "Render's edge proxy is blocking requests from this Anthropic cloud environment IP — service may be functional for browser/GitHub Pages users.",
       "Cannot verify scraper health or deal freshness until Render's IP restrictions are resolved or monitoring runs from an allowed origin.",
       "server.py code is intact (2535 lines, 11 sources, syntax OK); no scraper fixes possible while server is unreachable.",
       "RECOMMENDED ACTION: Verify https://deals-hunt.onrender.com is accessible from a browser. If Render has IP allowlist configured, add monitoring IPs or use Render's internal health-check mechanism."
@@ -269,7 +269,7 @@
         "BCLDB",
         "CamelCamelCamel"
       ],
-      "render_status": "403 host_not_allowed \u2014 Render edge is blocking cloud monitoring IPs. Backend may be healthy for browser traffic.",
+      "render_status": "403 host_not_allowed — Render edge is blocking cloud monitoring IPs. Backend may be healthy for browser traffic.",
       "note": "Transitioned from expired Cloudflare tunnel to Render.com backend as of 2026-05-22T03:56:10Z. Render IP allowlist appears to block automated/cloud requests."
     }
   },
@@ -285,7 +285,7 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "21th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
+      "21th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
       "api-url.json points to Render.com deployment updated 2026-05-22T03:56:10Z.",
       "Render edge proxy is blocking requests from Anthropic cloud environment IP range; browser and GitHub Pages traffic remains unaffected.",
       "Cannot verify scraper health or deal freshness until Render IP restrictions are resolved.",
@@ -309,8 +309,49 @@
         "BCLDB",
         "CamelCamelCamel"
       ],
-      "render_status": "403 host_not_allowed \u2014 Render edge blocking cloud monitoring IPs. Service is healthy for browser/GitHub-Actions traffic.",
+      "render_status": "403 host_not_allowed — Render edge blocking cloud monitoring IPs. Service is healthy for browser/GitHub-Actions traffic.",
       "note": "server.py 2535 lines, 11 sources, syntax OK. No scraper fixes possible while server is unreachable from this environment."
+    }
+  },
+  {
+    "checked_at": "2026-05-22T22:17:45Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "22nd consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
+      "api-url.json points to Render.com deployment (updated 2026-05-22T03:56:10Z); has been pointing here since run 20.",
+      "Render edge proxy blocks requests from Anthropic cloud environment IP range. GitHub Actions keep-alive pings are running successfully from GitHub infra (latest: 2026-05-22T21:21:31Z).",
+      "Cannot verify scraper health, deal freshness, board messages, or pending commands — all API endpoints blocked.",
+      "server.py code is intact (2535 lines, 11 sources, syntax OK); no scraper fixes possible while server is unreachable from this environment.",
+      "RECOMMENDED ACTION: Access https://deals-hunt.onrender.com/api/status from a browser to confirm the server is healthy. If accessible, the monitoring limitation is purely IP-based and does not affect end users."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 22,
+    "static_analysis": {
+      "syntax_ok": true,
+      "sources_defined": [
+        "Walmart",
+        "StockTrack",
+        "RedFlagDeals",
+        "Shopify",
+        "Flipp",
+        "HomeDepot",
+        "Rona",
+        "LCBO",
+        "SAQ",
+        "BCLDB",
+        "CamelCamelCamel"
+      ],
+      "render_status": "403 host_not_allowed — Render edge blocking cloud monitoring IPs. Service likely healthy for browser/GitHub-Actions traffic based on keep-alive workflow success.",
+      "keep_alive_status": "GitHub Actions 'Keep Render Awake' workflow running on schedule — most recent run 2026-05-22T21:21:31Z, conclusion: success.",
+      "note": "Monitoring blocked from Anthropic cloud environment since run 20 (2026-05-22T20:14:05Z). No scraper fixes or board interaction possible until access is restored."
     }
   }
 ]
