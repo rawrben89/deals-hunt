@@ -391,6 +391,42 @@ footer a{color:var(--qc)}
 .provbtn.active{background:#fff;color:var(--qc)}
 .provbtn.active.on{color:var(--on)}
 @media(max-width:768px){.provbtn{padding:2px 7px;font-size:.66rem}}
+
+/* ── Skeleton loader ── */
+.skel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.skel-pulse{background:linear-gradient(90deg,var(--border) 25%,#e8ecf2 50%,var(--border) 75%);background-size:200% 100%;animation:skelPulse 1.5s ease infinite}
+@keyframes skelPulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-img{height:140px}
+.skel-body{padding:12px}
+.skel-line{height:11px;border-radius:6px;margin-bottom:9px}
+[data-theme="dark"] .skel-pulse{background:linear-gradient(90deg,var(--border) 25%,#1e2f4a 50%,var(--border) 75%);background-size:200% 100%}
+
+/* ── Back-to-top ── */
+#backToTop{position:fixed;bottom:24px;right:18px;width:44px;height:44px;border-radius:50%;background:var(--qc);color:#fff;border:none;cursor:pointer;font-size:1.1rem;box-shadow:0 4px 18px rgba(0,0,0,.22);opacity:0;transform:translateY(14px);transition:opacity .25s,transform .25s;z-index:500;display:flex;align-items:center;justify-content:center}
+#backToTop.show{opacity:1;transform:translateY(0)}
+#backToTop:hover{background:#0d47a1}
+
+/* ── Mobile bottom nav ── */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--card);border-top:1.5px solid var(--border);z-index:300;box-shadow:0 -2px 14px rgba(0,0,0,.09)}
+.mobile-nav-inner{display:flex;height:100%}
+.mnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;cursor:pointer;font-size:.58rem;font-weight:700;color:var(--muted);padding:6px 0;transition:color .15s;-webkit-tap-highlight-color:transparent;letter-spacing:.2px}
+.mnav-icon{font-size:1.25rem;line-height:1;transition:transform .15s}
+.mnav-btn.active{color:var(--qc)}
+.mnav-btn.active .mnav-icon{transform:scale(1.15)}
+.mnav-badge{position:relative}
+.mnav-badge::after{content:attr(data-count);position:absolute;top:-5px;right:-8px;background:#e91e63;color:#fff;font-size:.5rem;font-weight:800;min-width:14px;height:14px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1}
+.mnav-badge[data-count=""]::after,.mnav-badge:not([data-count])::after{display:none}
+[data-theme="dark"] .mobile-nav{background:var(--card);border-color:var(--border)}
+@media(max-width:768px){
+  .mobile-nav{display:block}
+  #loadMoreRow{padding-bottom:68px}
+  footer{padding-bottom:68px}
+  #backToTop{bottom:72px;right:14px}
+}
+
+/* ── Card left-border accent ── */
+.deal-card{border-left:3px solid transparent}
+.deal-card:hover{border-left-color:var(--qc)}
 </style>
 </head>
 <body>
@@ -511,6 +547,26 @@ footer a{color:var(--qc)}
 </div><!-- /page-layout -->
 
 <div id="toast"></div>
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+<nav class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-inner">
+    <button class="mnav-btn active" id="mnav-all" onclick="mnavClick('all')">
+      <span class="mnav-icon">🛍</span>All
+    </button>
+    <button class="mnav-btn" id="mnav-new" onclick="mnavClick('new')">
+      <span class="mnav-icon mnav-badge" id="mnav-new-icon">✨</span>New
+    </button>
+    <button class="mnav-btn" id="mnav-saved" onclick="mnavClick('saved')">
+      <span class="mnav-icon mnav-badge" id="mnav-saved-icon">♥</span>Saved
+    </button>
+    <button class="mnav-btn" id="mnav-stores" onclick="toggleSidebar()">
+      <span class="mnav-icon">🏪</span>Stores
+    </button>
+    <button class="mnav-btn" id="mnav-search" onclick="document.getElementById('searchInput').focus();window.scrollTo({top:0,behavior:'smooth'})">
+      <span class="mnav-icon">🔍</span>Search
+    </button>
+  </div>
+</nav>
 
 <!-- Price alert modal -->
 <div id="alertModal">
@@ -1544,9 +1600,16 @@ function cardHtml(d, newTids=[]){
 ══════════════════════════════════════ */
 function showLoading(){
   document.getElementById('statsBar').textContent='Loading…';
-  document.getElementById('root').innerHTML=`<div class="deals-grid"><div class="state-box">
-    <div class="spinner"></div>
-  </div></div>`;
+  const s=()=>`<div class="skel-card">
+    <div class="skel-img skel-pulse"></div>
+    <div class="skel-body">
+      <div class="skel-line skel-pulse" style="width:35%;height:9px;margin-bottom:12px"></div>
+      <div class="skel-line skel-pulse" style="width:82%"></div>
+      <div class="skel-line skel-pulse" style="width:60%"></div>
+      <div class="skel-line skel-pulse" style="width:42%;height:15px;margin-top:4px"></div>
+    </div>
+  </div>`;
+  document.getElementById('root').innerHTML=`<div class="deals-grid">${Array(12).fill(0).map(s).join('')}</div>`;
   document.getElementById('loadMoreRow').style.display='none';
 }
 function showError(msg){
@@ -1842,6 +1905,22 @@ function updateNewBtn(){
 
 function setActiveCatBtn(cat){
   document.querySelectorAll('#catNav .cat-nav-item').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
+  syncMobileNav(cat);
+}
+function syncMobileNav(cat){
+  document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.remove('active'));
+  const id=cat==='new'?'mnav-new':cat==='saved'?'mnav-saved':'mnav-all';
+  document.getElementById(id)?.classList.add('active');
+}
+function mnavClick(cat){
+  activeCat=cat;
+  activeStore='all';
+  setActiveCatBtn(cat);
+  if(cat==='new'){ newTidSet.clear(); updateNewBtn(); }
+  if(cat!=='new') localStorage.setItem('activeCat',cat);
+  shown=pageSize===0?Infinity:pageSize;
+  applyFilters();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function setProvince(prov){
@@ -2075,6 +2154,23 @@ if('serviceWorker' in navigator){
     }).catch(()=>{});
   }, 60000);
 })();
+
+// Back to top
+window.addEventListener('scroll',()=>{
+  document.getElementById('backToTop')?.classList.toggle('show',window.scrollY>400);
+},{passive:true});
+
+// Sync mobile nav badges (new + saved counts)
+function syncMobileNavBadges(){
+  const ni=document.getElementById('mnav-new-icon');
+  const si=document.getElementById('mnav-saved-icon');
+  if(ni) ni.dataset.count=newTidSet.size||'';
+  if(si) si.dataset.count=savedTids.size||'';
+}
+const _origUpdateNewBtn=updateNewBtn;
+updateNewBtn=function(){ _origUpdateNewBtn(); syncMobileNavBadges(); };
+const _origToggleSave=toggleSave;
+toggleSave=function(tid){ _origToggleSave(tid); syncMobileNavBadges(); };
 
 // Recovery watchdog: if deals are loaded but nothing is visible, re-render
 setInterval(()=>{
