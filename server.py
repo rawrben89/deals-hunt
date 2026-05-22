@@ -562,10 +562,10 @@ def get_redflagdeals():
         # Each deal card: <a class="topic-card-info thread_info ..." href="/SLUG/" ...>...</a>
         cards = re.findall(
             r'<a class="topic-card-info thread_info[^"]*"\s+href="(/[^"]+/)"\s+[^>]*'
-            r'data-dealer-name=([^\s>]+)([^>]*)>(.*?)</a>',
+            r'data-dealer-name=([^\s>]+)[^>]*>(.*?)</a>',
             text, re.S
         )
-        for href, dealer_raw, extra_attrs, content in cards:
+        for href, dealer_raw, content in cards:
             title_m = re.search(r'<h3[^>]*class=thread_title[^>]*>(.*?)</h3>', content, re.S)
             if not title_m:
                 continue
@@ -588,10 +588,6 @@ def get_redflagdeals():
 
             link = _RFD_BASE + href
 
-            # If the card exposes a direct merchant URL (e.g. data-goto="https://..."), use it
-            goto_m = re.search(r'data-goto="(https?://[^"]+)"', extra_attrs)
-            direct_link = goto_m.group(1) if goto_m else ""
-
             pm = re.search(r'\$\s*(\d[\d,]*(?:\.\d{1,2})?)', title)
             price = f"${pm.group(1)}" if pm else ""
             pct_m = re.search(r'(\d+)\s*%\s*off', title, re.I)
@@ -606,7 +602,6 @@ def get_redflagdeals():
                 "brand":         "",
                 "store":         store,
                 "link":          link,
-                "direct_link":   direct_link,
                 "currentPrice":  price,
                 "originalPrice": "",
                 "savings":       "",
