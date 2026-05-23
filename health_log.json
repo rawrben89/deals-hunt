@@ -396,5 +396,48 @@
       "github_actions_keep_alive": "SUCCESS at 2026-05-22T22:33:16Z (success)",
       "note": "server.py 2534 lines, 11 sources, syntax OK. Monitoring blocked from Anthropic cloud environment since run 20 (2026-05-22T20:14:05Z)."
     }
+  },
+  {
+    "checked_at": "2026-05-23T00:08:49Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "24th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this Anthropic cloud monitoring environment.",
+      "api-url.json updated 2026-05-22T03:56:10Z to Render.com deployment; has been pointing here since run 20.",
+      "Render edge proxy blocks all requests from Anthropic cloud environment IP range. GitHub Actions traffic remains unaffected.",
+      "GitHub Actions 'Keep Render Awake' workflow confirmed SUCCESS at 2026-05-22T23:43:20Z \u2014 server is ALIVE and serving end users.",
+      "Cannot access /api/board, /api/command, /api/health-report, or /api/status \u2014 all return 403 from this cloud environment.",
+      "server.py: 2534 lines, syntax OK, 11 scrapers defined (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel).",
+      "MONITORING NOTE: Server is operationally healthy for browser/GitHub-Pages/GitHub-Actions users. Only automated cloud monitoring is blocked by Render IP allowlist.",
+      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction (or set to allow-all) to restore cloud monitoring. Alternatively, move health checks into GitHub Actions workflow where they succeed."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 24,
+    "static_analysis": {
+      "syntax_ok": true,
+      "sources_defined": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "render_status": "403 host_not_allowed \u2014 Render edge blocking Anthropic cloud monitoring IPs. Service confirmed healthy via GitHub Actions.",
+      "github_actions_keep_alive": "SUCCESS at 2026-05-22T23:43:20Z",
+      "note": "server.py 2534 lines, 11 sources, syntax OK. Monitoring blocked from Anthropic cloud environment since run 20 (2026-05-22T20:14:05Z). No board/command/scraper access possible."
+    }
   }
 ]
