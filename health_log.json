@@ -480,5 +480,47 @@
       "target_sites_reachable_from_monitor": false,
       "note": "Server and sites confirmed accessible from browser and GitHub Actions. Only Anthropic cloud monitoring environment is blocked."
     }
+  },
+  {
+    "checked_at": "2026-05-23T22:05:20Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "26th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs (confirmed again with browser UA).",
+      "GitHub Actions \"Keep Render Awake\" workflow confirmed SUCCESS at 2026-05-23T21:38:42Z \u2014 server IS alive and healthy for end users.",
+      "All /api/* endpoints (board, command, health-report, status) return 403 from this monitoring environment.",
+      "server.py: 2534 lines, syntax OK, 11 scrapers defined and wired: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel.",
+      "Cannot determine live scraper health (dead/healthy) \u2014 /api/status blocked.",
+      "Cannot read /api/board or /api/command \u2014 team coordination and command execution unavailable from this IP range.",
+      "MONITORING NOTE: Server is operationally healthy for browser/GitHub-Pages/GitHub-Actions users. Only Anthropic cloud monitoring IPs are blocked.",
+      "ACTION REQUIRED: In Render dashboard, disable IP allowlist (allow all IPs) to restore cloud monitoring. Alternatively, migrate health checks into GitHub Actions workflow."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 26,
+    "static_analysis": {
+      "syntax_ok": true,
+      "lines": 2534,
+      "scrapers_defined": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "note": "All 11 scrapers confirmed wired in SOURCES list at lines 2076-2086. Code intact. Cannot verify live deal counts from this environment."
+    }
   }
 ]
