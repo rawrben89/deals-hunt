@@ -565,5 +565,48 @@
       "github_actions_keep_alive": "SUCCESS at 2026-05-23T22:37:37Z",
       "note": "Live scraper health unknown \u2014 /api/status returns 403 from this cloud environment. Server code intact."
     }
+  },
+  {
+    "checked_at": "2026-05-24T00:08:33Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": false,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "28th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs.",
+      "All /api/* endpoints (board, command, health-report, status) return HTTP 403 from this monitoring environment.",
+      "GitHub Actions Keep Render Awake workflow confirmed SUCCESS at 2026-05-23T23:42:12Z \u2014 server IS alive and healthy for end users.",
+      "server.py: 2534 lines, syntax OK, 11 scrapers defined: Walmart, StockTrack, RedFlagDeals, Shopify, Flipp, HomeDepot, Rona, LCBO, SAQ, BCLDB, CamelCamelCamel.",
+      "Cannot determine live scraper health \u2014 /api/status blocked from Anthropic cloud IPs.",
+      "Cannot read /api/board or /api/command \u2014 team coordination unavailable from Anthropic cloud IPs.",
+      "MONITORING NOTE: Server is operationally healthy for browser and GitHub-Actions users. Only Anthropic cloud monitoring IPs are blocked by Render.",
+      "ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic egress IP ranges to allow cloud monitoring. Alternatively, migrate health checks to GitHub Actions."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 28,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_wired": [
+        "Walmart",
+        "StockTrack",
+        "RedFlagDeals",
+        "Shopify",
+        "Flipp",
+        "HomeDepot",
+        "Rona",
+        "LCBO",
+        "SAQ",
+        "BCLDB",
+        "CamelCamelCamel"
+      ],
+      "scraper_count": 11,
+      "github_actions_keep_alive": "SUCCESS at 2026-05-23T23:42:12Z",
+      "note": "Live scraper health unknown \u2014 /api/status returns 403 from this cloud environment. Server code intact."
+    }
   }
 ]
