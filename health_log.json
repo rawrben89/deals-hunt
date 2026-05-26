@@ -845,5 +845,45 @@
       "github_actions_keep_alive": "SUCCESS at 2026-05-25T22:33:05Z",
       "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
+  },
+  {
+    "checked_at": "2026-05-26T00:09:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": true,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "35th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-25T23:42:17Z \u2014 server alive for end users",
+      "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel (unchanged)",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
+    ],
+    "overall": "down",
+    "consecutive_down_runs": 35,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_wired": [
+        "Walmart",
+        "StockTrack",
+        "RedFlagDeals",
+        "Shopify",
+        "Flipp",
+        "HomeDepot",
+        "Rona",
+        "LCBO",
+        "SAQ",
+        "BCLDB",
+        "CamelCamelCamel"
+      ],
+      "total_lines": 2534,
+      "github_actions_keep_alive": "SUCCESS at 2026-05-25T23:42:17Z",
+      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+    }
   }
 ]
