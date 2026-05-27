@@ -376,5 +376,44 @@
       "github_actions_keep_alive": "SUCCESS at 2026-05-27T01:56:13Z",
       "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
+  },
+  {
+    "checked_at": "2026-05-27T23:06:14Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": true,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "42nd consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-27T23:01:15Z \u2014 server alive for end users",
+      "server.py: 2534 lines, syntax OK, 10 scrapers active: walmart/stocktrack/shopify/flipp/homedepot/rona/lcbo/saq/bcldb/camel",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
+    ],
+    "overall": "degraded",
+    "consecutive_down_runs": 42,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_active": [
+        "walmart",
+        "stocktrack",
+        "shopify",
+        "flipp",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "total_lines": 2534,
+      "github_actions_keep_alive": "SUCCESS at 2026-05-27T23:01:15Z \u2014 5 recent runs all success",
+      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+    }
   }
 ]
