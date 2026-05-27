@@ -1086,5 +1086,25 @@
       "github_actions_keep_alive": "SUCCESS at 2026-05-26T23:47:10Z",
       "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
+  },
+  {
+    "checked_at": "2026-05-27T02:05:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": true,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "41st consecutive run \u2014 /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs; scraper details unverifiable from this environment.",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-27T01:55:44Z (10 min ago) \u2014 server is alive and serving end users.",
+      "Pages deployment also succeeded at 2026-05-27T01:06:32Z \u2014 frontend is current."
+    ],
+    "overall": "degraded",
+    "consecutive_blocked_runs": 41,
+    "note": "Server is confirmed alive via GitHub Actions ping. The 403 block is a sandbox network-policy issue \u2014 Anthropic cloud IPs are not in Render allowlist. End-user traffic is unaffected."
   }
 ]
