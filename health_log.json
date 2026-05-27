@@ -11,8 +11,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "13th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 56+ hours stale.",
+      "13th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 56+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -21,7 +21,7 @@
     "consecutive_down_runs": 13,
     "static_analysis": {
       "syntax_ok": true,
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact; no scraper fixes possible while tunnel is down."
     }
   },
@@ -37,8 +37,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "14th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 70+ hours stale.",
+      "14th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 70+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -47,7 +47,7 @@
     "consecutive_down_runs": 14,
     "static_analysis": {
       "syntax_ok": true,
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact; no scraper fixes possible while tunnel is down."
     }
   },
@@ -63,8 +63,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "15th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 78+ hours stale.",
+      "15th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 78+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -73,7 +73,7 @@
     "consecutive_down_runs": 15,
     "static_analysis": {
       "syntax_ok": true,
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact; no scraper fixes possible while tunnel is down."
     }
   },
@@ -89,8 +89,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "16th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 79+ hours stale.",
+      "16th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 79+ hours stale.",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -112,7 +112,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2535 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -128,8 +128,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "17th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now 80+ hours stale (3+ days).",
+      "17th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now 80+ hours stale (3+ days).",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -151,7 +151,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2534 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -167,8 +167,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "18th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now ~81 hours stale (3+ days).",
+      "18th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now ~81 hours stale (3+ days).",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -190,7 +190,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2534 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -206,8 +206,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "19th consecutive down run \u2014 tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
-      "api-url.json last updated 2026-05-18T14:06:02Z \u2014 now ~82 hours stale (3+ days).",
+      "19th consecutive down run — tunnel gzip-fcc-environment-sheet.trycloudflare.com fails DNS resolution (NXDOMAIN).",
+      "api-url.json last updated 2026-05-18T14:06:02Z — now ~82 hours stale (3+ days).",
       "Cloudflare trycloudflare.com tunnel has fully expired and DNS TTL has cleared.",
       "Server completely unreachable; health report committed to GitHub repo as fallback.",
       "CRITICAL ACTION REQUIRED: Operator must (1) restart cloudflared on host machine to get new URL, (2) update api-url.json, (3) push to GitHub."
@@ -229,7 +229,7 @@
         "bcldb",
         "camel"
       ],
-      "cloudflared_status": "EXPIRED \u2014 DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
+      "cloudflared_status": "EXPIRED — DNS resolution fails (NXDOMAIN). Tunnel has stopped and DNS TTL has fully cleared. Requires manual restart.",
       "note": "server.py code is intact (2534 lines, 11 sources, syntax OK); no scraper fixes possible while tunnel is down."
     }
   },
@@ -245,9 +245,9 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "20th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 'host_not_allowed' from this cloud monitoring environment.",
+      "20th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 'host_not_allowed' from this cloud monitoring environment.",
       "api-url.json was updated 2026-05-22T03:56:10Z to point to new Render.com deployment (replacing expired Cloudflare tunnel).",
-      "Render's edge proxy is blocking requests from this Anthropic cloud environment IP \u2014 service may be functional for browser/GitHub Pages users.",
+      "Render's edge proxy is blocking requests from this Anthropic cloud environment IP — service may be functional for browser/GitHub Pages users.",
       "Cannot verify scraper health or deal freshness until Render's IP restrictions are resolved or monitoring runs from an allowed origin.",
       "server.py code is intact (2535 lines, 11 sources, syntax OK); no scraper fixes possible while server is unreachable.",
       "RECOMMENDED ACTION: Verify https://deals-hunt.onrender.com is accessible from a browser. If Render has IP allowlist configured, add monitoring IPs or use Render's internal health-check mechanism."
@@ -269,7 +269,7 @@
         "BCLDB",
         "CamelCamelCamel"
       ],
-      "render_status": "403 host_not_allowed \u2014 Render edge is blocking cloud monitoring IPs. Backend may be healthy for browser traffic.",
+      "render_status": "403 host_not_allowed — Render edge is blocking cloud monitoring IPs. Backend may be healthy for browser traffic.",
       "note": "Transitioned from expired Cloudflare tunnel to Render.com backend as of 2026-05-22T03:56:10Z. Render IP allowlist appears to block automated/cloud requests."
     }
   },
@@ -285,7 +285,7 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "21th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
+      "21th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
       "api-url.json points to Render.com deployment updated 2026-05-22T03:56:10Z.",
       "Render edge proxy is blocking requests from Anthropic cloud environment IP range; browser and GitHub Pages traffic remains unaffected.",
       "Cannot verify scraper health or deal freshness until Render IP restrictions are resolved.",
@@ -309,7 +309,7 @@
         "BCLDB",
         "CamelCamelCamel"
       ],
-      "render_status": "403 host_not_allowed \u2014 Render edge blocking cloud monitoring IPs. Service is healthy for browser/GitHub-Actions traffic.",
+      "render_status": "403 host_not_allowed — Render edge blocking cloud monitoring IPs. Service is healthy for browser/GitHub-Actions traffic.",
       "note": "server.py 2535 lines, 11 sources, syntax OK. No scraper fixes possible while server is unreachable from this environment."
     }
   },
@@ -325,10 +325,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "22nd consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
+      "22nd consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this cloud monitoring environment.",
       "api-url.json points to Render.com deployment (updated 2026-05-22T03:56:10Z); has been pointing here since run 20.",
       "Render edge proxy blocks requests from Anthropic cloud environment IP range. GitHub Actions keep-alive pings are running successfully from GitHub infra (latest: 2026-05-22T21:21:31Z).",
-      "Cannot verify scraper health, deal freshness, board messages, or pending commands \u2014 all API endpoints blocked.",
+      "Cannot verify scraper health, deal freshness, board messages, or pending commands — all API endpoints blocked.",
       "server.py code is intact (2535 lines, 11 sources, syntax OK); no scraper fixes possible while server is unreachable from this environment.",
       "RECOMMENDED ACTION: Access https://deals-hunt.onrender.com/api/status from a browser to confirm the server is healthy. If accessible, the monitoring limitation is purely IP-based and does not affect end users."
     ],
@@ -349,8 +349,8 @@
         "BCLDB",
         "CamelCamelCamel"
       ],
-      "render_status": "403 host_not_allowed \u2014 Render edge blocking cloud monitoring IPs. Service likely healthy for browser/GitHub-Actions traffic based on keep-alive workflow success.",
-      "keep_alive_status": "GitHub Actions 'Keep Render Awake' workflow running on schedule \u2014 most recent run 2026-05-22T21:21:31Z, conclusion: success.",
+      "render_status": "403 host_not_allowed — Render edge blocking cloud monitoring IPs. Service likely healthy for browser/GitHub-Actions traffic based on keep-alive workflow success.",
+      "keep_alive_status": "GitHub Actions 'Keep Render Awake' workflow running on schedule — most recent run 2026-05-22T21:21:31Z, conclusion: success.",
       "note": "Monitoring blocked from Anthropic cloud environment since run 20 (2026-05-22T20:14:05Z). No scraper fixes or board interaction possible until access is restored."
     }
   },
@@ -366,11 +366,11 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "23rd consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this Anthropic cloud monitoring environment.",
+      "23rd consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this Anthropic cloud monitoring environment.",
       "api-url.json updated 2026-05-22T03:56:10Z to Render.com deployment; has been pointing here since run 20.",
       "Render edge proxy blocks requests from Anthropic cloud environment IP range. GitHub Actions traffic is unaffected.",
-      "GitHub Actions 'Keep Render Awake' workflow confirmed SUCCESS at 2026-05-22T22:33:16Z (success) \u2014 server is ALIVE for end users.",
-      "Cannot access /api/board, /api/command, /api/health-report, or /api/status endpoints \u2014 all return 403 from this environment.",
+      "GitHub Actions 'Keep Render Awake' workflow confirmed SUCCESS at 2026-05-22T22:33:16Z (success) — server is ALIVE for end users.",
+      "Cannot access /api/board, /api/command, /api/health-report, or /api/status endpoints — all return 403 from this environment.",
       "server.py: 2534 lines, syntax OK, 11 scrapers defined (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel).",
       "MONITORING NOTE: Server is operationally healthy for browser/GitHub-Pages/GitHub-Actions users. Only automated cloud monitoring is blocked.",
       "ACTION REQUIRED: Configure Render to allow public access (no IP allowlist), or set up monitoring from an allowed IP range (GitHub Actions, local cron, etc.)."
@@ -392,7 +392,7 @@
         "bcldb",
         "camel"
       ],
-      "render_status": "403 host_not_allowed \u2014 Render edge blocking Anthropic cloud monitoring IPs. Service confirmed healthy via GitHub Actions.",
+      "render_status": "403 host_not_allowed — Render edge blocking Anthropic cloud monitoring IPs. Service confirmed healthy via GitHub Actions.",
       "github_actions_keep_alive": "SUCCESS at 2026-05-22T22:33:16Z (success)",
       "note": "server.py 2534 lines, 11 sources, syntax OK. Monitoring blocked from Anthropic cloud environment since run 20 (2026-05-22T20:14:05Z)."
     }
@@ -409,11 +409,11 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "24th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this Anthropic cloud monitoring environment.",
+      "24th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from this Anthropic cloud monitoring environment.",
       "api-url.json updated 2026-05-22T03:56:10Z to Render.com deployment; has been pointing here since run 20.",
       "Render edge proxy blocks all requests from Anthropic cloud environment IP range. GitHub Actions traffic remains unaffected.",
-      "GitHub Actions 'Keep Render Awake' workflow confirmed SUCCESS at 2026-05-22T23:43:20Z \u2014 server is ALIVE and serving end users.",
-      "Cannot access /api/board, /api/command, /api/health-report, or /api/status \u2014 all return 403 from this cloud environment.",
+      "GitHub Actions 'Keep Render Awake' workflow confirmed SUCCESS at 2026-05-22T23:43:20Z — server is ALIVE and serving end users.",
+      "Cannot access /api/board, /api/command, /api/health-report, or /api/status — all return 403 from this cloud environment.",
       "server.py: 2534 lines, syntax OK, 11 scrapers defined (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel).",
       "MONITORING NOTE: Server is operationally healthy for browser/GitHub-Pages/GitHub-Actions users. Only automated cloud monitoring is blocked by Render IP allowlist.",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction (or set to allow-all) to restore cloud monitoring. Alternatively, move health checks into GitHub Actions workflow where they succeed."
@@ -435,7 +435,7 @@
         "bcldb",
         "camel"
       ],
-      "render_status": "403 host_not_allowed \u2014 Render edge blocking Anthropic cloud monitoring IPs. Service confirmed healthy via GitHub Actions.",
+      "render_status": "403 host_not_allowed — Render edge blocking Anthropic cloud monitoring IPs. Service confirmed healthy via GitHub Actions.",
       "github_actions_keep_alive": "SUCCESS at 2026-05-22T23:43:20Z",
       "note": "server.py 2534 lines, 11 sources, syntax OK. Monitoring blocked from Anthropic cloud environment since run 20 (2026-05-22T20:14:05Z). No board/command/scraper access possible."
     }
@@ -452,10 +452,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "25th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs.",
+      "25th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs.",
       "All 9 tested scraper target sites (walmart.ca, stocktrack.ca, redflagdeals.com, homedepot.ca, rona.ca, lcbo.com, saq.com, bcliquorstores.com, camelcamelcamel.com) also return 403 from this IP range.",
       "server.py: 2534 lines, syntax OK, 11 scrapers defined (walmart, stocktrack, redflagdeals, shopify, flipp, homedepot, rona, lcbo, saq, bcldb, camel).",
-      "GitHub Actions keep-alive workflow confirmed success at 2026-05-22T22:33:16Z \u2014 server is alive for end users.",
+      "GitHub Actions keep-alive workflow confirmed success at 2026-05-22T22:33:16Z — server is alive for end users.",
       "All /api/* endpoints (board, command, health-report, status) return 403 from this monitoring environment.",
       "ACTION REQUIRED: Disable Render IP allowlist or migrate monitoring to GitHub Actions which has confirmed access."
     ],
@@ -476,7 +476,7 @@
         "bcldb",
         "camel"
       ],
-      "render_status": "403 host_not_allowed \u2014 25 consecutive blocked runs from Anthropic cloud IPs.",
+      "render_status": "403 host_not_allowed — 25 consecutive blocked runs from Anthropic cloud IPs.",
       "target_sites_reachable_from_monitor": false,
       "note": "Server and sites confirmed accessible from browser and GitHub Actions. Only Anthropic cloud monitoring environment is blocked."
     }
@@ -493,12 +493,12 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "26th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs (confirmed again with browser UA).",
-      "GitHub Actions \"Keep Render Awake\" workflow confirmed SUCCESS at 2026-05-23T21:38:42Z \u2014 server IS alive and healthy for end users.",
+      "26th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs (confirmed again with browser UA).",
+      "GitHub Actions \"Keep Render Awake\" workflow confirmed SUCCESS at 2026-05-23T21:38:42Z — server IS alive and healthy for end users.",
       "All /api/* endpoints (board, command, health-report, status) return 403 from this monitoring environment.",
       "server.py: 2534 lines, syntax OK, 11 scrapers defined and wired: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel.",
-      "Cannot determine live scraper health (dead/healthy) \u2014 /api/status blocked.",
-      "Cannot read /api/board or /api/command \u2014 team coordination and command execution unavailable from this IP range.",
+      "Cannot determine live scraper health (dead/healthy) — /api/status blocked.",
+      "Cannot read /api/board or /api/command — team coordination and command execution unavailable from this IP range.",
       "MONITORING NOTE: Server is operationally healthy for browser/GitHub-Pages/GitHub-Actions users. Only Anthropic cloud monitoring IPs are blocked.",
       "ACTION REQUIRED: In Render dashboard, disable IP allowlist (allow all IPs) to restore cloud monitoring. Alternatively, migrate health checks into GitHub Actions workflow."
     ],
@@ -535,12 +535,12 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "27th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs.",
+      "27th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs.",
       "All /api/* endpoints (board, command, health-report, status) return 403 from this monitoring environment.",
-      "GitHub Actions 'Keep Render Awake' workflow confirmed SUCCESS at 2026-05-23T22:37:37Z \u2014 server IS alive and healthy for end users.",
+      "GitHub Actions 'Keep Render Awake' workflow confirmed SUCCESS at 2026-05-23T22:37:37Z — server IS alive and healthy for end users.",
       "server.py: 2534 lines, syntax OK, 11 scrapers defined and wired: walmart, stocktrack, redflagdeals, shopify, flipp, homedepot, rona, lcbo, saq, bcldb, camel.",
-      "Cannot determine live scraper health \u2014 /api/status blocked from this IP range.",
-      "Cannot read /api/board or /api/command \u2014 team coordination unavailable from Anthropic cloud IPs.",
+      "Cannot determine live scraper health — /api/status blocked from this IP range.",
+      "Cannot read /api/board or /api/command — team coordination unavailable from Anthropic cloud IPs.",
       "MONITORING NOTE: Server is operationally healthy for browser and GitHub-Actions users. Only Anthropic cloud monitoring IPs are blocked by Render.",
       "ACTION REQUIRED: In Render dashboard, disable the IP allowlist (allow all IPs) to restore cloud monitoring. Alternatively, migrate health checks into GitHub Actions."
     ],
@@ -563,7 +563,7 @@
       ],
       "scraper_count": 11,
       "github_actions_keep_alive": "SUCCESS at 2026-05-23T22:37:37Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from this cloud environment. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from this cloud environment. Server code intact."
     }
   },
   {
@@ -578,12 +578,12 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "28th consecutive down run \u2014 Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs.",
+      "28th consecutive down run — Render backend https://deals-hunt.onrender.com returns 403 host_not_allowed from Anthropic cloud monitoring IPs.",
       "All /api/* endpoints (board, command, health-report, status) return HTTP 403 from this monitoring environment.",
-      "GitHub Actions Keep Render Awake workflow confirmed SUCCESS at 2026-05-23T23:42:12Z \u2014 server IS alive and healthy for end users.",
+      "GitHub Actions Keep Render Awake workflow confirmed SUCCESS at 2026-05-23T23:42:12Z — server IS alive and healthy for end users.",
       "server.py: 2534 lines, syntax OK, 11 scrapers defined: Walmart, StockTrack, RedFlagDeals, Shopify, Flipp, HomeDepot, Rona, LCBO, SAQ, BCLDB, CamelCamelCamel.",
-      "Cannot determine live scraper health \u2014 /api/status blocked from Anthropic cloud IPs.",
-      "Cannot read /api/board or /api/command \u2014 team coordination unavailable from Anthropic cloud IPs.",
+      "Cannot determine live scraper health — /api/status blocked from Anthropic cloud IPs.",
+      "Cannot read /api/board or /api/command — team coordination unavailable from Anthropic cloud IPs.",
       "MONITORING NOTE: Server is operationally healthy for browser and GitHub-Actions users. Only Anthropic cloud monitoring IPs are blocked by Render.",
       "ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic egress IP ranges to allow cloud monitoring. Alternatively, migrate health checks to GitHub Actions."
     ],
@@ -606,7 +606,7 @@
       ],
       "scraper_count": 11,
       "github_actions_keep_alive": "SUCCESS at 2026-05-23T23:42:12Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from this cloud environment. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from this cloud environment. Server code intact."
     }
   },
   {
@@ -621,10 +621,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "29th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T01:07:57Z \u2014 server alive for end users",
+      "29th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T01:07:57Z — server alive for end users",
       "server.py syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel",
-      "health_log.json accidentally emptied in run 29 first attempt \u2014 restored from git history (commit 62cdd1ae)",
+      "health_log.json accidentally emptied in run 29 first attempt — restored from git history (commit 62cdd1ae)",
       "ACTION REQUIRED: Render IP allowlist blocks cloud monitoring. Fix in Render dashboard or migrate health checks to GitHub Actions."
     ],
     "overall": "down",
@@ -659,10 +659,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "30th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T21:11:21Z \u2014 server alive for end users",
+      "30th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T21:11:21Z — server alive for end users",
       "server.py: 2535 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel",
-      "render.yaml has no IP allowlist \u2014 restriction must be set in Render dashboard",
+      "render.yaml has no IP allowlist — restriction must be set in Render dashboard",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist to restore cloud monitoring. Or migrate health checks to GitHub Actions."
     ],
     "overall": "down",
@@ -698,8 +698,8 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "31st consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T22:13:01Z \u2014 server alive for end users",
+      "31st consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T22:13:01Z — server alive for end users",
       "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel",
       "All scraper URLs return 403 from Anthropic cloud IPs (site-level bot blocking, not server.py issue)",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
@@ -723,7 +723,7 @@
       ],
       "total_lines": 2534,
       "github_actions_keep_alive": "SUCCESS at 2026-05-24T22:13:01Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   },
   {
@@ -738,10 +738,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "32nd consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T23:17:46Z \u2014 server alive for end users",
+      "32nd consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T23:17:46Z — server alive for end users",
       "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "down",
@@ -763,7 +763,7 @@
       ],
       "total_lines": 2534,
       "github_actions_keep_alive": "SUCCESS at 2026-05-24T23:17:46Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   },
   {
@@ -778,10 +778,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "33rd consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T23:17:46Z \u2014 server alive for end users",
+      "33rd consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-24T23:17:46Z — server alive for end users",
       "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "down",
@@ -803,7 +803,7 @@
       ],
       "total_lines": 2534,
       "github_actions_keep_alive": "SUCCESS at 2026-05-24T23:17:46Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   },
   {
@@ -818,10 +818,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "34th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-25T22:33:05Z \u2014 server alive for end users",
+      "34th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-25T22:33:05Z — server alive for end users",
       "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel (unchanged)",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "down",
@@ -843,7 +843,7 @@
       ],
       "total_lines": 2534,
       "github_actions_keep_alive": "SUCCESS at 2026-05-25T22:33:05Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   },
   {
@@ -858,10 +858,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "35th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-25T23:42:17Z \u2014 server alive for end users",
+      "35th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-25T23:42:17Z — server alive for end users",
       "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel (unchanged)",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "down",
@@ -883,7 +883,7 @@
       ],
       "total_lines": 2534,
       "github_actions_keep_alive": "SUCCESS at 2026-05-25T23:42:17Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   },
   {
@@ -898,11 +898,11 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "36th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-25T23:42:17Z \u2014 server alive for end users",
+      "36th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-25T23:42:17Z — server alive for end users",
       "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel (unchanged)",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
-      "All external scraper URLs also return 403 from Anthropic cloud IPs \u2014 no URL-level fixes possible from cloud",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
+      "All external scraper URLs also return 403 from Anthropic cloud IPs — no URL-level fixes possible from cloud",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "down",
@@ -924,7 +924,7 @@
       ],
       "total_lines": 2534,
       "github_actions_keep_alive": "SUCCESS at 2026-05-25T23:42:17Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   },
   {
@@ -939,10 +939,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "37th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-26T01:32:59Z \u2014 server alive for end users",
+      "37th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-26T01:32:59Z — server alive for end users",
       "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel (unchanged)",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "down",
@@ -964,7 +964,7 @@
       ],
       "total_lines": 2534,
       "github_actions_keep_alive": "SUCCESS at 2026-05-26T01:32:59Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   },
   {
@@ -979,10 +979,10 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "38th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-26T22:37:03Z \u2014 server alive for end users",
+      "38th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-26T22:37:03Z — server alive for end users",
       "server.py: 2535 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel (unchanged)",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "down",
@@ -1004,7 +1004,47 @@
       ],
       "total_lines": 2535,
       "github_actions_keep_alive": "SUCCESS at 2026-05-26T22:37:03Z",
-      "note": "Live scraper health unknown \u2014 /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
+    }
+  },
+  {
+    "checked_at": "2026-05-27T00:09:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": true,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "39th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-26T23:47:10Z — server alive for end users",
+      "server.py: 2534 lines, syntax OK, 11 scrapers: Walmart/StockTrack/RedFlagDeals/Shopify/Flipp/HomeDepot/Rona/LCBO/SAQ/BCLDB/CamelCamelCamel (unchanged)",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
+      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
+    ],
+    "overall": "degraded",
+    "consecutive_down_runs": 39,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_wired": [
+        "Walmart",
+        "StockTrack",
+        "RedFlagDeals",
+        "Shopify",
+        "Flipp",
+        "HomeDepot",
+        "Rona",
+        "LCBO",
+        "SAQ",
+        "BCLDB",
+        "CamelCamelCamel"
+      ],
+      "total_lines": 2534,
+      "github_actions_keep_alive": "SUCCESS at 2026-05-26T23:47:10Z",
+      "note": "Live scraper health unknown — /api/status returns 403 from Anthropic cloud IPs. Server code intact."
     }
   }
 ]
