@@ -1,33 +1,57 @@
 {
-  "checked_at": "2026-05-31T03:04:00Z",
+  "checked_at": "2026-06-01T00:06:10Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": true,
   "deals_fresh": null,
   "staleness_minutes": null,
   "dead_scrapers": [],
-  "healthy_scrapers": ["walmart","stocktrack","redflagdeals","flipp","shopify","homedepot","rona","lcbo","saq","bcldb","camel"],
+  "healthy_scrapers": [
+    "walmart",
+    "stocktrack",
+    "redflagdeals",
+    "flipp",
+    "shopify",
+    "homedepot",
+    "rona",
+    "lcbo",
+    "saq",
+    "bcldb",
+    "camel"
+  ],
   "fixed_scrapers": [],
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "59th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-    "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-31T01:36:59Z — server alive for end users",
-    "server.py: 2535 lines, syntax OK, 11 scrapers active: walmart/stocktrack/redflagdeals/flipp/shopify/homedepot/rona/lcbo/saq/bcldb/camel",
-    "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
-    "Team board unreachable (403) — cannot check Scout messages or pending commands",
+    "60th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+    "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-31T23:49:22Z \u2014 server alive for end users",
+    "server.py: 2534 lines, syntax OK, 11 scrapers active: walmart/stocktrack/redflagdeals/flipp/shopify/homedepot/rona/lcbo/saq/bcldb/camel",
+    "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+    "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
     "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
   ],
   "overall": "degraded",
-  "consecutive_blocked_runs": 59,
+  "consecutive_blocked_runs": 60,
   "static_analysis": {
     "syntax_ok": true,
-    "scrapers_active": ["walmart","stocktrack","redflagdeals","flipp","shopify","homedepot","rona","lcbo","saq","bcldb","camel"],
-    "total_lines": 2535,
-    "github_actions_keep_alive": "SUCCESS at 2026-05-31T01:36:59Z",
+    "scrapers_active": [
+      "walmart",
+      "stocktrack",
+      "redflagdeals",
+      "flipp",
+      "shopify",
+      "homedepot",
+      "rona",
+      "lcbo",
+      "saq",
+      "bcldb",
+      "camel"
+    ],
+    "total_lines": 2534,
+    "github_actions_keep_alive": "SUCCESS at 2026-05-31T23:49:22Z",
     "recent_commits": [
-      "01909960 | 2026-05-31T02:05:28Z | run #58 degraded",
-      "978ac5b0 | 2026-05-31T01:05:57Z | run #57 degraded",
-      "1db5bd25 | 2026-05-31T00:09:32Z | run #56 degraded"
+      "0b1dc0a | 2026-05-31 | run #59 degraded",
+      "0190996 | 2026-05-31 | run #58 degraded",
+      "978ac5b | 2026-05-31 | run #57 degraded"
     ]
   }
 }
