@@ -1,62 +1,5 @@
 [
   {
-    "checked_at": "2026-06-01T01:07:22Z",
-    "tunnel_url": "https://deals-hunt.onrender.com",
-    "server_up": null,
-    "deals_fresh": null,
-    "staleness_minutes": null,
-    "dead_scrapers": [],
-    "healthy_scrapers": [
-      "walmart",
-      "stocktrack",
-      "redflagdeals",
-      "flipp",
-      "shopify",
-      "homedepot",
-      "rona",
-      "lcbo",
-      "saq",
-      "bcldb",
-      "camel"
-    ],
-    "fixed_scrapers": [],
-    "command_executed": null,
-    "board_sent": [],
-    "issues": [
-      "61st consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "GitHub Actions Keep Render Awake: SUCCESS at 2026-05-31T23:49:22Z \u2014 server alive for end users",
-      "server.py: 2534 lines, syntax OK, 11 scrapers active: walmart/stocktrack/redflagdeals/flipp/shopify/homedepot/rona/lcbo/saq/bcldb/camel",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
-      "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
-      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
-    ],
-    "overall": "degraded",
-    "consecutive_blocked_runs": 61,
-    "static_analysis": {
-      "syntax_ok": true,
-      "scrapers_active": [
-        "walmart",
-        "stocktrack",
-        "redflagdeals",
-        "flipp",
-        "shopify",
-        "homedepot",
-        "rona",
-        "lcbo",
-        "saq",
-        "bcldb",
-        "camel"
-      ],
-      "total_lines": 2534,
-      "github_actions_keep_alive": "SUCCESS at 2026-05-31T23:49:22Z",
-      "recent_commits": [
-        "f75aa74 | 2026-06-01 | run #60 degraded",
-        "0b1dc0a | 2026-05-31 | run #59 degraded",
-        "0190996 | 2026-05-31 | run #58 degraded"
-      ]
-    }
-  },
-  {
     "checked_at": "2026-06-01T02:07:56Z",
     "tunnel_url": "https://deals-hunt.onrender.com",
     "server_up": true,
@@ -80,13 +23,13 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "62nd consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-      "Keep Render Awake workflow had ~2h16m gap (last run 2026-05-31T23:48:56Z); manually triggered dispatch at 2026-06-01T02:06:42Z \u2014 SUCCESS, server alive",
+      "62nd consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "Keep Render Awake workflow had ~2h16m gap (last run 2026-05-31T23:48:56Z); manually triggered dispatch at 2026-06-01T02:06:42Z — SUCCESS, server alive",
       "server.py: 2535 lines, syntax OK, 11 scrapers active: walmart/stocktrack/redflagdeals/flipp/shopify/homedepot/rona/lcbo/saq/bcldb/camel",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
-      "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
+      "Team board unreachable (403) — cannot check Scout messages or pending commands",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring.",
-      "Note: scheduled keep-alive may have paused \u2014 monitor for recurrence; manual dispatch confirmed server up."
+      "Note: scheduled keep-alive may have paused — monitor for recurrence; manual dispatch confirmed server up."
     ],
     "overall": "degraded"
   },
@@ -114,11 +57,11 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "63rd consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "63rd consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
       "Keep Render Awake workflow healthy: SUCCESS at 2026-06-01T02:14:37Z (~50 min ago), runs approximately hourly",
       "server.py: 2535 lines, syntax OK, 11 scrapers active: walmart/stocktrack/redflagdeals/flipp/shopify/homedepot/rona/lcbo/saq/bcldb/camel",
-      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
-      "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
+      "Team board unreachable (403) — cannot check Scout messages or pending commands",
       "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
     ],
     "overall": "degraded",
@@ -144,6 +87,63 @@
         "638d8e9 | 2026-06-01 | run #62 degraded",
         "eab7ec6 | 2026-06-01 | run #61 degraded",
         "f75aa74 | 2026-06-01 | run #60 degraded"
+      ]
+    }
+  },
+  {
+    "checked_at": "2026-06-01T04:07:05Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": true,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [
+      "walmart",
+      "stocktrack",
+      "redflagdeals",
+      "flipp",
+      "shopify",
+      "homedepot",
+      "rona",
+      "lcbo",
+      "saq",
+      "bcldb",
+      "camel"
+    ],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "64th consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "Keep Render Awake workflow healthy: SUCCESS at 2026-06-01T02:14:37Z (~1h52m ago), runs approximately hourly",
+      "server.py: 2535 lines, syntax OK, 11 scrapers active: walmart/stocktrack/redflagdeals/flipp/shopify/homedepot/rona/lcbo/saq/bcldb/camel",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs — Render platform-level restriction",
+      "Team board unreachable (403) — cannot check Scout messages or pending commands",
+      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
+    ],
+    "overall": "degraded",
+    "consecutive_blocked_runs": 64,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_active": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "total_lines": 2535,
+      "github_actions_keep_alive": "SUCCESS at 2026-06-01T02:14:37Z",
+      "recent_commits": [
+        "5aeb767 | 2026-06-01 | run #63 degraded",
+        "638d8e9 | 2026-06-01 | run #62 degraded",
+        "eab7ec6 | 2026-06-01 | run #61 degraded"
       ]
     }
   }
