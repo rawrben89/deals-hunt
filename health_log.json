@@ -203,5 +203,64 @@
         "638d8e9 | 2026-06-01 | run #62 degraded"
       ]
     }
+  },
+  {
+    "checked_at": "2026-06-02T01:07:10Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": true,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [
+      "walmart",
+      "stocktrack",
+      "redflagdeals",
+      "flipp",
+      "shopify",
+      "homedepot",
+      "rona",
+      "lcbo",
+      "saq",
+      "bcldb",
+      "camel"
+    ],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "66th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "Keep-Alive cron gap: last scheduled run was 81m ago (cron is */5 min \u2014 GitHub Actions throttling free-tier repos)",
+      "Manual keep-alive dispatch triggered successfully \u2014 in_progress at run time",
+      "server.py: 2534 lines, syntax OK, 11 scrapers active: walmart/stocktrack/redflagdeals/flipp/shopify/homedepot/rona/lcbo/saq/bcldb/camel",
+      "All /api/* endpoints return 403 host_not_allowed from Anthropic cloud IPs \u2014 Render platform-level restriction",
+      "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
+      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
+    ],
+    "overall": "degraded",
+    "consecutive_blocked_runs": 66,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_active": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "total_lines": 2534,
+      "keep_alive_last_scheduled": "2026-06-01T23:46:10Z (81m ago)",
+      "keep_alive_manual_dispatch": "triggered successfully, in_progress",
+      "recent_commits": [
+        "6782949 | 2026-06-02 | run #65 degraded",
+        "17f7ca9 | 2026-06-01 | run #64 degraded",
+        "5aeb767 | 2026-06-01 | run #63 degraded"
+      ]
+    }
   }
 ]
