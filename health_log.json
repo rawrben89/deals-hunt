@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-02T03:06:13Z",
+  "checked_at": "2026-06-02T04:06:46Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -22,16 +22,16 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "67th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+    "68th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
     "All /api/* endpoints return 403 host_not_allowed \u2014 Render platform-level IP restriction",
     "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
     "server.py: 2534 lines, syntax OK, 11 scrapers active (static analysis)",
-    "Keep-alive cron gap: last scheduled run was 59m ago (GitHub Actions throttling free-tier repos)",
-    "Manual keep-alive dispatch triggered successfully \u2014 in_progress at report time",
+    "Keep-alive workflow last ran at 2026-06-02T03:05:47Z (success)",
+    "Manual keep-alive dispatch triggered successfully at run start",
     "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
   ],
   "overall": "degraded",
-  "consecutive_blocked_runs": 67,
+  "consecutive_blocked_runs": 68,
   "static_analysis": {
     "syntax_ok": true,
     "scrapers_active": [
@@ -48,12 +48,7 @@
       "camel"
     ],
     "total_lines": 2534,
-    "keep_alive_last_scheduled": "2026-06-02T02:05:32Z (59m ago)",
-    "keep_alive_manual_dispatch": "triggered successfully, in_progress",
-    "recent_commits": [
-      "fc71479 | 2026-06-02 | run #66 degraded",
-      "6782949 | 2026-06-02 | run #65 degraded",
-      "17f7ca9 | 2026-06-01 | run #64 degraded"
-    ]
+    "keep_alive_last_workflow": "2026-06-02T03:05:47Z (success)",
+    "keep_alive_manual_dispatch": "triggered successfully at 2026-06-02T04:05:00Z"
   }
 }
