@@ -156,5 +156,58 @@
       ],
       "server_py_lines": 2534
     }
+  },
+  {
+    "checked_at": "2026-06-03T02:05:41Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [
+      "walmart",
+      "stocktrack",
+      "redflagdeals",
+      "flipp",
+      "shopify",
+      "homedepot",
+      "rona",
+      "lcbo",
+      "saq",
+      "bcldb",
+      "camel"
+    ],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "71th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "All /api/* endpoints return 403 host_not_allowed \u2014 Render platform-level IP restriction",
+      "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
+      "server.py: 2534 lines, syntax OK, 11 scrapers active (static analysis)",
+      "Keep-alive workflow dispatched at run start (HTTP 204) \u2014 queued at 2026-06-03T02:05:22Z",
+      "Last successful keep-alive run: 2026-06-03T01:05:11Z (success)",
+      "ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
+    ],
+    "overall": "degraded",
+    "consecutive_blocked_runs": 71,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_active": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "server_py_lines": 2534,
+      "server_py_last_changed": "2026-05-22T13:35:27Z"
+    }
   }
 ]
