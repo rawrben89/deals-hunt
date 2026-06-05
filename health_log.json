@@ -623,5 +623,57 @@
       ],
       "server_py_lines": 2534
     }
+  },
+  {
+    "checked_at": "2026-06-05T04:13:32Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [
+      "walmart",
+      "stocktrack",
+      "redflagdeals",
+      "flipp",
+      "shopify",
+      "homedepot",
+      "rona",
+      "lcbo",
+      "saq",
+      "bcldb",
+      "camel"
+    ],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "82nd consecutive run — /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "All /api/* endpoints return 403 host_not_allowed — Render platform-level IP restriction",
+      "Team board unreachable (403) — cannot check Scout messages or pending commands",
+      "server.py: 2534 lines, syntax OK, 11 scrapers active (static analysis)",
+      "Keep Render Awake workflow dispatched — last confirmed run 2026-06-05T03:08:06Z",
+      "GitHub Actions logs also return 403 — cloud IPs broadly restricted by Render",
+      "PERSISTENT ISSUE: 82 consecutive blocked runs. ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction."
+    ],
+    "overall": "degraded",
+    "consecutive_blocked_runs": 82,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_active": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "server_py_lines": 2534
+    }
   }
 ]
