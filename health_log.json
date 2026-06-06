@@ -727,5 +727,58 @@
       "server_py_lines": 2534,
       "note": "Cannot verify live scraper health \u2014 all /api/* endpoints blocked from cloud execution environment"
     }
+  },
+  {
+    "checked_at": "2026-06-06T03:08:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [
+      "walmart",
+      "stocktrack",
+      "redflagdeals",
+      "flipp",
+      "shopify",
+      "homedepot",
+      "rona",
+      "lcbo",
+      "saq",
+      "bcldb",
+      "camel"
+    ],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "84th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+      "All /api/* endpoints return 403 host_not_allowed \u2014 Render platform-level IP restriction",
+      "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
+      "server.py: 2535 lines, syntax OK, 11 scrapers active (static analysis)",
+      "Last server.py commit: 2026-05-22 (no recent scraper changes detected)",
+      "Keep Render Awake workflow dispatched \u2014 last successful run 2026-06-06T01:31:45Z",
+      "PERSISTENT ISSUE: 84 consecutive blocked runs. ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction to restore cloud monitoring."
+    ],
+    "overall": "degraded",
+    "consecutive_blocked_runs": 84,
+    "static_analysis": {
+      "syntax_ok": true,
+      "scrapers_active": [
+        "walmart",
+        "stocktrack",
+        "redflagdeals",
+        "flipp",
+        "shopify",
+        "homedepot",
+        "rona",
+        "lcbo",
+        "saq",
+        "bcldb",
+        "camel"
+      ],
+      "server_py_lines": 2535,
+      "last_server_py_commit": "2026-05-22T13:35:27Z"
+    }
   }
 ]
