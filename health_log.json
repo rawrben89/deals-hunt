@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-07T09:08:18Z",
+  "checked_at": "2026-06-07T10:07:20Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -22,14 +22,14 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "93rd consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+    "94th consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
     "All /api/* endpoints return 403 host_not_allowed \u2014 Render platform-level IP restriction",
     "Team board unreachable (403) \u2014 cannot check Scout messages or pending commands",
     "server.py: 2534 lines, syntax OK, 11 scrapers active (static analysis unchanged)",
-    "PERSISTENT ISSUE: 93 consecutive blocked runs. ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction or add Anthropic cloud egress IPs to allowlist."
+    "PERSISTENT ISSUE: 94 consecutive blocked runs. ACTION REQUIRED: In Render dashboard, remove IP allowlist restriction or add Anthropic cloud egress IPs to allowlist."
   ],
   "overall": "degraded",
-  "consecutive_blocked_runs": 93,
+  "consecutive_blocked_runs": 94,
   "static_analysis": {
     "syntax_ok": true,
     "scrapers_active": [
