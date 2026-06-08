@@ -1,33 +1,33 @@
 {
-    "checked_at": "2026-06-08T05:08:31Z",
-    "tunnel_url": "https://deals-hunt.onrender.com",
-    "server_up": null,
-    "deals_fresh": null,
-    "staleness_minutes": null,
-    "dead_scrapers": [],
-    "healthy_scrapers": [
-        "walmart",
-        "stocktrack",
-        "redflagdeals",
-        "flipp",
-        "shopify",
-        "homedepot",
-        "rona",
-        "lcbo",
-        "saq",
-        "bcldb",
-        "camel"
-    ],
-    "fixed_scrapers": [],
-    "command_executed": null,
-    "board_sent": [],
-    "issues": [
-        "102nd+ consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
-        "All Render endpoints (/, /api/board, /api/command, /api/status, /api/health-report) return 403 host_not_allowed",
-        "Team board unreachable \u2014 cannot check Scout messages or pending commands",
-        "Cannot verify live scraper health \u2014 server inaccessible from this IP range",
-        "server.py: 2534 lines, syntax OK, 11 scrapers active (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel)",
-        "PERSISTENT ISSUE: 100+ consecutive blocked runs. ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic cloud CIDR ranges to allow health monitoring."
-    ],
-    "overall": "degraded"
+  "checked_at": "2026-06-08T06:11:28Z",
+  "tunnel_url": "https://deals-hunt.onrender.com",
+  "server_up": null,
+  "deals_fresh": null,
+  "staleness_minutes": null,
+  "dead_scrapers": [],
+  "healthy_scrapers": [
+    "walmart",
+    "stocktrack",
+    "redflagdeals",
+    "flipp",
+    "shopify",
+    "homedepot",
+    "rona",
+    "lcbo",
+    "saq",
+    "bcldb",
+    "camel"
+  ],
+  "fixed_scrapers": [],
+  "command_executed": null,
+  "board_sent": [],
+  "issues": [
+    "103rd+ consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+    "All Render endpoints return 403 host_not_allowed \u2014 server inaccessible from this IP range",
+    "Team board unreachable \u2014 cannot check Scout messages or pending commands",
+    "Cannot verify live scraper health \u2014 server inaccessible from this IP range",
+    "server.py: 2534 lines, syntax OK, 11 scrapers confirmed in code (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel)",
+    "PERSISTENT ISSUE: 100+ consecutive blocked runs. ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic cloud CIDR ranges."
+  ],
+  "overall": "degraded"
 }
