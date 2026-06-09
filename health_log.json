@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-09T05:12:10Z",
+  "checked_at": "2026-06-09T06:13:06Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,14 +10,14 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "108th+ consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
+    "109th+ consecutive run \u2014 /api/* blocked from Anthropic cloud IPs (403 host_not_allowed)",
     "All Render endpoints return 403 host_not_allowed \u2014 server inaccessible from this IP range",
     "Team board unreachable \u2014 cannot check Scout messages or pending commands",
     "Cannot verify live scraper health \u2014 server inaccessible from this IP range",
-    "Static analysis: server.py 2535 lines, syntax OK, 11 scrapers confirmed in code (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel)",
-    "Scraper URLs reviewed: all appear structurally correct (walmart.ca, stocktrack.ca, forums.redflagdeals.com, shopify stores, backflipp.wishabi.com, homedepot.ca, rona.ca, lcbo.com, saq.com, bcliquorstores.com, camelcamelcamel.com)",
-    "PERSISTENT ISSUE: 100+ consecutive blocked runs. ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic cloud CIDR ranges to allow health agent access.",
-    "Keep-alive workflow (every 5 min) confirmed active from GitHub Actions \u2014 server IS reachable from GitHub IPs"
+    "GitHub Actions keep-alive confirmed: server IS reachable from GitHub IPs (Ping Render: success)",
+    "Static analysis: server.py 2534 lines, syntax OK, 11 scrapers confirmed in code (Walmart, StockTrack, RedFlagDeals, Flipp, Shopify, HomeDepot, Rona, LCBO, SAQ, BCLDB, CamelCamelCamel)",
+    "Scraper URLs reviewed: all structurally correct (walmart.ca, stocktrack.ca, forums.redflagdeals.com, backflipp.wishabi.com, homedepot.ca, rona.ca, lcbo.com, saq.com, bcliquorstores.com, camelcamelcamel.com)",
+    "PERSISTENT ISSUE: 100+ consecutive blocked runs. ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic cloud CIDR ranges to allow health agent access."
   ],
   "overall": "degraded"
 }
