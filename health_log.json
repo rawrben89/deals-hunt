@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-12T10:07:30Z",
+  "checked_at": "2026-06-12T11:08:51Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,12 +10,14 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "144th consecutive blocked run — /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-    "All Render endpoints return 403 host_not_allowed — server inaccessible from Anthropic egress gateway",
-    "Board, command, health-report, and status APIs all blocked — operating in static-analysis-only mode",
+    "145th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "All Render endpoints return 403 host_not_allowed \u2014 server inaccessible from Anthropic egress gateway",
+    "Board, command, health-report, and status APIs all blocked \u2014 operating in static-analysis-only mode",
+    "index.html contains no trycloudflare.com URL; api-url.json points to deals-hunt.onrender.com (blocked)",
     "Static analysis: server.py syntax OK, 11 scraper functions registered (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel)",
-    "All scraper URLs appear structurally valid — no fixable URL issues found in static analysis",
-    "PERSISTENT ISSUE (144+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, whitelist Anthropic/cloud agent CIDR ranges, or switch API URL to a cloudflare tunnel the health agent can reach."
+    "All scraper URLs appear structurally valid \u2014 no fixable URL issues found in static analysis",
+    "keep-alive.yml workflow pings Render every 5 min from GitHub Actions (non-cloud IPs) \u2014 server likely running",
+    "PERSISTENT ISSUE (145+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, whitelist Anthropic/cloud agent CIDR ranges, or add a Cloudflare tunnel and write its URL to index.html or api-url.json"
   ],
   "overall": "degraded"
 }
