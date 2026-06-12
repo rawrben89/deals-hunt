@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-12T03:07:25Z",
+  "checked_at": "2026-06-12T04:08:39Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,11 +10,12 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "137th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "138th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
     "All Render endpoints return 403 host_not_allowed \u2014 server inaccessible from Anthropic egress gateway",
+    "All scraper target URLs also blocked (walmart, stocktrack, rfd, flipp, homedepot, rona, lcbo, saq, bcldb, camel) \u2014 full network egress restriction in effect",
     "Static analysis: server.py syntax OK, 11 scrapers registered (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel)",
     "Board, command, and health-report APIs all blocked \u2014 operating in static-analysis-only mode",
-    "PERSISTENT ISSUE (137+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic/cloud agent CIDR ranges to allow health agent access."
+    "PERSISTENT ISSUE (138+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic/cloud agent CIDR ranges to allow health agent access."
   ],
   "overall": "degraded"
 }
