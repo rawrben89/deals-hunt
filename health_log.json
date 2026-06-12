@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-12T15:09:46Z",
+  "checked_at": "2026-06-12T16:08:58Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,14 +10,12 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "149th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-    "All Render endpoints return 403 host_not_allowed \u2014 server inaccessible from Anthropic egress gateway",
-    "Board, command, health-report, and status APIs all blocked \u2014 operating in static-analysis-only mode",
-    "index.html contains no trycloudflare.com URL; api-url.json points to deals-hunt.onrender.com (blocked)",
-    "Static analysis: server.py syntax OK (2535 lines), scrapers present: walmart, stocktrack, redflagdeals, flipp, homedepot, rona, lcbo, saq, camelcamelcamel",
+    "150th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "All Render endpoints (board, command, health-report, status) return 403 \u2014 server inaccessible from Anthropic egress gateway",
+    "Static analysis only: server.py syntax OK (2534 lines), scrapers: walmart, stocktrack, redflagdeals, flipp, homedepot, rona, lcbo, saq, shopify, camel",
     "All scraper URLs appear structurally valid \u2014 no fixable URL issues found in static analysis",
-    "GitHub Actions: pages build ran at 2026-06-12T14:09:51Z (success); Keep Render Awake ran at 2026-06-12T12:35:42Z (success) \u2014 server likely running",
-    "PERSISTENT ISSUE (149+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, whitelist Anthropic/cloud agent CIDR ranges, or add a Cloudflare tunnel and write its URL to index.html or api-url.json"
+    "GitHub Actions: Keep Render Awake completed/success @ 2026-06-12T15:53:47Z; pages build completed/success @ 2026-06-12T15:12:34Z \u2014 server likely running and alive",
+    "PERSISTENT ISSUE (150+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings, add deals-hunt.onrender.com to network egress allowlist, or add a Cloudflare tunnel URL to api-url.json"
   ],
   "overall": "degraded"
 }
