@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-12T16:08:58Z",
+  "checked_at": "2026-06-12T17:07:02Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,12 +10,12 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "150th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "151st consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
     "All Render endpoints (board, command, health-report, status) return 403 \u2014 server inaccessible from Anthropic egress gateway",
-    "Static analysis only: server.py syntax OK (2534 lines), scrapers: walmart, stocktrack, redflagdeals, flipp, homedepot, rona, lcbo, saq, shopify, camel",
+    "Static analysis only: server.py syntax OK (2534 lines), scrapers: walmart, stocktrack, redflagdeals, flipp, homedepot, rona, lcbo, saq, shopify, camel, bcldb",
     "All scraper URLs appear structurally valid \u2014 no fixable URL issues found in static analysis",
-    "GitHub Actions: Keep Render Awake completed/success @ 2026-06-12T15:53:47Z; pages build completed/success @ 2026-06-12T15:12:34Z \u2014 server likely running and alive",
-    "PERSISTENT ISSUE (150+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings, add deals-hunt.onrender.com to network egress allowlist, or add a Cloudflare tunnel URL to api-url.json"
+    "GitHub Actions: Keep Render Awake completed/success @ 2026-06-12T15:53:47Z; pages build completed/success @ 2026-06-12T16:11:45Z \u2014 server likely running and alive",
+    "PERSISTENT ISSUE (151+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings, add deals-hunt.onrender.com to network egress allowlist"
   ],
   "overall": "degraded"
 }
