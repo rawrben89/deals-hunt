@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-12T21:08:05Z",
+  "checked_at": "2026-06-12T22:10:30Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,12 +10,14 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "155th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-    "All Render endpoints (board, command, health-report, status) return 403 \u2014 server inaccessible from Anthropic egress gateway",
-    "Static analysis only: server.py syntax OK (2534 lines), active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-    "All scraper URLs appear structurally valid \u2014 no fixable URL issues found in static analysis",
-    "GitHub Actions: Keep Render Awake completed/success @ 2026-06-12T20:25:36Z \u2014 server likely running and alive",
-    "PERSISTENT ISSUE (155+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings, add deals-hunt.onrender.com to network egress allowlist"
+    "156th consecutive blocked run — /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "All Render endpoints (board, command, health-report, status) return 403 — server inaccessible from Anthropic egress gateway",
+    "Static analysis: server.py syntax OK (2534 lines), 18 scraper functions, 11 sources: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+    "All scraper base URLs structurally valid (stocktrack.ca, forums.redflagdeals.com, camelcamelcamel.com, lcbo.com, saq.com, bcldb, homedepot.ca, rona.ca) — no fixable URL issues in static analysis",
+    "Shopify stores: Reitmans, Penningtons, Laura, Melanie Lyne, Thyme Maternity, Ardene, Frank and Oak, Addition Elle",
+    "GitHub Actions: Keep Render Awake — success @ 2026-06-12T20:25:36Z — Render server is alive",
+    "GitHub Actions: pages build and deployment — success @ 2026-06-12T21:09:07Z",
+    "PERSISTENT ISSUE (156+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings → Environment → Network egress, add deals-hunt.onrender.com to the allowlist so health agent can reach /api/status, /api/board, /api/health-report"
   ],
   "overall": "degraded"
 }
