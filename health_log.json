@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-12T18:07:59Z",
+  "checked_at": "2026-06-12T19:06:30Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,12 +10,12 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "152nd consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-    "All Render endpoints (board, command, health-report, status) return 403 \u2014 server inaccessible from Anthropic egress gateway",
-    "Static analysis only: server.py syntax OK (2534 lines), scrapers: walmart, stocktrack, redflagdeals, flipp, homedepot, rona, lcbo, saq, shopify, camel, bcldb",
-    "All scraper URLs appear structurally valid \u2014 no fixable URL issues found in static analysis",
-    "GitHub Actions: Keep Render Awake completed/success @ 2026-06-12T18:07:11Z \u2014 server likely running and alive",
-    "PERSISTENT ISSUE (152+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings, add deals-hunt.onrender.com to network egress allowlist"
+    "153rd consecutive blocked run — /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "All Render endpoints (board, command, health-report, status) return 403 — server inaccessible from Anthropic egress gateway",
+    "Static analysis only: server.py syntax OK (2534 lines), scrapers: walmart, stocktrack, redflagdeals, flipp, homedepot, rona, lcbo, saq, shopify, camel, bcldb, bestbuy, canadiantire, ikea, atmosphere, decathlon, lowes, amazon, princess",
+    "All scraper URLs appear structurally valid — no fixable URL issues found in static analysis",
+    "GitHub Actions: Keep Render Awake completed/success @ 2026-06-12T18:07:11Z — server likely running and alive",
+    "PERSISTENT ISSUE (153+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings, add deals-hunt.onrender.com to network egress allowlist"
   ],
   "overall": "degraded"
 }
