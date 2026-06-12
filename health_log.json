@@ -1,25 +1,5 @@
 [
   {
-    "checked_at": "2026-06-10T17:07:00Z",
-    "tunnel_url": "https://deals-hunt.onrender.com",
-    "server_up": null,
-    "deals_fresh": null,
-    "staleness_minutes": null,
-    "dead_scrapers": [],
-    "healthy_scrapers": [],
-    "fixed_scrapers": [],
-    "command_executed": null,
-    "board_sent": [],
-    "issues": [
-      "121st consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-      "All Render endpoints return 403 host_not_allowed \u2014 server inaccessible from Anthropic egress gateway",
-      "Static analysis: server.py syntax OK, 11 scrapers registered (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel)",
-      "Board, command, and health-report APIs all blocked \u2014 operating in static-analysis-only mode",
-      "PERSISTENT ISSUE (121+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic/cloud agent CIDR ranges to allow health agent access."
-    ],
-    "overall": "degraded"
-  },
-  {
     "checked_at": "2026-06-10T19:08:41Z",
     "tunnel_url": "https://deals-hunt.onrender.com",
     "server_up": null,
@@ -311,6 +291,26 @@
       "LCBO uses Coveo API (org: lcboproductionx2kwygnc) with token \u2014 token may expire but auto-refresh logic is present",
       "Board, command, and health-report APIs all blocked \u2014 operating in static-analysis-only mode",
       "PERSISTENT ISSUE (135+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic/cloud agent CIDR ranges to allow health agent access."
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-12T02:07:33Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "136th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 host_not_allowed \u2014 server inaccessible from Anthropic egress gateway",
+      "Static analysis: server.py syntax OK, 11 scrapers registered (walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel)",
+      "Board, command, and health-report APIs all blocked \u2014 operating in static-analysis-only mode",
+      "PERSISTENT ISSUE (136+ consecutive blocked runs). ACTION REQUIRED: In Render dashboard, disable IP allowlist or add Anthropic/cloud agent CIDR ranges to allow health agent access."
     ],
     "overall": "degraded"
   }
