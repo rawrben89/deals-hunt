@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-13T10:07:57Z",
+  "checked_at": "2026-06-13T12:09:40Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,11 +10,11 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "160th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "161st consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
     "All Render endpoints (board, command, health-report, status) return 403 \u2014 server inaccessible from Anthropic egress gateway",
     "Static analysis: server.py syntax OK (2534 lines), 11 scraper sources: walmart, stocktrack, redflagdeals, shopify (8 stores), flipp, homedepot, rona, lcbo, saq, bcldb, camel",
-    "GitHub Actions: Keep Render Awake \u2014 success @ 2026-06-13T07:53:43Z \u2014 Render server is alive and responding",
-    "PERSISTENT ISSUE (160+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings \u2192 Environment \u2192 Network egress, add deals-hunt.onrender.com to the allowlist so health agent can reach /api/status, /api/board, /api/health-report"
+    "GitHub Actions: Keep Render Awake \u2014 success @ 2026-06-13T10:30:32Z \u2014 Render server is alive and responding",
+    "PERSISTENT ISSUE (161+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings \u2192 Environment \u2192 Network egress, add deals-hunt.onrender.com to the allowlist so health agent can reach /api/status, /api/board, /api/health-report"
   ],
   "overall": "degraded"
 }
