@@ -1,167 +1,187 @@
 [
-    {
-        "checked_at": "2026-06-14T13:08:41Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "178th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "All external scraper source URLs (stocktrack.ca, redflagdeals.com, walmart.ca, camelcamelcamel.com, etc.) also return 403 from Anthropic cloud IPs",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
-            "PERSISTENT ISSUE (178+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    },
-    {
-        "checked_at": "2026-06-14T14:07:54Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "179th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "All external scraper source URLs (stocktrack.ca, redflagdeals.com, walmart.ca, camelcamelcamel.com, etc.) also return 403 from Anthropic cloud IPs",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
-            "PERSISTENT ISSUE (179+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    },
-    {
-        "checked_at": "2026-06-14T15:06:00Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "180th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "All external scraper source URLs also return 403 from Anthropic cloud IPs",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
-            "PERSISTENT ISSUE (180+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    },
-    {
-        "checked_at": "2026-06-14T16:08:01Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "5th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "All external scraper source URLs also return 403 from Anthropic cloud IPs",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
-            "PERSISTENT ISSUE (5+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    },
-    {
-        "checked_at": "2026-06-14T17:06:42Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "181st consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
-            "PERSISTENT ISSUE (181+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    },
-    {
-        "checked_at": "2026-06-14T18:07:50Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "182nd consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
-            "PERSISTENT ISSUE (182+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    },
-    {
-        "checked_at": "2026-06-14T19:05:00Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "183rd consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
-            "PERSISTENT ISSUE (183+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    },
-    {
-        "checked_at": "2026-06-14T20:07:22Z",
-        "tunnel_url": "https://deals-hunt.onrender.com",
-        "server_up": null,
-        "deals_fresh": null,
-        "staleness_minutes": null,
-        "dead_scrapers": [],
-        "healthy_scrapers": [],
-        "fixed_scrapers": [],
-        "command_executed": null,
-        "board_sent": [],
-        "issues": [
-            "184th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-            "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
-            "All external scraper source URLs also return 403 from Anthropic cloud IPs",
-            "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
-            "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
-            "PERSISTENT ISSUE (184+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
-        ],
-        "overall": "degraded"
-    }
+  {
+    "checked_at": "2026-06-14T13:08:41Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "178th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "All external scraper source URLs (stocktrack.ca, redflagdeals.com, walmart.ca, camelcamelcamel.com, etc.) also return 403 from Anthropic cloud IPs",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
+      "PERSISTENT ISSUE (178+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T14:07:54Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "179th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "All external scraper source URLs (stocktrack.ca, redflagdeals.com, walmart.ca, camelcamelcamel.com, etc.) also return 403 from Anthropic cloud IPs",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
+      "PERSISTENT ISSUE (179+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T15:06:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "180th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "All external scraper source URLs also return 403 from Anthropic cloud IPs",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
+      "PERSISTENT ISSUE (180+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T16:08:01Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "5th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "All external scraper source URLs also return 403 from Anthropic cloud IPs",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
+      "PERSISTENT ISSUE (5+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T17:06:42Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "181st consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
+      "PERSISTENT ISSUE (181+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T18:07:50Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "182nd consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
+      "PERSISTENT ISSUE (182+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T19:05:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "183rd consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
+      "PERSISTENT ISSUE (183+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T20:07:22Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "184th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "All external scraper source URLs also return 403 from Anthropic cloud IPs",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
+      "PERSISTENT ISSUE (184+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-14T21:06:43Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "185th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "All Render endpoints return 403 \u2014 server inaccessible from Anthropic egress gateway",
+      "Static analysis: server.py OK (2534 lines), 11 active scrapers: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API and source calls blocked",
+      "PERSISTENT ISSUE (185+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
+  }
 ]
