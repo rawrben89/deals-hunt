@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-15T10:09:07Z",
+  "checked_at": "2026-06-15T12:12:17Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,14 +10,14 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "194th consecutive blocked run — /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
-    "All external domains blocked from this egress environment (deals-hunt.onrender.com, baby/kids stores, etc.)",
-    "Static analysis: server.py OK (2616 lines, syntax valid), 12 active scrapers including new babykids",
-    "Scout added babykids scraper at 10:07 UTC (Snuggle Bugz, Coco Village, Hatley, Mastermind Toys) via Shopify products.json",
-    "Cannot verify babykids scraper — all store domains (snugglebugz.ca, cocovillage.com, hatley.com, mastermindtoys.com) are blocked by egress policy",
-    "babykids scraper logic looks correct: iterates _BABY_SHOPIFY_STORES + _BABY_SLUGS, checks compare_at_price > price, produces full deal objects",
-    "Cannot verify dead scrapers, deal counts, board messages, or commands — all API calls blocked",
-    "PERSISTENT ISSUE (194+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    "195th consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+    "All external domains blocked from this egress environment (deals-hunt.onrender.com and all scraper targets)",
+    "Static analysis: server.py OK (2616 lines, syntax valid), 12 active scrapers",
+    "12 scrapers configured: walmart, stocktrack, redflagdeals, flipp, shopify, homedepot, rona, lcbo, saq, bcldb, camel, babykids",
+    "babykids scraper code looks correct: iterates 4 Shopify stores (Snuggle Bugz, Coco Village, Hatley, Mastermind Toys), checks compare_at_price > price",
+    "Cannot verify babykids scraper live status \u2014 all store domains blocked by egress policy",
+    "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
+    "PERSISTENT ISSUE (195+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
   ],
   "overall": "degraded"
 }
