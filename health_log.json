@@ -252,5 +252,19 @@
     "healthy_scrapers": [],
     "overall": "degraded",
     "note": "Run #190 \u2014 Anthropic IPs blocked by Render (403 host_not_allowed). 190+ consecutive blocked runs. User action required."
+  },
+  {
+    "checked_at": "2026-06-15T04:07:56Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "overall": "degraded",
+    "note": "Run #191 \u2014 Anthropic IPs blocked by Render (403 host_not_allowed). 191+ consecutive blocked runs. User action required."
   }
 ]
