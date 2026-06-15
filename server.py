@@ -2072,6 +2072,87 @@ def get_camel_deals():
     return all_deals, errors
 
 
+# ─────────────────────────────────────────────────────────
+# SOURCE 12: Baby & Kids — Canadian Shopify retailers
+# ─────────────────────────────────────────────────────────
+_BABY_SHOPIFY_STORES = [
+    ("Snuggle Bugz",    "www.snugglebugz.ca",    "Baby & Kids"),
+    ("Coco Village",    "www.cocovillage.com",    "Baby & Kids"),
+    ("Hatley",          "www.hatley.com",         "Baby & Kids"),
+    ("Mastermind Toys", "www.mastermindtoys.com", "Baby & Kids"),
+]
+_BABY_SLUGS = ("sale", "clearance", "on-sale", "promotions")
+
+
+def get_babykids_deals():
+    deals, errors = [], []
+    seen = set()
+
+    for store_name, domain, category in _BABY_SHOPIFY_STORES:
+        got_products = False
+        for slug in _BABY_SLUGS:
+            if got_products:
+                break
+            for page in range(1, 4):
+                url = (f"https://{domain}/collections/{slug}/products.json"
+                       f"?limit=250&page={page}")
+                try:
+                    data = _get_json(url, referer=f"https://{domain}/")
+                    products = data.get("products", [])
+                    if not products:
+                        break
+                    got_products = True
+                    for p in products:
+                        handle = p.get("handle", "").strip()
+                        title  = _clean(p.get("title", ""))
+                        brand  = _clean(p.get("vendor", ""))
+                        if not title or not handle:
+                            continue
+                        imgs = p.get("images", [])
+                        img  = imgs[0].get("src", "") if imgs else ""
+                        for v in p.get("variants", []):
+                            try:
+                                cur = float(v.get("price") or 0)
+                                old = float(v.get("compare_at_price") or 0)
+                            except (TypeError, ValueError):
+                                continue
+                            if cur <= 0 or old <= cur:
+                                continue
+                            tid = f"babykids-{domain}-{handle}-{v.get('id', '')}"
+                            if tid in seen:
+                                continue
+                            seen.add(tid)
+                            save_amt = round(old - cur, 2)
+                            save_pct = str(round((old - cur) / old * 100)) + "%"
+                            deals.append({
+                                "source":        "BabyKids",
+                                "tid":           tid,
+                                "title":         title,
+                                "brand":         brand,
+                                "store":         store_name,
+                                "link":          f"https://{domain}/products/{handle}",
+                                "currentPrice":  f"${cur:.2f}",
+                                "originalPrice": f"${old:.2f}",
+                                "savings":       f"Save ${save_amt:.2f}",
+                                "savePct":       save_pct,
+                                "pubDate":       "",
+                                "relTime":       "Sale",
+                                "votes":         0,
+                                "img":           img,
+                                "category":      category,
+                                "clearance":     slug == "clearance",
+                                "dropDate":      "",
+                                "validUntil":    "",
+                                "provinces":     ["AB", "BC", "MB", "NB", "NL", "NS",
+                                                  "ON", "PE", "QC", "SK"],
+                            })
+                            break
+                except Exception as e:
+                    errors.append(f"BabyKids {store_name}/{slug} p{page}: {e}")
+                    break
+    return deals, errors
+
+
 _SOURCES = [
     ("walmart",      get_walmart_deals,      "Walmart"),
     ("stocktrack",   get_stocktrack_deals,   "StockTrack"),
@@ -2084,6 +2165,7 @@ _SOURCES = [
     ("saq",          get_saq_deals,          "SAQ"),
     ("bcldb",        get_bcldb_deals,        "BC Liquor Stores"),
     ("camel",        get_camel_deals,        "Amazon"),
+    ("babykids",     get_babykids_deals,     "BabyKids"),
 ]
 
 
