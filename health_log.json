@@ -243,5 +243,14 @@
       "PERSISTENT ISSUE (189+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Environment -> Network egress, add deals-hunt.onrender.com to the allowlist"
     ],
     "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-15T02:08:08Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "overall": "degraded",
+    "note": "Run #190 \u2014 Anthropic IPs blocked by Render (403 host_not_allowed). 190+ consecutive blocked runs. User action required."
   }
 ]
