@@ -37,5 +37,15 @@
     "issues": [
       "204th+ consecutive blocked run \u2014 egress still denied for deals-hunt.onrender.com"
     ]
+  },
+  {
+    "checked_at": "2026-06-16T03:07:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "overall": "degraded",
+    "issues": [
+      "205th+ consecutive blocked run \u2014 egress still denied for deals-hunt.onrender.com",
+      "ACTION REQUIRED: In Claude Code web settings -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ]
   }
 ]
