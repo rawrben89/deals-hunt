@@ -11,11 +11,11 @@
     "command_executed": null,
     "board_sent": [],
     "issues": [
-      "202nd+ consecutive blocked run \u2014 /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
+      "202nd+ consecutive blocked run — /api/* returns 403 host_not_allowed from Anthropic cloud IPs",
       "All external domains blocked from this egress environment (deals-hunt.onrender.com)",
       "Static analysis: server.py OK (last verified 2616 lines, syntax valid), 12 active scrapers",
       "12 scrapers configured: Walmart, StockTrack, RedFlagDeals, Shopify, Flipp, HomeDepot, Rona, LCBO, SAQ, BCLDB, CamelCamelCamel, BabyKids",
-      "Cannot verify dead scrapers, deal counts, board messages, or commands \u2014 all API calls blocked",
+      "Cannot verify dead scrapers, deal counts, board messages, or commands — all API calls blocked",
       "PERSISTENT ISSUE (201+ consecutive blocked runs). ACTION REQUIRED: In Claude Code web settings -> Network egress, add deals-hunt.onrender.com to the allowlist"
     ],
     "overall": "degraded"
@@ -26,7 +26,7 @@
     "server_up": null,
     "overall": "degraded",
     "issues": [
-      "203rd+ consecutive blocked run \u2014 egress still denied for deals-hunt.onrender.com"
+      "203rd+ consecutive blocked run — egress still denied for deals-hunt.onrender.com"
     ]
   },
   {
@@ -35,7 +35,7 @@
     "server_up": null,
     "overall": "degraded",
     "issues": [
-      "204th+ consecutive blocked run \u2014 egress still denied for deals-hunt.onrender.com"
+      "204th+ consecutive blocked run — egress still denied for deals-hunt.onrender.com"
     ]
   },
   {
@@ -44,8 +44,26 @@
     "server_up": null,
     "overall": "degraded",
     "issues": [
-      "205th+ consecutive blocked run \u2014 egress still denied for deals-hunt.onrender.com",
+      "205th+ consecutive blocked run — egress still denied for deals-hunt.onrender.com",
       "ACTION REQUIRED: In Claude Code web settings -> Network egress, add deals-hunt.onrender.com to the allowlist"
     ]
+  },
+  {
+    "checked_at": "2026-06-16T05:08:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "206th+ consecutive blocked run — egress still denied for deals-hunt.onrender.com",
+      "HTTP 403 x-deny-reason: host_not_allowed on all /api/* endpoints",
+      "PERSISTENT ISSUE: ACTION REQUIRED — In Claude Code web settings -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
   }
 ]
