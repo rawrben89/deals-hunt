@@ -65,5 +65,23 @@
       "PERSISTENT ISSUE: ACTION REQUIRED — In Claude Code web settings -> Network egress, add deals-hunt.onrender.com to the allowlist"
     ],
     "overall": "degraded"
+  },
+  {
+    "checked_at": "2026-06-16T06:10:00Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "deals_fresh": null,
+    "staleness_minutes": null,
+    "dead_scrapers": [],
+    "healthy_scrapers": [],
+    "fixed_scrapers": [],
+    "command_executed": null,
+    "board_sent": [],
+    "issues": [
+      "207th+ consecutive blocked run — egress still denied for deals-hunt.onrender.com",
+      "HTTP 403 host_not_allowed on all /api/* endpoints — Anthropic cloud IPs blocked",
+      "PERSISTENT ISSUE: ACTION REQUIRED — In Claude Code web settings -> Network egress, add deals-hunt.onrender.com to the allowlist"
+    ],
+    "overall": "degraded"
   }
 ]
