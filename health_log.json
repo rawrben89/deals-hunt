@@ -28,5 +28,14 @@
     "issues": [
       "203rd+ consecutive blocked run \u2014 egress still denied for deals-hunt.onrender.com"
     ]
+  },
+  {
+    "checked_at": "2026-06-16T02:07:18Z",
+    "tunnel_url": "https://deals-hunt.onrender.com",
+    "server_up": null,
+    "overall": "degraded",
+    "issues": [
+      "204th+ consecutive blocked run \u2014 egress still denied for deals-hunt.onrender.com"
+    ]
   }
 ]
