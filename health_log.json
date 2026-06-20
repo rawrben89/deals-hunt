@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-20T02:05:00Z",
+  "checked_at": "2026-06-20T03:05:00Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,7 +10,7 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "CONSECUTIVE BLOCKED RUN (16th run) — egress still denied for deals-hunt.onrender.com",
+    "CONSECUTIVE BLOCKED RUN (17th run) — egress still denied for deals-hunt.onrender.com",
     "HTTP 403 host_not_allowed on all /api/* endpoints — Anthropic cloud IPs blocked by network egress policy",
     "PERSISTENT ISSUE: ACTION REQUIRED — In Claude Code web settings -> Environment -> Network Egress, add deals-hunt.onrender.com to the allowlist. See: https://code.claude.com/docs/en/claude-code-on-the-web",
     "All health-check steps (board, command, status, health-report POST) unreachable due to egress block",
