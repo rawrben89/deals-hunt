@@ -2153,6 +2153,101 @@ def get_babykids_deals():
     return deals, errors
 
 
+def get_indigo_deals():
+    import urllib.request
+    import json as _json
+    deals, errors = [], []
+    seen = set()
+    _BABY_TYPES = {
+        "toys & games", "toys", "baby toys", "baby", "kids", "games",
+        "puzzles", "plush", "dolls", "action figures", "building sets",
+        "arts & crafts", "outdoor play",
+    }
+    _BABY_KEYWORDS = {
+        "baby", "infant", "toddler", "nursery", "toy", "puzzle", "kids",
+        "child", "doll", "plush", "lego", "play", "game", "board game",
+        "blocks", "rattle", "teether", "stroller", "crib",
+    }
+    # Try baby-specific collections first, fall back to main sale-clearance
+    slugs = ("indigo-kids-baby", "baby", "kids", "toys", "sale-clearance")
+    for slug in slugs:
+        got_products = False
+        for page in range(1, 4):
+            url = (f"https://www.indigo.ca/collections/{slug}/products.json"
+                   f"?limit=250&page={page}")
+            try:
+                req = urllib.request.Request(url, headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; deals-hunt/1.0)",
+                    "Accept":     "application/json",
+                })
+                data = _json.loads(
+                    urllib.request.urlopen(req, timeout=20).read().decode()
+                )
+                products = data.get("products", [])
+                if not products:
+                    break
+                got_products = True
+                for p in products:
+                    ptype   = p.get("product_type", "").lower()
+                    title   = p.get("title", "").strip()
+                    title_l = title.lower()
+                    tags_l  = " ".join(p.get("tags", [])).lower()
+                    handle  = p.get("handle", "").strip()
+                    if not title or not handle:
+                        continue
+                    is_baby = (
+                        any(k in ptype    for k in _BABY_TYPES) or
+                        any(k in title_l  for k in _BABY_KEYWORDS) or
+                        any(k in tags_l   for k in ("baby", "kids", "toys", "toddler"))
+                    )
+                    if not is_baby:
+                        continue
+                    imgs = p.get("images", [])
+                    img  = imgs[0].get("src", "") if imgs else ""
+                    for v in p.get("variants", []):
+                        try:
+                            cur = float(v.get("price") or 0)
+                            old = float(v.get("compare_at_price") or 0)
+                        except (TypeError, ValueError):
+                            continue
+                        if cur <= 0 or old <= cur:
+                            continue
+                        tid = f"indigo-{handle}-{v.get('id', '')}"
+                        if tid in seen:
+                            continue
+                        seen.add(tid)
+                        save_pct = str(round((old - cur) / old * 100)) + "%"
+                        deals.append({
+                            "source":        "Indigo",
+                            "tid":           tid,
+                            "title":         title,
+                            "brand":         p.get("vendor", "").strip(),
+                            "store":         "Indigo",
+                            "link":          f"https://www.indigo.ca/products/{handle}",
+                            "currentPrice":  f"${cur:.2f}",
+                            "originalPrice": f"${old:.2f}",
+                            "savings":       f"Save ${round(old - cur, 2):.2f}",
+                            "savePct":       save_pct,
+                            "pubDate":       "",
+                            "relTime":       "Clearance",
+                            "votes":         0,
+                            "img":           img,
+                            "category":      "Baby & Kids",
+                            "clearance":     True,
+                            "dropDate":      "",
+                            "validUntil":    "",
+                            "provinces":     ["AB", "BC", "MB", "NB", "NL", "NS",
+                                              "ON", "PE", "QC", "SK"],
+                        })
+                        break
+            except Exception as e:
+                errors.append(f"Indigo {slug} p{page}: {e}")
+                break
+        if got_products:
+            break  # Stop after first working collection
+    return deals, errors
+
+
 _SOURCES = [
     ("walmart",      get_walmart_deals,      "Walmart"),
     ("stocktrack",   get_stocktrack_deals,   "StockTrack"),
@@ -2166,6 +2261,7 @@ _SOURCES = [
     ("bcldb",        get_bcldb_deals,        "BC Liquor Stores"),
     ("camel",        get_camel_deals,        "Amazon"),
     ("babykids",     get_babykids_deals,     "BabyKids"),
+    ("indigo",       get_indigo_deals,       "Indigo"),
 ]
 
 
