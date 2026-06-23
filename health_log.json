@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-06-23T13:08:35.000000Z",
+  "checked_at": "2026-06-23T14:07:00.000000Z",
   "tunnel_url": "https://deals-hunt.onrender.com",
   "server_up": null,
   "deals_fresh": null,
@@ -10,7 +10,7 @@
   "command_executed": null,
   "board_sent": [],
   "issues": [
-    "CONSECUTIVE BLOCKED RUN (81st run) — egress still denied for deals-hunt.onrender.com",
+    "CONSECUTIVE BLOCKED RUN (82nd run) — egress still denied for deals-hunt.onrender.com",
     "HTTP 403 host_not_allowed on all /api/* endpoints — Anthropic cloud IPs blocked by network egress policy",
     "PERSISTENT ISSUE: ACTION REQUIRED — In Claude Code web settings -> Environment -> Network Egress, add deals-hunt.onrender.com to the allowlist. See: https://code.claude.com/docs/en/claude-code-on-the-web",
     "Health report written directly to health_log.json in repo as workaround — cannot reach /api/health-report endpoint"
